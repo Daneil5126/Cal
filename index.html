@@ -23,6 +23,7 @@
         .manual-rate-row { background: #fff3e0; border-radius: 50px; padding: 6px 18px; margin: 8px 0 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between; border: 1px solid #ffd7a0; }
         .manual-rate-input { width: 110px; text-align: center; padding: 6px; border: 1px solid #ffcd94; border-radius: 40px; background: #fff7e8; font-family: monospace; }
         .apply-manual-btn { background: #d68b2c; border: none; color: white; padding: 5px 12px; border-radius: 40px; cursor: pointer; font-size: 0.75rem; }
+        .reset-auto-btn { background: #3a6b5b; border: none; color: white; padding: 5px 12px; border-radius: 40px; cursor: pointer; font-size: 0.75rem; margin-left: 5px; }
         .manual-note { font-size: 0.6rem; color: #b87a2a; }
         .plus-area { display: flex; align-items: center; gap: 12px; background: white; border-radius: 60px; padding: 6px 16px; border: 1px solid #e0ecf5; flex: 1; justify-content: space-between; }
         .plus-input { width: 100px; text-align: center; padding: 6px; border: 1px solid #cddfea; border-radius: 40px; font-size: 0.9rem; font-family: monospace; background: #fef7e0; }
@@ -58,7 +59,7 @@
 <body>
 <div class="calculator" id="app">
     <div class="header">
-        <div><span class="title" id="mainTitle">📊 Product Calculator</span><span class="version" id="versionText"> v6.1</span></div>
+        <div><span class="title" id="mainTitle">📊 Product Calculator</span><span class="version" id="versionText"> v6.2</span></div>
         <div class="datetime" id="datetimeDisplay">--</div>
         <div class="lang-switch">
             <button class="lang-btn active" data-lang="cn">中文</button>
@@ -85,6 +86,7 @@
         <span id="manualLabel">✏️ 手动输入汇率 (MYR/USD)</span>
         <input type="text" id="manualRateInput" class="manual-rate-input" inputmode="decimal" placeholder="例如 4.0465">
         <button id="applyManualBtn" class="apply-manual-btn">📌 应用并保存</button>
+        <button id="resetAutoBtn" class="reset-auto-btn">🔄 恢复自动汇率</button>
         <span class="manual-note" id="manualNote">离线时可用，将覆盖自动获取值</span>
     </div>
 
@@ -115,7 +117,7 @@
     <button id="clearBtn" class="action-btn">🗑️ <span id="clearText">一键清除</span></button>
     <div id="errorMsg" class="error-msg"></div>
     <div class="footer">
-        <span id="versionInfo">v6.1 · 离线存储 + 手动覆盖汇率</span><br>
+        <span id="versionInfo">💡 提示：汇率会自动</span><br>
         <span id="footerHint" class="calibration-note">💡 提示：汇率会自动保存，离线时仍可用；也可手动修改并保存。</span>
     </div>
 </div>
@@ -125,7 +127,7 @@
     const langMap = {
         cn: {
             pageTitle: "Product Calculator | OFFLINE",
-            mainTitle: "📊 Product Calculator", versionText: " v6.1", liveLabel: "USD/MYR 基准汇率",
+            mainTitle: "📊 Product Calculator", versionText: " v6.2", liveLabel: "USD/MYR 基准汇率",
             plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 (基准+加成) :",
             formulaLabel: "📐 公式：", formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -133,19 +135,21 @@
             priceLabel: "🏷️ 预期售价 (MYR)", step1Label: "FOB ÷ SST (USD) :", step2Label: "× 汇率后 :", step3Label: "÷ Freight :",
             landingLabel: "📦 Landing Cost (向上取整)", gpLabelText: "📊 毛利率 (基于售价)", profitLabel: "💵 毛利额 :", clearText: "一键清除",
             errorGp: "❌ GP% 除数不能为0或负数", errorFreight: "❌ Freight 除数不能为0或负数", errorDiv: "❌ 除数不能为零",
-            errorRate: "❌ 应用汇率无效 (≤0)", fetchErr: "⚠️ 网络失败，使用本地存储汇率", hintFob: "💡 请输入FOB金额开始计算",
+            errorRate: "❌ 应用汇率无效 (≤0)", fetchErr: "⚠️ 网络失败，使用本地存储汇率", 
+            hintFob: "Powered By Daneil.G.CS",   // 修改为指定文字
             clearOk: "✅ 已重置所有输入", footerHint: "💡 提示：汇率会自动保存，离线时仍可用；也可手动修改并保存。",
             loading: "获取中...", datePrefix: "📅 ", marketRate: "在线汇率", cacheMsg: "📦 使用本地存储汇率",
             refreshBtn: "🔄 刷新汇率", 
             freightHintPrefix: "增加成本 ≈ ", gpHintPrefix: "毛利率 ≈ ", percent: "%",
             manualLabel: "✏️ 手动输入汇率 (MYR/USD)", manualNote: "离线时可用，将覆盖自动获取值",
             applyManual: "📌 应用并保存",
+            resetAuto: "🔄 恢复自动汇率",
             sourceManual: "✏️ 手动设定",
-            versionInfo: "v6.1 · 离线存储 + 手动覆盖汇率"
+            versionInfo: "💡 提示：汇率会自动"
         },
         en: {
             pageTitle: "Product Calculator | Offline Ready",
-            mainTitle: "📊 Product Calculator", versionText: " v6.1", liveLabel: "USD/MYR Base Rate",
+            mainTitle: "📊 Product Calculator", versionText: " v6.2", liveLabel: "USD/MYR Base Rate",
             plusLabel: "➕ Markup", appliedRateLabel: "💱 Final Rate (Base+Markup) :",
             formulaLabel: "📐 Formula: ", formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -153,15 +157,17 @@
             priceLabel: "🏷️ Selling Price (MYR)", step1Label: "FOB ÷ SST (USD) :", step2Label: "× Rate :", step3Label: "÷ Freight :",
             landingLabel: "📦 Landing Cost (Ceil)", gpLabelText: "📊 Gross Margin (based on price)", profitLabel: "💵 Gross Profit :", clearText: "Clear All",
             errorGp: "❌ GP divisor cannot be 0 or negative", errorFreight: "❌ Freight divisor cannot be 0 or negative", errorDiv: "❌ Divisor cannot be zero",
-            errorRate: "❌ Applied rate invalid (≤0)", fetchErr: "⚠️ Network failed, using stored rate", hintFob: "💡 Enter FOB amount",
+            errorRate: "❌ Applied rate invalid (≤0)", fetchErr: "⚠️ Network failed, using stored rate", 
+            hintFob: "💡 Enter FOB amount",
             clearOk: "✅ Cleared", footerHint: "💡 Tip: Rate saved locally; manual override also works offline.",
             loading: "Loading...", datePrefix: "📅 ", marketRate: "Live rate", cacheMsg: "📦 Using stored rate",
             refreshBtn: "🔄 Refresh Rate",
             freightHintPrefix: "Cost increase ≈ ", gpHintPrefix: "Gross margin ≈ ", percent: "%",
             manualLabel: "✏️ Manual Rate (MYR/USD)", manualNote: "Overrides auto-fetch, works offline",
             applyManual: "📌 Apply & Save",
+            resetAuto: "🔄 Reset to Auto",
             sourceManual: "✏️ Manual",
-            versionInfo: "v6.1 · Offline storage + manual override"
+            versionInfo: "💡 Tip: Rate auto-saves"
         }
     };
     let curLang = 'cn';
@@ -197,6 +203,7 @@
     const pageTitleElem = document.getElementById('pageTitle');
     const manualRateInput = document.getElementById('manualRateInput');
     const applyManualBtn = document.getElementById('applyManualBtn');
+    const resetAutoBtn = document.getElementById('resetAutoBtn');
     const manualNoteSpan = document.getElementById('manualNote');
 
     // ==================== 全局变量 ====================
@@ -228,9 +235,8 @@
     function saveCachedRate(rate, isManual = false) {
         if (isManual) {
             localStorage.setItem('manualBaseRate', rate.toFixed(4));
-            localStorage.removeItem('cachedBaseRate'); // 手动覆盖后清除自动缓存标记
+            localStorage.removeItem('cachedBaseRate');
         } else {
-            // 如果已经存在手动值，则不再覆盖手动值
             if (!localStorage.getItem('manualBaseRate')) {
                 localStorage.setItem('cachedBaseRate', rate.toFixed(4));
             }
@@ -247,6 +253,21 @@
         updateAppliedRateDisplay();
         compute();
         return true;
+    }
+
+    // 清除手动设置，恢复自动获取
+    async function resetToAuto() {
+        localStorage.removeItem('manualBaseRate');
+        // 重新加载缓存（如果有自动缓存则使用，否则使用默认）
+        if (!loadStoredRate()) {
+            currentBaseRate = 3.97;
+            liveRateSpan.innerText = currentBaseRate.toFixed(4);
+            sourceHintSpan.innerText = t('cacheMsg');
+        }
+        // 立即重新获取在线汇率（会覆盖自动缓存）
+        await refreshRateAndUI();
+        // 清空手动输入框
+        manualRateInput.value = '';
     }
 
     // ---------- 原有函数（保留全部）----------
@@ -301,6 +322,7 @@
         document.getElementById('sstOpt2').innerText = t('sstOpt2');
         manualNoteSpan.innerText = t('manualNote');
         applyManualBtn.innerText = t('applyManual');
+        resetAutoBtn.innerText = t('resetAuto');
         document.getElementById('manualLabel').innerText = t('manualLabel');
 
         updateFreightHint();
@@ -309,7 +331,6 @@
         footerHintSpan.innerText = t('footerHint');
         errorDiv.innerText = lastSystemError || lastUserHint || '';
         updateDateTime();
-        // 刷新汇率来源显示（如果当前是手动模式则保持手动标识）
         if (localStorage.getItem('manualBaseRate') && sourceHintSpan.innerText !== t('sourceManual')) {
             sourceHintSpan.innerText = t('sourceManual');
         }
@@ -341,7 +362,6 @@
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             if (data.success && typeof data.rate === 'number' && data.rate > 0) {
-                // 只有未手动覆盖时，才更新自动缓存
                 if (!localStorage.getItem('manualBaseRate')) {
                     currentBaseRate = data.rate;
                     saveCachedRate(currentBaseRate, false);
@@ -350,7 +370,6 @@
                     liveDateSpan.innerText = t('datePrefix') + dateStr;
                     sourceHintSpan.innerText = t('marketRate');
                 } else {
-                    // 如果有手动值，仅更新显示但不改变 currentBaseRate
                     liveDateSpan.innerText = t('datePrefix') + new Date().toLocaleString();
                     sourceHintSpan.innerText = t('sourceManual');
                 }
@@ -361,9 +380,8 @@
             }
         } catch (err) {
             console.warn('Worker fetch failed', err);
-            // 离线：使用本地存储的值（已在 loadStoredRate 中处理）
             if (!loadStoredRate()) {
-                // 连存储都没有，保持原有 currentBaseRate（默认 3.97）
+                // 保持原有 currentBaseRate
             }
             liveRateSpan.innerText = currentBaseRate.toFixed(4);
             liveDateSpan.innerText = t('datePrefix') + (lastFetchTime ? lastFetchTime.toLocaleString() : t('loading'));
@@ -457,8 +475,11 @@
         }
 
         if (!lastSystemError) {
-            if (fob === 0 && parseFloat(fobInput.value.replace(/,/g, '')) === 0) lastUserHint = t('hintFob');
-            else lastUserHint = '';
+            if (fob === 0 && parseFloat(fobInput.value.replace(/,/g, '')) === 0) {
+                lastUserHint = t('hintFob');   // 显示 "Powered By Daneil.G.CS"
+            } else {
+                lastUserHint = '';
+            }
             updateErrorDisplay();
         } else {
             updateErrorDisplay();
@@ -544,6 +565,7 @@
             setManualRate(val);
             manualRateInput.value = '';
         });
+        resetAutoBtn.addEventListener('click', () => resetToAuto());
         document.querySelectorAll('.lang-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 setLanguage(btn.dataset.lang);
@@ -555,10 +577,8 @@
 
     async function init() {
         bindEvents();
-        // 先加载本地存储的汇率（如果存在）
         loadStoredRate();
         updateUI();
-        // 尝试在线获取（会更新存储但不会覆盖手动设置）
         await refreshRateAndUI();
         compute();
         updateFreightHint();
