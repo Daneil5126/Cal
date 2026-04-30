@@ -3,355 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>成本利润计算器 V3.7 | 实时汇率模拟 Maybank</title>
+    <title>成本利润计算器 V5.3 | 市场中间价 + 手动溢价</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            background: #f0f4f9;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .calculator {
-            max-width: 580px;
-            width: 100%;
-            background: white;
-            border-radius: 48px;
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            padding: 24px 20px 28px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eef2f8;
-        }
-        .title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #1e6f4c, #2b8c5e);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-        .version {
-            font-size: 0.7rem;
-            background: #edf2f7;
-            padding: 3px 10px;
-            border-radius: 40px;
-        }
-        .datetime {
-            font-size: 0.7rem;
-            font-family: monospace;
-            background: #f0f2f5;
-            padding: 4px 12px;
-            border-radius: 30px;
-            text-align: center;
-        }
-        .lang-switch {
-            display: flex;
-            gap: 6px;
-            background: #f1f5f9;
-            padding: 3px;
-            border-radius: 40px;
-        }
-        .lang-btn {
-            border: none;
-            background: transparent;
-            font-size: 0.8rem;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: 0.1s;
-            color: #2d5f4a;
-        }
-        .lang-btn.active {
-            background: #2b8c5e;
-            color: white;
-        }
-        .rate-panel {
-            background: linear-gradient(112deg, #eef4fc 0%, #f9fbfe 100%);
-            border-radius: 32px;
-            padding: 16px 18px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .rate-card {
-            background: white;
-            border-radius: 28px;
-            padding: 10px 14px;
-            flex: 2;
-            min-width: 140px;
-            border: 1px solid #e4edf5;
-        }
-        .rate-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #5d7f9e;
-            margin-bottom: 4px;
-        }
-        .rate-number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #1f4a6e;
-            font-family: monospace;
-        }
-        .rate-date {
-            font-size: 0.6rem;
-            color: #7c9bc0;
-            margin-top: 4px;
-        }
-        .plus-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: white;
-            border-radius: 60px;
-            padding: 6px 16px;
-            border: 1px solid #e0ecf5;
-            flex: 1;
-            justify-content: space-between;
-        }
-        .plus-input {
-            width: 80px;
-            text-align: center;
-            padding: 6px;
-            border: 1px solid #cddfea;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            font-family: monospace;
-            background: #fef7e0;
-        }
-        .refresh-btn {
-            background: #2b8c5e;
-            border: none;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 60px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .applied-rate-row {
-            background: #eceff5;
-            border-radius: 50px;
-            padding: 8px 18px;
-            margin: 12px 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .applied-label {
-            font-weight: 600;
-            color: #2f5b70;
-        }
-        .applied-value {
-            font-weight: 800;
-            font-family: monospace;
-            font-size: 1.2rem;
-            color: #1f6f4a;
-        }
-        .formula-banner {
-            background: #eaedf4;
-            border-radius: 28px;
-            padding: 6px 12px;
-            text-align: center;
-            font-size: 0.7rem;
-            margin-bottom: 20px;
-            color: #336b91;
-        }
-        .formula-banner code {
-            background: #1e2f3e;
-            color: #f0bd6c;
-            padding: 2px 8px;
-            border-radius: 30px;
-        }
-        .input-row {
-            background: #fbfdfe;
-            border-radius: 60px;
-            border: 1px solid #e2ecf5;
-            padding: 6px 18px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .input-label {
-            width: 130px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #1f4a6e;
-        }
-        .input-field {
-            flex: 1;
-            padding: 12px 6px;
-            border: none;
-            background: transparent;
-            font-size: 1rem;
-            font-family: monospace;
-            outline: none;
-            inputmode: decimal;
-        }
-        .radio-group {
-            display: flex;
-            gap: 12px;
-            flex: 1;
-            padding: 6px 0;
-        }
-        .radio-group label {
-            background: #f3f9fe;
-            border: 1px solid #dee9f2;
-            padding: 5px 16px;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-        .small-hint {
-            background: #e4f3ec;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.65rem;
-            color: #226b49;
-            margin-left: 8px;
-        }
-        .result-card {
-            background: #f4f9fe;
-            border-radius: 32px;
-            padding: 16px;
-            margin: 20px 0 12px;
-        }
-        .result-line {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e1ecf5;
-        }
-        .final-cost {
-            background: #1e3a2f;
-            border-radius: 28px;
-            padding: 12px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 12px 0;
-        }
-        .final-number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #f5d371;
-            font-family: monospace;
-        }
-        .gp-card {
-            background: #2b5e7a;
-            border-radius: 28px;
-            padding: 12px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.1s;
-        }
-        .gp-card.negative {
-            background: #8b1e1e;
-            animation: pulse-red 0.6s infinite;
-        }
-        @keyframes pulse-red {
-            0% { background: #8b1e1e; }
-            50% { background: #cb2e2e; }
-            100% { background: #8b1e1e; }
-        }
-        .gp-value {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #ffeaac;
-            font-family: monospace;
-        }
-        .badge {
-            background: #ff6b5c;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        .action-btn {
-            background: #1a2e3f;
-            border: none;
-            color: white;
-            width: 100%;
-            padding: 14px;
-            border-radius: 80px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin-top: 12px;
-            cursor: pointer;
-        }
-        .error-msg {
-            text-align: center;
-            font-size: 0.7rem;
-            margin-top: 12px;
-            padding: 6px;
-            border-radius: 50px;
-            background: #fff2e6;
-            color: #cb6e2e;
-        }
-        .footer {
-            font-size: 0.6rem;
-            text-align: center;
-            color: #8da3bb;
-            margin-top: 20px;
-        }
-        .source-badge {
-            font-size: 0.55rem;
-            background: #e1e9f0;
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 20px;
-            margin-top: 4px;
-        }
-        .calibration-hint {
-            font-size: 0.65rem;
-            color: #5d7f9e;
-            text-align: center;
-            margin-top: 5px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        @media (max-width: 550px) {
-            .input-label { width: 100%; margin-bottom: 4px; }
-            .input-row { flex-direction: column; align-items: stretch; }
-            .rate-number { font-size: 1.2rem; }
-            .plus-area { width: 100%; margin-top: 8px; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #f0f4f9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .calculator { max-width: 580px; width: 100%; background: white; border-radius: 48px; box-shadow: 0 25px 45px -12px rgba(0,0,0,0.25); overflow: hidden; padding: 24px 20px 28px; }
+        .header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #eef2f8; }
+        .title { font-size: 1.6rem; font-weight: 700; background: linear-gradient(135deg, #1e6f4c, #2b8c5e); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .version { font-size: 0.7rem; background: #edf2f7; padding: 3px 10px; border-radius: 40px; }
+        .datetime { font-size: 0.7rem; font-family: monospace; background: #f0f2f5; padding: 4px 12px; border-radius: 30px; text-align: center; }
+        .lang-switch { display: flex; gap: 6px; background: #f1f5f9; padding: 3px; border-radius: 40px; }
+        .lang-btn { border: none; background: transparent; font-size: 0.8rem; font-weight: 600; padding: 6px 14px; border-radius: 40px; cursor: pointer; transition: 0.1s; color: #2d5f4a; }
+        .lang-btn.active { background: #2b8c5e; color: white; }
+        .rate-panel { background: linear-gradient(112deg, #eef4fc 0%, #f9fbfe 100%); border-radius: 32px; padding: 16px 18px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+        .rate-card { background: white; border-radius: 28px; padding: 10px 14px; flex: 2; min-width: 140px; border: 1px solid #e4edf5; }
+        .rate-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #5d7f9e; margin-bottom: 4px; }
+        .rate-number { font-size: 1.5rem; font-weight: 800; color: #1f4a6e; font-family: monospace; }
+        .rate-date { font-size: 0.6rem; color: #7c9bc0; margin-top: 4px; }
+        .plus-area { display: flex; align-items: center; gap: 12px; background: white; border-radius: 60px; padding: 6px 16px; border: 1px solid #e0ecf5; flex: 1; justify-content: space-between; }
+        .plus-input { width: 100px; text-align: center; padding: 6px; border: 1px solid #cddfea; border-radius: 40px; font-size: 0.9rem; font-family: monospace; background: #fef7e0; }
+        .refresh-btn { background: #2b8c5e; border: none; color: white; padding: 6px 14px; border-radius: 60px; font-weight: 600; cursor: pointer; }
+        .applied-rate-row { background: #eceff5; border-radius: 50px; padding: 8px 18px; margin: 12px 0 20px; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+        .applied-label { font-weight: 600; color: #2f5b70; }
+        .applied-value { font-weight: 800; font-family: monospace; font-size: 1.2rem; color: #1f6f4a; }
+        .formula-banner { background: #eaedf4; border-radius: 28px; padding: 6px 12px; text-align: center; font-size: 0.7rem; margin-bottom: 20px; color: #336b91; }
+        .formula-banner code { background: #1e2f3e; color: #f0bd6c; padding: 2px 8px; border-radius: 30px; }
+        .input-row { background: #fbfdfe; border-radius: 60px; border: 1px solid #e2ecf5; padding: 6px 18px; margin-bottom: 12px; display: flex; align-items: center; flex-wrap: wrap; }
+        .input-label { width: 130px; font-weight: 600; font-size: 0.85rem; color: #1f4a6e; }
+        .input-field { flex: 1; padding: 12px 6px; border: none; background: transparent; font-size: 1rem; font-family: monospace; outline: none; inputmode: decimal; }
+        .radio-group { display: flex; gap: 12px; flex: 1; padding: 6px 0; }
+        .radio-group label { background: #f3f9fe; border: 1px solid #dee9f2; padding: 5px 16px; border-radius: 40px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        .small-hint { background: #e4f3ec; padding: 4px 12px; border-radius: 30px; font-size: 0.65rem; color: #226b49; margin-left: 8px; }
+        .result-card { background: #f4f9fe; border-radius: 32px; padding: 16px; margin: 20px 0 12px; }
+        .result-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e1ecf5; }
+        .final-cost { background: #1e3a2f; border-radius: 28px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
+        .final-number { font-size: 1.5rem; font-weight: 800; color: #f5d371; font-family: monospace; }
+        .gp-card { background: #2b5e7a; border-radius: 28px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; }
+        .gp-card.negative { background: #8b1e1e; animation: pulse-red 0.6s infinite; }
+        @keyframes pulse-red { 0% { background: #8b1e1e; } 50% { background: #cb2e2e; } 100% { background: #8b1e1e; } }
+        .gp-value { font-size: 1.4rem; font-weight: 800; color: #ffeaac; font-family: monospace; }
+        .badge { background: #ff6b5c; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: bold; margin-left: 10px; }
+        .action-btn { background: #1a2e3f; border: none; color: white; width: 100%; padding: 14px; border-radius: 80px; font-weight: 700; font-size: 0.9rem; margin-top: 12px; cursor: pointer; }
+        .error-msg { text-align: center; font-size: 0.7rem; margin-top: 12px; padding: 6px; border-radius: 50px; background: #fff2e6; color: #cb6e2e; }
+        .footer { font-size: 0.6rem; text-align: center; color: #8da3bb; margin-top: 20px; }
+        .source-badge { font-size: 0.55rem; background: #e1e9f0; display: inline-block; padding: 2px 6px; border-radius: 20px; margin-top: 4px; }
+        .calibration-note { font-size: 0.65rem; color: #6c8faa; text-align: center; margin-top: 8px; }
+        @media (max-width: 550px) { .input-label { width: 100%; margin-bottom: 4px; } .input-row { flex-direction: column; align-items: stretch; } .rate-number { font-size: 1.2rem; } .plus-area { width: 100%; margin-top: 8px; } }
     </style>
 </head>
 <body>
 <div class="calculator" id="app">
     <div class="header">
-        <div><span class="title" id="mainTitle">📊 成本利润计算器</span><span class="version" id="versionText"> v3.7</span></div>
+        <div><span class="title" id="mainTitle">📊 成本利润计算器</span><span class="version" id="versionText"> v5.3</span></div>
         <div class="datetime" id="datetimeDisplay">--</div>
         <div class="lang-switch">
             <button class="lang-btn active" data-lang="cn">中文</button>
@@ -361,10 +64,10 @@
 
     <div class="rate-panel">
         <div class="rate-card">
-            <div class="rate-label" id="liveLabel">USD/MYR 实时模拟</div>
+            <div class="rate-label" id="liveLabel">USD/MYR 汇率</div>
             <div class="rate-number" id="liveRateValue">--</div>
             <div class="rate-date" id="liveDate">获取中...</div>
-            <div class="source-badge" id="sourceHint">💡 Frankfurter + 固定溢价</div>
+            <div class="source-badge" id="sourceHint">加载中...</div>
         </div>
         <div class="plus-area">
             <span id="plusLabel">➕ 额外加成</span>
@@ -374,14 +77,11 @@
     </div>
 
     <div class="applied-rate-row">
-        <span class="applied-label" id="appliedRateLabel">💱 最终应用汇率 (MYR/USD) :</span>
+        <span class="applied-label" id="appliedRateLabel">💱 最终应用汇率 :</span>
         <span class="applied-value" id="appliedRateValue">0.0000</span>
     </div>
 
-    <div class="formula-banner">
-        <span id="formulaLabel">📐 公式：</span>
-        <code id="formulaCode">Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP</code>
-    </div>
+    <div class="formula-banner"><span id="formulaLabel">📐 公式：</span><code id="formulaCode">Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP</code></div>
 
     <div class="input-group">
         <div class="input-row"><span class="input-label" id="fobLabel">💰 FOB (USD)</span><input type="text" id="fobInput" class="input-field" inputmode="decimal" value="0.00"></div>
@@ -403,68 +103,84 @@
     <button id="clearBtn" class="action-btn">🗑️ <span id="clearText">一键清除</span></button>
     <div id="errorMsg" class="error-msg"></div>
     <div class="footer">
-        <span id="versionInfo">v3.7 · 汇率源: Frankfurter + 固定溢价 (实时跟随市场) · 自动刷新10分钟</span><br>
-        📌 若 Maybank 点差变动，可手动调整 Worker 中的 MAYBANK_SPREAD 变量
+        <span id="versionInfo">v5.3 · 汇率源: Worker (市场中间价) + 手动加成</span><br>
+        <span class="calibration-note">💡 提示：如需模拟银行卖出价，请在“额外加成”中输入溢价 (例如 0.0765)</span>
     </div>
 </div>
 
 <script>
-    // ========== 多语言词库 ==========
+    // ==================== 多语言词库 ====================
     const langMap = {
         cn: {
-            mainTitle: "📊 成本利润计算器", versionText: " v3.7", liveLabel: "USD/MYR 实时模拟",
-            plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 (MYR/USD) :",
+            mainTitle: "📊 成本利润计算器", versionText: " v5.3", liveLabel: "USD/MYR 汇率",
+            plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 :",
             formulaLabel: "📐 公式：", formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
             freightLabel: "🚢 Freight (除数)", freightHint: "例:0.97", gpLabel: "📈 GP% 除数", gpHint: "例:0.97→约3%毛利",
             priceLabel: "🏷️ 预期售价 (MYR)", step1Label: "FOB ÷ SST (USD) :", step2Label: "× 汇率后 :", step3Label: "÷ Freight :",
             landingLabel: "📦 Landing Cost (向上取整)", gpLabelText: "📊 毛利率 (基于售价)", profitLabel: "💵 毛利额 :", clearText: "一键清除",
             errorGp: "❌ GP% 除数不能为0或负数", errorFreight: "❌ Freight 除数不能为0或负数", errorDiv: "❌ 除数不能为零",
-            errorRate: "❌ 应用汇率无效 (≤0)", fetchErr: "⚠️ 汇率服务异常，使用缓存值", hintFob: "💡 请输入FOB金额开始计算",
+            errorRate: "❌ 应用汇率无效 (≤0)", fetchErr: "⚠️ 获取汇率失败", hintFob: "💡 请输入FOB金额开始计算",
             clearOk: "✅ 已重置所有输入"
         },
         en: {
-            mainTitle: "📊 Cost & Profit Calculator", versionText: " v3.7", liveLabel: "USD/MYR Simulated",
-            plusLabel: "➕ Markup", appliedRateLabel: "💱 Applied Rate (MYR/USD) :",
+            mainTitle: "📊 Cost & Profit Calculator", versionText: " v5.3", liveLabel: "USD/MYR Rate",
+            plusLabel: "➕ Markup", appliedRateLabel: "💱 Final Rate :",
             formulaLabel: "📐 Formula: ", formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
             freightLabel: "🚢 Freight (Divisor)", freightHint: "e.g., 0.97", gpLabel: "📈 GP% Divisor", gpHint: "e.g., 0.97 → ~3% margin",
             priceLabel: "🏷️ Selling Price (MYR)", step1Label: "FOB ÷ SST (USD) :", step2Label: "× Rate :", step3Label: "÷ Freight :",
             landingLabel: "📦 Landing Cost (Ceil)", gpLabelText: "📊 Gross Margin (based on price)", profitLabel: "💵 Gross Profit :", clearText: "Clear All",
             errorGp: "❌ GP divisor cannot be 0 or negative", errorFreight: "❌ Freight divisor cannot be 0 or negative", errorDiv: "❌ Divisor cannot be zero",
-            errorRate: "❌ Applied rate invalid (≤0)", fetchErr: "⚠️ Rate service error, using cached", hintFob: "💡 Enter FOB amount",
+            errorRate: "❌ Applied rate invalid (≤0)", fetchErr: "⚠️ Failed to fetch rate", hintFob: "💡 Enter FOB amount",
             clearOk: "✅ Cleared"
         }
     };
     let curLang = 'cn';
     function t(key) { return langMap[curLang][key] || key; }
 
-    // DOM elements
-    const fobInput = document.getElementById('fobInput'), freightInput = document.getElementById('freightInput'), gpInput = document.getElementById('gpInput');
+    // ==================== DOM 元素 ====================
+    const fobInput = document.getElementById('fobInput');
+    const freightInput = document.getElementById('freightInput');
+    const gpInput = document.getElementById('gpInput');
     const sellingPrice = document.getElementById('sellingPrice');
     const markupInput = document.getElementById('markupInput');
-    const refreshBtn = document.getElementById('refreshBtn'), clearBtn = document.getElementById('clearBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const clearBtn = document.getElementById('clearBtn');
     const sstRadios = document.querySelectorAll('input[name="sst"]');
-    const liveRateSpan = document.getElementById('liveRateValue'), liveDateSpan = document.getElementById('liveDate');
+    const liveRateSpan = document.getElementById('liveRateValue');
+    const liveDateSpan = document.getElementById('liveDate');
     const appliedRateSpan = document.getElementById('appliedRateValue');
-    const step1Span = document.getElementById('step1Val'), step2Span = document.getElementById('step2Val'), step3Span = document.getElementById('step3Val');
-    const landingSpan = document.getElementById('landingVal'), gpPercentSpan = document.getElementById('gpPercent'), profitSpan = document.getElementById('profitAmount');
-    const gpCard = document.getElementById('gpCard'), warningIcon = document.getElementById('warningIcon'), errorDiv = document.getElementById('errorMsg');
+    const step1Span = document.getElementById('step1Val');
+    const step2Span = document.getElementById('step2Val');
+    const step3Span = document.getElementById('step3Val');
+    const landingSpan = document.getElementById('landingVal');
+    const gpPercentSpan = document.getElementById('gpPercent');
+    const profitSpan = document.getElementById('profitAmount');
+    const gpCard = document.getElementById('gpCard');
+    const warningIcon = document.getElementById('warningIcon');
+    const errorDiv = document.getElementById('errorMsg');
     const datetimeSpan = document.getElementById('datetimeDisplay');
     const sourceHintSpan = document.getElementById('sourceHint');
 
-    // ==================== 用户配置区域 ====================
-    // 请修改为您自己的 Worker 地址（如果尚未部署，可以使用下面的默认模拟地址，但建议部署自己的 Worker）
-    const WORKER_URL = 'https://liverate.daneil5126.workers.dev';  // ← 改成您实际部署的 Worker 地址
-    // ===================================================
+    // ==================== 配置 ====================
+    const WORKER_URL = 'https://liverate.daneilgoh.workers.dev';  // 您的 Worker 地址
 
-    let currentBaseRate = 4.0395;      // 初始值（备用）
+    let currentBaseRate = 3.97;
     let lastSystemError = '', lastUserHint = '';
     let autoRefreshTimer = null;
     let lastFetchTime = null;
 
-    function formatMoney(v) { let n = Number(v); if (!isFinite(n)) return "0.00"; return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-    function parseMoney(s) { let num = Number(String(s).replace(/,/g, '')); return isFinite(num) ? num : 0; }
+    // ==================== 辅助函数 ====================
+    function formatMoney(v) {
+        let n = Number(v);
+        if (!isFinite(n)) return "0.00";
+        return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    function parseMoney(s) {
+        let num = Number(String(s).replace(/,/g, ''));
+        return isFinite(num) ? num : 0;
+    }
 
     function updateDateTime() {
         const now = new Date();
@@ -500,8 +216,8 @@
         else errorDiv.innerText = '';
     }
 
-    // 从 Worker 获取汇率（Worker 内部已实现 Frankfurter + 固定溢价）
-    async function fetchRateFromWorker() {
+    // 从 Worker 获取市场中间价
+    async function fetchMarketRate() {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -514,25 +230,25 @@
                 liveRateSpan.innerText = currentBaseRate.toFixed(4);
                 const dateStr = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : new Date().toLocaleString();
                 liveDateSpan.innerText = `📅 ${dateStr}`;
-                sourceHintSpan.innerHTML = `💡 ${data.source || 'Frankfurter + 固定溢价'} · 实时`;
+                // 🔥 修改这里：只显示 "Market Rate"
+                sourceHintSpan.innerHTML = `Market Rate`;
                 lastSystemError = '';
                 return true;
             } else {
-                throw new Error(data.error || '无效汇率');
+                throw new Error(data.error || '无效数据');
             }
         } catch (err) {
             console.warn('Worker 请求失败:', err);
-            // 保留当前缓存汇率，不覆盖
             liveRateSpan.innerText = currentBaseRate.toFixed(4);
             liveDateSpan.innerText = `📅 上次更新: ${lastFetchTime ? lastFetchTime.toLocaleString() : '从未'}`;
-            sourceHintSpan.innerHTML = `⚠️ 连接失败, 使用上次汇率 (${currentBaseRate.toFixed(4)})`;
+            sourceHintSpan.innerHTML = `⚠️ 连接失败, 使用缓存`;
             if (!lastSystemError) lastSystemError = t('fetchErr');
             return false;
         }
     }
 
     async function refreshRateAndUI() {
-        const success = await fetchRateFromWorker();
+        const success = await fetchMarketRate();
         lastFetchTime = new Date();
         updateAppliedRateDisplay();
         compute();
@@ -541,8 +257,12 @@
         updateErrorDisplay();
     }
 
-    function getSST() { for (let r of sstRadios) if (r.checked) return parseFloat(r.value); return 0.95; }
+    function getSST() {
+        for (let r of sstRadios) if (r.checked) return parseFloat(r.value);
+        return 0.95;
+    }
 
+    // 核心计算逻辑
     function compute() {
         let fob = parseMoney(fobInput.value);
         let sst = getSST();
@@ -595,7 +315,7 @@
         }
         if (margin > 1000) margin = 999.99;
         if (margin < -1000) margin = -999.99;
-        
+
         gpPercentSpan.innerText = margin.toFixed(2) + '%';
         profitSpan.innerText = formatMoney(gross) + ' MYR';
 
@@ -616,9 +336,7 @@
         }
     }
 
-    async function refreshAll() {
-        await refreshRateAndUI();
-    }
+    async function refreshAll() { await refreshRateAndUI(); }
 
     function clearAll() {
         fobInput.value = formatMoney(0);
@@ -639,16 +357,33 @@
     }
 
     function bindMoneyField(inp) {
-        inp.addEventListener('blur', () => { let num = parseMoney(inp.value); inp.value = formatMoney(num); compute(); });
-        inp.addEventListener('focus', () => { let num = parseMoney(inp.value); inp.value = num.toFixed(2); });
+        inp.addEventListener('blur', () => {
+            let num = parseMoney(inp.value);
+            inp.value = formatMoney(num);
+            compute();
+        });
+        inp.addEventListener('focus', () => {
+            let num = parseMoney(inp.value);
+            inp.value = num.toFixed(2);
+        });
         inp.value = formatMoney(parseMoney(inp.value));
     }
+
     function bindPositiveNumberField(inp) {
-        inp.addEventListener('blur', () => { let v = parseFloat(inp.value); if (isNaN(v) || v <= 0) v = 0.97; inp.value = v; compute(); });
+        inp.addEventListener('blur', () => {
+            let v = parseFloat(inp.value);
+            if (isNaN(v) || v <= 0) v = 0.97;
+            inp.value = v;
+            compute();
+        });
         inp.addEventListener('input', compute);
     }
 
-    function setLanguage(lang) { curLang = lang; updateUI(); compute(); }
+    function setLanguage(lang) {
+        curLang = lang;
+        updateUI();
+        compute();
+    }
 
     function bindEvents() {
         bindMoneyField(fobInput);
@@ -663,11 +398,13 @@
         sstRadios.forEach(r => r.addEventListener('change', compute));
         refreshBtn.addEventListener('click', () => refreshAll());
         clearBtn.addEventListener('click', clearAll);
-        document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => {
-            setLanguage(btn.dataset.lang);
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }));
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setLanguage(btn.dataset.lang);
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
     }
 
     async function init() {
