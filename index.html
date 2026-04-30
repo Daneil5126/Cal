@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>成本利润计算器 | 手动汇率</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: #f0f4f9;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .calculator {
+            max-width: 580px;
+            width: 100%;
+            background: white;
+            border-radius: 48px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            padding: 24px 20px 28px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f8;
+        }
+        .title-area {
+            flex: 1;
+            white-space: nowrap;
+            overflow-x: auto;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e6f4c, #2b8c5e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+        .version {
+            font-size: 0.7rem;
+            background: #edf2f7;
+            padding: 3px 10px;
+            border-radius: 40px;
+            white-space: nowrap;
+        }
+        .right-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .datetime {
+            font-size: 0.7rem;
+            font-family: monospace;
+            background: #f0f2f5;
+            padding: 4px 12px;
+            border-radius: 30px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .lang-switch {
+            display: flex;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 40px;
+            flex-shrink: 0;
+        }
+        .lang-btn {
+            border: none;
+            background: transparent;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.1s;
+            color: #2d5f4a;
+        }
+        .lang-btn.active {
+            background: #2b8c5e;
+            color: white;
+        }
+        .rate-panel {
+            background: linear-gradient(112deg, #eef4fc 0%, #f9fbfe 100%);
+            border-radius: 32px;
+            padding: 16px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rate-card {
+            background: white;
+            border-radius: 28px;
+            padding: 10px 14px;
+            flex: 2;
+            min-width: 140px;
+            border: 1px solid #e4edf5;
+        }
+        .rate-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #5d7f9e;
+            margin-bottom: 4px;
+        }
+        .rate-input {
+            width: 100%;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1f4a6e;
+            font-family: monospace;
+            border: 1px solid #cddfea;
+            border-radius: 40px;
+            padding: 8px 12px;
+            text-align: center;
+            background: #fff;
+        }
+        .plus-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            border-radius: 60px;
+            padding: 6px 16px;
+            border: 1px solid #e0ecf5;
+            flex: 1;
+            justify-content: space-between;
+        }
+        .plus-input {
+            width: 80px;
+            text-align: center;
+            padding: 6px;
+            border: 1px solid #cddfea;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-family: monospace;
+            background: #fef7e0;
+        }
+        .applied-rate-row {
+            background: #eceff5;
+            border-radius: 50px;
+            padding: 8px 18px;
+            margin: 12px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .applied-label {
+            font-weight: 600;
+            color: #2f5b70;
+        }
+        .applied-value {
+            font-weight: 800;
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: #1f6f4a;
+        }
+        .formula-banner {
+            background: #eaedf4;
+            border-radius: 28px;
+            padding: 6px 12px;
+            text-align: center;
+            font-size: 0.7rem;
+            margin-bottom: 20px;
+            color: #336b91;
+        }
+        .formula-banner code { background: #1e2f3e; color: #f0bd6c; padding: 2px 8px; border-radius: 30px; }
+        .input-row {
+            background: #fbfdfe;
+            border-radius: 60px;
+            border: 1px solid #e2ecf5;
+            padding: 6px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .input-label {
+            width: 130px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1f4a6e;
+        }
+        .input-field {
+            flex: 1;
+            padding: 12px 6px;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-family: monospace;
+            outline: none;
+            inputmode: decimal;
+        }
+        .radio-group {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+            padding: 6px 0;
+        }
+        .radio-group label {
+            background: #f3f9fe;
+            border: 1px solid #dee9f2;
+            padding: 5px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .small-hint {
+            background: #e4f3ec;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            color: #226b49;
+            margin-left: 8px;
+        }
+        .result-card {
+            background: #f4f9fe;
+            border-radius: 32px;
+            padding: 16px;
+            margin: 20px 0 12px;
+        }
+        .result-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1ecf5;
+        }
+        .final-cost {
+            background: #1e3a2f;
+            border-radius: 28px;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+        }
+        .final-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #f5d371;
+            font-family: monospace;
+        }
+        .gp-card {
+            background: #2b5e7a;
+            border-radius: 28px;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.1s;
+        }
+        .gp-card.negative {
+            background: #8b1e1e;
+            animation: pulse-red 0.6s infinite;
+        }
+        @keyframes pulse-red {
+            0% { background: #8b1e1e; }
+            50% { background: #cb2e2e; }
+            100% { background: #8b1e1e; }
+        }
+        .gp-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffeaac;
+            font-family: monospace;
+        }
+        .badge {
+            background: #ff6b5c;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .action-btn {
+            background: #1a2e3f;
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 14px;
+            border-radius: 80px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+        .error-msg {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 12px;
+            padding: 6px;
+            border-radius: 50px;
+            background: #fff2e6;
+            color: #cb6e2e;
+        }
+        .footer {
+            font-size: 0.6rem;
+            text-align: center;
+            color: #8da3bb;
+            margin-top: 20px;
+        }
+        @media (max-width: 550px) {
+            .input-label { width: 100%; margin-bottom: 4px; }
+            .input-row { flex-direction: column; align-items: stretch; }
+            .rate-number { font-size: 1.2rem; }
+            .plus-area { width: 100%; margin-top: 8px; }
+            .title { font-size: 1.2rem; }
+            .datetime { font-size: 0.6rem; padding: 2px 8px; }
+            .lang-btn { padding: 4px 10px; font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="calculator" id="app">
+    <div class="header">
+        <div class="title-area">
+            <span class="title" id="mainTitle">📊 成本利润计算器</span>
+            <span class="version" id="versionText"> v3.7</span>
+        </div>
+        <div class="right-group">
+            <div class="datetime" id="datetimeDisplay">--</div>
+            <div class="lang-switch">
+                <button class="lang-btn" data-lang="cn">中文</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手动汇率牌价 + 可调加成 -->
+    <div class="rate-panel">
+        <div class="rate-card">
+            <div class="rate-label" id="liveLabel">Rate USD/MYR (手动)</div>
+            <input type="text" id="manualRateInput" class="rate-input" inputmode="decimal" placeholder="" value="">
+        </div>
+        <div class="plus-area">
+            <span id="plusLabel">+</span>
+            <input type="text" id="markupInput" class="plus-input" inputmode="decimal" placeholder="" value="">
+        </div>
+    </div>
+
+    <!-- 应用汇率 -->
+    <div class="applied-rate-row">
+        <span class="applied-label" id="appliedRateLabel">💱 应用汇率 (MYR/USD) :</span>
+        <span class="applied-value" id="appliedRateValue">0.0000</span>
+    </div>
+
+    <div class="formula-banner"><span id="formulaLabel">📐 公式：</span><code id="formulaCode">Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP</code></div>
+
+    <!-- 输入区 -->
+    <div class="input-group">
+        <div class="input-row"><span class="input-label" id="fobLabel">💰 FOB (USD)</span><input type="text" id="fobInput" class="input-field" inputmode="decimal" value="0.00"></div>
+        <div class="input-row"><span class="input-label" id="sstLabel">🧾 SST/VAT Tax</span><div class="radio-group" id="sstGroup"><label><input type="radio" name="sst" value="0.95" checked> <span id="sstOpt1">0.95 (5%)</span></label><label><input type="radio" name="sst" value="0.90"> <span id="sstOpt2">0.90 (10%)</span></label></div></div>
+        <div class="input-row"><span class="input-label" id="freightLabel">🚢 Freight</span><input type="text" id="freightInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="freightHint">除数</div></div>
+        <div class="input-row"><span class="input-label" id="gpLabel">📈 GP%</span><input type="text" id="gpInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="gpHint">除数</div></div>
+        <div class="input-row"><span class="input-label" id="priceLabel">🏷️ 预期售价 (MYR)</span><input type="text" id="sellingPrice" class="input-field" inputmode="decimal" value="0.00"></div>
+    </div>
+
+    <!-- 结果区 -->
+    <div class="result-card">
+        <div class="result-line"><span id="step1Label">FOB ÷ SST (USD) :</span><span id="step1Val">$0.00</span></div>
+        <div class="result-line"><span id="step2Label">× 汇率后 :</span><span id="step2Val">0.00 MYR</span></div>
+        <div class="result-line"><span id="step3Label">÷ Freight :</span><span id="step3Val">0.00 MYR</span></div>
+    </div>
+    <div class="final-cost"><span id="landingLabel">📦 Landing Cost</span><span id="landingVal" class="final-number">0.00 MYR</span></div>
+    <div id="gpCard" class="gp-card"><span id="gpLabelText">📊 毛利率</span><div style="display: flex; align-items: center;"><span id="gpPercent" class="gp-value">0.00%</span><span id="warningIcon" class="badge" style="display: none;">⚠️</span></div></div>
+    <div class="result-line" style="background: transparent; padding: 8px 0; border: none;"><span id="profitLabel">💵 毛利额 :</span><span id="profitAmount">0.00 MYR</span></div>
+    
+    <button id="clearBtn" class="action-btn">🗑️ <span id="clearText">一键清除</span></button>
+    <div id="errorMsg" class="error-msg"></div>
+    <div class="footer">
+        <span id="versionInfo">v3.7 · 手动汇率 · 完全双语 · 一键清除</span><br>
+        📱 手机运行：保存为 .html 用浏览器打开
+    </div>
+</div>
+
+<script>
+    // ==================== 完全双语库 ====================
+    const langMap = {
+        cn: {
+            mainTitle: "📊 成本利润计算器",
+            versionText: " v3.7",
+            liveLabel: "Rate USD/MYR (手动)",
+            plusLabel: "+",
+            appliedRateLabel: "💱 应用汇率 (MYR/USD) :",
+            formulaLabel: "📐 公式：",
+            formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
+            fobLabel: "💰 FOB (USD)",
+            sstLabel: "🧾 SST/VAT Tax",
+            sstOpt1: "0.95 (5%)",
+            sstOpt2: "0.90 (10%)",
+            freightLabel: "🚢 Freight",
+            freightHint: "除数",
+            gpLabel: "📈 GP%",
+            gpHint: "除数",
+            priceLabel: "🏷️ 预期售价 (MYR)",
+            step1Label: "FOB ÷ SST (USD) :",
+            step2Label: "× 汇率后 :",
+            step3Label: "÷ Freight :",
+            landingLabel: "📦 Landing Cost",
+            gpLabelText: "📊 毛利率",
+            profitLabel: "💵 毛利额 :",
+            clearText: "一键清除",
+            versionInfo: "v3.7 · 手动汇率 · 完全双语 · 一键清除",
+            ratePlaceholder: "输入汇率",
+            markupPlaceholder: "加成",
+            errorGp: "❌ GP% 不能为0",
+            errorFreight: "❌ Freight 不能为0",
+            errorDiv: "❌ 除数不能为零",
+            errorRateEmpty: "❌ 请输入汇率",
+            errorRateInvalid: "❌ 应用汇率无效（<=0）",
+            hintFob: "💡 请输入FOB金额",
+            clearOk: "✅ 已清除所有输入数值"
+        },
+        en: {
+            mainTitle: "📊 Cost & Profit Calculator",
+            versionText: " v3.7",
+            liveLabel: "Rate USD/MYR (Manual)",
+            plusLabel: "+",
+            appliedRateLabel: "💱 Applied Rate (MYR/USD) :",
+            formulaLabel: "📐 Formula: ",
+            formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
+            fobLabel: "💰 FOB (USD)",
+            sstLabel: "🧾 SST/VAT Tax",
+            sstOpt1: "0.95 (5%)",
+            sstOpt2: "0.90 (10%)",
+            freightLabel: "🚢 Freight",
+            freightHint: "Divisor",
+            gpLabel: "📈 GP%",
+            gpHint: "Divisor",
+            priceLabel: "🏷️ Selling Price (MYR)",
+            step1Label: "FOB ÷ SST (USD) :",
+            step2Label: "× Rate :",
+            step3Label: "÷ Freight :",
+            landingLabel: "📦 Landing Cost",
+            gpLabelText: "📊 GP Margin",
+            profitLabel: "💵 Gross Profit :",
+            clearText: "Clear All",
+            versionInfo: "v3.7 · Manual Rate · Full Bilingual · Clear All",
+            ratePlaceholder: "Enter rate",
+            markupPlaceholder: "Markup",
+            errorGp: "❌ GP% cannot be 0",
+            errorFreight: "❌ Freight cannot be 0",
+            errorDiv: "❌ Divisor cannot be zero",
+            errorRateEmpty: "❌ Please enter a rate",
+            errorRateInvalid: "❌ Applied rate is invalid (<=0)",
+            hintFob: "💡 Enter FOB amount",
+            clearOk: "✅ All values cleared"
+        }
+    };
+
+    let curLang = 'cn';
+    function t(key) { return langMap[curLang][key] || key; }
+
+    // DOM 元素
+    const fobInput = document.getElementById('fobInput'), freightInput = document.getElementById('freightInput'), gpInput = document.getElementById('gpInput');
+    const sellingPrice = document.getElementById('sellingPrice');
+    const manualRateInput = document.getElementById('manualRateInput');
+    const markupInput = document.getElementById('markupInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const sstRadios = document.querySelectorAll('input[name="sst"]');
+    const appliedRateSpan = document.getElementById('appliedRateValue');
+    const step1Span = document.getElementById('step1Val'), step2Span = document.getElementById('step2Val'), step3Span = document.getElementById('step3Val');
+    const landingSpan = document.getElementById('landingVal'), gpPercentSpan = document.getElementById('gpPercent'), profitSpan = document.getElementById('profitAmount');
+    const gpCard = document.getElementById('gpCard'), warningIcon = document.getElementById('warningIcon'), errorDiv = document.getElementById('errorMsg');
+    const datetimeSpan = document.getElementById('datetimeDisplay');
+    const langBtns = document.querySelectorAll('.lang-btn');
+
+    let lastSystemError = '', lastUserHint = '';
+
+    // 辅助函数
+    function formatMoney(v) { let n = Number(v); if (!isFinite(n)) return "0.00"; return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+    function parseMoney(s) { let num = Number(String(s).replace(/,/g, '')); return isFinite(num) ? num : 0; }
+
+    function updateDateTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        datetimeSpan.innerText = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    function updateUI() {
+        for (let key in langMap[curLang]) {
+            let el = document.getElementById(key);
+            if (el && el.tagName !== 'INPUT') el.innerText = t(key);
+        }
+        manualRateInput.placeholder = t('ratePlaceholder');
+        markupInput.placeholder = t('markupPlaceholder');
+        document.getElementById('freightHint').innerText = t('freightHint');
+        document.getElementById('gpHint').innerText = t('gpHint');
+        errorDiv.innerText = lastSystemError || lastUserHint || '';
+        updateDateTime();
+        langBtns.forEach(btn => {
+            if (btn.getAttribute('data-lang') === curLang) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    function getManualRate() {
+        let raw = manualRateInput.value.trim();
+        if (raw === "") return NaN;
+        let val = parseFloat(raw);
+        return isNaN(val) ? NaN : val;
+    }
+    function getMarkup() {
+        let raw = markupInput.value.trim();
+        if (raw === "") return 0;
+        let val = parseFloat(raw);
+        return isNaN(val) ? 0 : val;
+    }
+    function getAppliedRate() {
+        let manual = getManualRate();
+        if (isNaN(manual)) return NaN;
+        return manual + getMarkup();
+    }
+    function updateAppliedRateDisplay() {
+        let applied = getAppliedRate();
+        if (isNaN(applied)) {
+            appliedRateSpan.innerText = '0.0000';
+            lastSystemError = t('errorRateEmpty');
+            errorDiv.innerText = lastSystemError;
+            return false;
+        } else if (applied <= 0) {
+            appliedRateSpan.innerText = applied.toFixed(4);
+            lastSystemError = t('errorRateInvalid');
+            errorDiv.innerText = lastSystemError;
+            return false;
+        } else {
+            appliedRateSpan.innerText = applied.toFixed(4);
+            if (lastSystemError === t('errorRateEmpty') || lastSystemError === t('errorRateInvalid')) {
+                lastSystemError = '';
+            }
+            updateErrorDisplay();
+            return true;
+        }
+    }
+    function updateErrorDisplay() {
+        if (lastSystemError) errorDiv.innerText = lastSystemError;
+        else if (lastUserHint) errorDiv.innerText = lastUserHint;
+        else errorDiv.innerText = '';
+    }
+    function getSST() { for (let r of sstRadios) if (r.checked) return parseFloat(r.value); return 0.95; }
+
+    function compute() {
+        let fob = parseMoney(fobInput.value);
+        let sst = getSST();
+        let rate = getAppliedRate();
+        let freight = parseFloat(freightInput.value);
+        let gp = parseFloat(gpInput.value);
+        let price = parseMoney(sellingPrice.value);
+        
+        const rateValid = updateAppliedRateDisplay();
+        let errorMsg = '';
+        if (!rateValid) errorMsg = lastSystemError;
+        else if (isNaN(freight) || freight === 0) errorMsg = t('errorFreight');
+        else if (isNaN(gp) || gp === 0) errorMsg = t('errorGp');
+        else if (sst === 0) errorMsg = t('errorDiv');
+        
+        lastSystemError = errorMsg;
+        if (errorMsg) {
+            step1Span.innerText = '$0.00';
+            step2Span.innerText = '0.00 MYR';
+            step3Span.innerText = '0.00 MYR';
+            landingSpan.innerText = '0.00 MYR';
+            gpPercentSpan.innerText = '0.00%';
+            profitSpan.innerText = '0.00 MYR';
+            updateErrorDisplay();
+            return;
+        }
+        const step1 = fob / sst;
+        const step2 = step1 * rate;
+        const step3 = step2 / freight;
+        let landingRaw = step3 / gp;
+        let landing = Math.ceil(landingRaw);
+        step1Span.innerText = '$' + step1.toFixed(2);
+        step2Span.innerText = step2.toFixed(2) + ' MYR';
+        step3Span.innerText = step3.toFixed(2) + ' MYR';
+        landingSpan.innerText = formatMoney(landing) + ' MYR';
+        let gross = 0, margin = 0;
+        if (landing > 0 && price > 0) { gross = price - landing; margin = (gross / landing) * 100; }
+        gpPercentSpan.innerText = margin.toFixed(2) + '%';
+        profitSpan.innerText = formatMoney(gross) + ' MYR';
+        if (margin < 0) { gpCard.classList.add('negative'); warningIcon.style.display = 'inline-block'; }
+        else { gpCard.classList.remove('negative'); warningIcon.style.display = 'none'; }
+        if (!lastSystemError) {
+            if (fob === 0) lastUserHint = t('hintFob');
+            else lastUserHint = '';
+            updateErrorDisplay();
+        } else {
+            updateErrorDisplay();
+        }
+    }
+
+    function clearAll() {
+        fobInput.value = formatMoney(0);
+        sellingPrice.value = formatMoney(0);
+        freightInput.value = '0.97';
+        gpInput.value = '0.97';
+        manualRateInput.value = '';
+        markupInput.value = '';
+        compute();
+        lastUserHint = '';
+        errorDiv.innerText = t('clearOk');
+        setTimeout(() => { if (errorDiv.innerText === t('clearOk')) errorDiv.innerText = lastSystemError || lastUserHint || ''; }, 1800);
+    }
+
+    function bindMoneyField(inp) {
+        inp.addEventListener('blur', () => { let num = parseMoney(inp.value); inp.value = formatMoney(num); compute(); });
+        inp.addEventListener('focus', () => { let num = parseMoney(inp.value); inp.value = num.toFixed(2); });
+        inp.value = formatMoney(parseMoney(inp.value));
+    }
+    function bindNumberField(inp) {
+        inp.addEventListener('blur', () => { let v = parseFloat(inp.value); if (isNaN(v)) v = 0.97; inp.value = v; compute(); });
+    }
+
+    function setLanguage(lang) {
+        curLang = lang;
+        updateUI();
+        compute();
+    }
+
+    function bindEvents() {
+        bindMoneyField(fobInput);
+        bindMoneyField(sellingPrice);
+        bindNumberField(freightInput);
+        bindNumberField(gpInput);
+        manualRateInput.addEventListener('input', compute);
+        markupInput.addEventListener('input', compute);
+        fobInput.addEventListener('input', compute);
+        sellingPrice.addEventListener('input', compute);
+        freightInput.addEventListener('input', compute);
+        gpInput.addEventListener('input', compute);
+        sstRadios.forEach(r => r.addEventListener('change', compute));
+        clearBtn.addEventListener('click', clearAll);
+        langBtns.forEach(btn => btn.addEventListener('click', () => setLanguage(btn.getAttribute('data-lang'))));
+    }
+
+    function init() {
+        bindEvents();
+        setLanguage('cn');
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+    }
+    init();
+</script>
+</body>
+</html>
