@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>成本利润计算器 V5.3 | 市场中间价 + 手动溢价</title>
+    <title>成本利润计算器 | 完全双语动态</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #f0f4f9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
@@ -54,7 +54,7 @@
 <body>
 <div class="calculator" id="app">
     <div class="header">
-        <div><span class="title" id="mainTitle">📊 成本利润计算器</span><span class="version" id="versionText"> v5.3</span></div>
+        <div><span class="title" id="mainTitle">📊 成本利润计算器</span><span class="version" id="versionText"> v5.6</span></div>
         <div class="datetime" id="datetimeDisplay">--</div>
         <div class="lang-switch">
             <button class="lang-btn active" data-lang="cn">中文</button>
@@ -66,8 +66,8 @@
         <div class="rate-card">
             <div class="rate-label" id="liveLabel">USD/MYR 汇率</div>
             <div class="rate-number" id="liveRateValue">--</div>
-            <div class="rate-date" id="liveDate">获取中...</div>
-            <div class="source-badge" id="sourceHint">加载中...</div>
+            <div class="rate-date" id="liveDate">--</div>
+            <div class="source-badge" id="sourceHint">--</div>
         </div>
         <div class="plus-area">
             <span id="plusLabel">➕ 额外加成</span>
@@ -86,8 +86,8 @@
     <div class="input-group">
         <div class="input-row"><span class="input-label" id="fobLabel">💰 FOB (USD)</span><input type="text" id="fobInput" class="input-field" inputmode="decimal" value="0.00"></div>
         <div class="input-row"><span class="input-label" id="sstLabel">🧾 SST/VAT Tax</span><div class="radio-group" id="sstGroup"><label><input type="radio" name="sst" value="0.95" checked> <span id="sstOpt1">0.95 (5%)</span></label><label><input type="radio" name="sst" value="0.90"> <span id="sstOpt2">0.90 (10%)</span></label></div></div>
-        <div class="input-row"><span class="input-label" id="freightLabel">🚢 Freight (除数)</span><input type="text" id="freightInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="freightHint">例:0.97</div></div>
-        <div class="input-row"><span class="input-label" id="gpLabel">📈 GP% 除数</span><input type="text" id="gpInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="gpHint">例:0.97→约3%毛利</div></div>
+        <div class="input-row"><span class="input-label" id="freightLabel">🚢 Freight (除数)</span><input type="text" id="freightInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="freightHint">动态提示</div></div>
+        <div class="input-row"><span class="input-label" id="gpLabel">📈 GP% 除数</span><input type="text" id="gpInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="gpHint">动态提示</div></div>
         <div class="input-row"><span class="input-label" id="priceLabel">🏷️ 预期售价 (MYR)</span><input type="text" id="sellingPrice" class="input-field" inputmode="decimal" value="0.00"></div>
     </div>
 
@@ -103,37 +103,49 @@
     <button id="clearBtn" class="action-btn">🗑️ <span id="clearText">一键清除</span></button>
     <div id="errorMsg" class="error-msg"></div>
     <div class="footer">
-        <span id="versionInfo">v5.3 · 汇率源: Worker (市场中间价) + 手动加成</span><br>
-        <span class="calibration-note">💡 提示：如需模拟银行卖出价，请在“额外加成”中输入溢价 (例如 0.0765)</span>
+        <span id="versionInfo">v5.6 · 汇率源: Worker (市场中间价) + 手动加成</span><br>
+        <span id="footerHint" class="calibration-note">💡 提示：如需模拟银行卖出价，请在“额外加成”中输入溢价 (例如 0.0765)</span>
     </div>
 </div>
 
 <script>
-    // ==================== 多语言词库 ====================
+    // ==================== 完整双语映射（无中文残留）====================
     const langMap = {
         cn: {
-            mainTitle: "📊 成本利润计算器", versionText: " v5.3", liveLabel: "USD/MYR 汇率",
+            mainTitle: "📊 成本利润计算器", versionText: " v5.6", liveLabel: "USD/MYR 汇率",
             plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 :",
             formulaLabel: "📐 公式：", formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
-            freightLabel: "🚢 Freight (除数)", freightHint: "例:0.97", gpLabel: "📈 GP% 除数", gpHint: "例:0.97→约3%毛利",
+            freightLabel: "🚢 Freight (除数)", gpLabel: "📈 GP% 除数",
             priceLabel: "🏷️ 预期售价 (MYR)", step1Label: "FOB ÷ SST (USD) :", step2Label: "× 汇率后 :", step3Label: "÷ Freight :",
             landingLabel: "📦 Landing Cost (向上取整)", gpLabelText: "📊 毛利率 (基于售价)", profitLabel: "💵 毛利额 :", clearText: "一键清除",
             errorGp: "❌ GP% 除数不能为0或负数", errorFreight: "❌ Freight 除数不能为0或负数", errorDiv: "❌ 除数不能为零",
             errorRate: "❌ 应用汇率无效 (≤0)", fetchErr: "⚠️ 获取汇率失败", hintFob: "💡 请输入FOB金额开始计算",
-            clearOk: "✅ 已重置所有输入"
+            clearOk: "✅ 已重置所有输入", footerHint: "💡 提示：如需模拟银行卖出价，请在“额外加成”中输入溢价 (例如 0.0765)",
+            loading: "获取中...", datePrefix: "📅 ", marketRate: "Market Rate", cacheMsg: "⚠️ 连接失败, 使用缓存",
+            versionInfo: "v5.6 · 汇率源: Worker (市场中间价) + 手动加成",
+            refreshBtn: "🔄 刷新汇率",
+            freightHintPrefix: "增加成本 ≈ ",
+            gpHintPrefix: "毛利率 ≈ ",
+            percent: "%"
         },
         en: {
-            mainTitle: "📊 Product Calculator", versionText: " v5.3", liveLabel: "USD/MYR Rate",
+            mainTitle: "📊 Product Calculator", versionText: " v5.6", liveLabel: "USD/MYR Rate",
             plusLabel: "➕ Markup", appliedRateLabel: "💱 Final Rate :",
             formulaLabel: "📐 Formula: ", formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
-            freightLabel: "🚢 Freight (Divisor)", freightHint: "e.g., 0.97", gpLabel: "📈 GP% Divisor", gpHint: "e.g., 0.97 → ~3% margin",
+            freightLabel: "🚢 Freight (Divisor)", gpLabel: "📈 GP% Divisor",
             priceLabel: "🏷️ Selling Price (MYR)", step1Label: "FOB ÷ SST (USD) :", step2Label: "× Rate :", step3Label: "÷ Freight :",
             landingLabel: "📦 Landing Cost (Ceil)", gpLabelText: "📊 Gross Margin (based on price)", profitLabel: "💵 Gross Profit :", clearText: "Clear All",
             errorGp: "❌ GP divisor cannot be 0 or negative", errorFreight: "❌ Freight divisor cannot be 0 or negative", errorDiv: "❌ Divisor cannot be zero",
             errorRate: "❌ Applied rate invalid (≤0)", fetchErr: "⚠️ Failed to fetch rate", hintFob: "💡 Enter FOB amount",
-            clearOk: "✅ Cleared"
+            clearOk: "✅ Cleared", footerHint: "💡 Tip: To simulate bank selling rate, enter spread (e.g., 0.0765) in 'Markup' field.",
+            loading: "Loading...", datePrefix: "📅 ", marketRate: "Market Rate", cacheMsg: "⚠️ Connection failed, using cached",
+            versionInfo: "v5.6 · Rate source: Worker (Mid-Market) + manual markup",
+            refreshBtn: "🔄 Refresh Rate",
+            freightHintPrefix: "Cost increase ≈ ",
+            gpHintPrefix: "Gross margin ≈ ",
+            percent: "%"
         }
     };
     let curLang = 'cn';
@@ -162,16 +174,18 @@
     const errorDiv = document.getElementById('errorMsg');
     const datetimeSpan = document.getElementById('datetimeDisplay');
     const sourceHintSpan = document.getElementById('sourceHint');
+    const footerHintSpan = document.getElementById('footerHint');
+    const versionInfoSpan = document.getElementById('versionInfo');
+    const freightHintSpan = document.getElementById('freightHint');
+    const gpHintSpan = document.getElementById('gpHint');
 
     // ==================== 配置 ====================
-    const WORKER_URL = 'https://liverate.daneilgoh.workers.dev';  // 您的 Worker 地址
-
+    const WORKER_URL = 'https://liverate.daneilgoh.workers.dev';
     let currentBaseRate = 3.97;
     let lastSystemError = '', lastUserHint = '';
     let autoRefreshTimer = null;
     let lastFetchTime = null;
 
-    // ==================== 辅助函数 ====================
     function formatMoney(v) {
         let n = Number(v);
         if (!isFinite(n)) return "0.00";
@@ -188,13 +202,48 @@
         datetimeSpan.innerText = now.toLocaleString(curLang === 'cn' ? 'zh-CN' : 'en-US', options);
     }
 
+    // 更新 Freight 提示：显示 (1/freight - 1)*100%
+    function updateFreightHint() {
+        let freight = parseFloat(freightInput.value);
+        if (isNaN(freight) || freight <= 0) {
+            freightHintSpan.innerText = curLang === 'cn' ? '无效' : 'invalid';
+            return;
+        }
+        let increase = (1 / freight - 1) * 100;
+        freightHintSpan.innerText = t('freightHintPrefix') + increase.toFixed(2) + t('percent');
+    }
+
+    // 更新 GP 提示：显示 (1/gp - 1)*100%
+    function updateGpHint() {
+        let gp = parseFloat(gpInput.value);
+        if (isNaN(gp) || gp <= 0) {
+            gpHintSpan.innerText = curLang === 'cn' ? '无效' : 'invalid';
+            return;
+        }
+        let margin = (1 / gp - 1) * 100;
+        gpHintSpan.innerText = t('gpHintPrefix') + margin.toFixed(2) + t('percent');
+    }
+
     function updateUI() {
+        // 更新所有带 id 的静态元素
         for (let key in langMap[curLang]) {
             let el = document.getElementById(key);
-            if (el && el.tagName !== 'INPUT') el.innerText = t(key);
+            if (el && el.tagName !== 'INPUT' && el.tagName !== 'CODE') {
+                el.innerText = t(key);
+            }
         }
-        document.getElementById('freightHint').innerText = t('freightHint');
-        document.getElementById('gpHint').innerText = t('gpHint');
+        // 单独更新按钮文本（refreshBtn 和 clearBtn 的文本是动态的）
+        refreshBtn.innerText = t('refreshBtn');
+        document.getElementById('clearText').innerText = t('clearText');
+        // 更新 radio 选项文字
+        document.getElementById('sstOpt1').innerText = t('sstOpt1');
+        document.getElementById('sstOpt2').innerText = t('sstOpt2');
+        // 更新动态提示
+        updateFreightHint();
+        updateGpHint();
+        // 更新底部版本和提示
+        versionInfoSpan.innerText = t('versionInfo');
+        footerHintSpan.innerText = t('footerHint');
         errorDiv.innerText = lastSystemError || lastUserHint || '';
         updateDateTime();
     }
@@ -216,7 +265,6 @@
         else errorDiv.innerText = '';
     }
 
-    // 从 Worker 获取市场中间价
     async function fetchMarketRate() {
         try {
             const controller = new AbortController();
@@ -229,19 +277,18 @@
                 currentBaseRate = data.rate;
                 liveRateSpan.innerText = currentBaseRate.toFixed(4);
                 const dateStr = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : new Date().toLocaleString();
-                liveDateSpan.innerText = `📅 ${dateStr}`;
-                // 🔥 修改这里：只显示 "Market Rate"
-                sourceHintSpan.innerHTML = `Market Rate`;
+                liveDateSpan.innerText = t('datePrefix') + dateStr;
+                sourceHintSpan.innerText = t('marketRate');
                 lastSystemError = '';
                 return true;
             } else {
-                throw new Error(data.error || '无效数据');
+                throw new Error(data.error || 'Invalid data');
             }
         } catch (err) {
-            console.warn('Worker 请求失败:', err);
+            console.warn('Worker fetch failed', err);
             liveRateSpan.innerText = currentBaseRate.toFixed(4);
-            liveDateSpan.innerText = `📅 上次更新: ${lastFetchTime ? lastFetchTime.toLocaleString() : '从未'}`;
-            sourceHintSpan.innerHTML = `⚠️ 连接失败, 使用缓存`;
+            liveDateSpan.innerText = t('datePrefix') + (lastFetchTime ? lastFetchTime.toLocaleString() : t('loading'));
+            sourceHintSpan.innerText = t('cacheMsg');
             if (!lastSystemError) lastSystemError = t('fetchErr');
             return false;
         }
@@ -262,7 +309,6 @@
         return 0.95;
     }
 
-    // 核心计算逻辑
     function compute() {
         let fob = parseMoney(fobInput.value);
         let sst = getSST();
@@ -345,6 +391,8 @@
         gpInput.value = '0.97';
         markupInput.value = '0.00';
         compute();
+        updateFreightHint();
+        updateGpHint();
         lastUserHint = '';
         errorDiv.innerText = t('clearOk');
         setTimeout(() => {
@@ -369,14 +417,20 @@
         inp.value = formatMoney(parseMoney(inp.value));
     }
 
-    function bindPositiveNumberField(inp) {
+    function bindPositiveNumberField(inp, isFreight = false, isGp = false) {
         inp.addEventListener('blur', () => {
             let v = parseFloat(inp.value);
             if (isNaN(v) || v <= 0) v = 0.97;
             inp.value = v;
+            if (isFreight) updateFreightHint();
+            if (isGp) updateGpHint();
             compute();
         });
-        inp.addEventListener('input', compute);
+        inp.addEventListener('input', () => {
+            if (isFreight) updateFreightHint();
+            if (isGp) updateGpHint();
+            compute();
+        });
     }
 
     function setLanguage(lang) {
@@ -388,13 +442,13 @@
     function bindEvents() {
         bindMoneyField(fobInput);
         bindMoneyField(sellingPrice);
-        bindPositiveNumberField(freightInput);
-        bindPositiveNumberField(gpInput);
+        bindPositiveNumberField(freightInput, true, false);
+        bindPositiveNumberField(gpInput, false, true);
         markupInput.addEventListener('input', compute);
         fobInput.addEventListener('input', compute);
         sellingPrice.addEventListener('input', compute);
-        freightInput.addEventListener('input', compute);
-        gpInput.addEventListener('input', compute);
+        freightInput.addEventListener('input', () => { updateFreightHint(); compute(); });
+        gpInput.addEventListener('input', () => { updateGpHint(); compute(); });
         sstRadios.forEach(r => r.addEventListener('change', compute));
         refreshBtn.addEventListener('click', () => refreshAll());
         clearBtn.addEventListener('click', clearAll);
@@ -409,9 +463,11 @@
 
     async function init() {
         bindEvents();
+        updateUI();            // 先设置语言界面
         await refreshRateAndUI();
-        updateUI();
         compute();
+        updateFreightHint();
+        updateGpHint();
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         autoRefreshTimer = setInterval(async () => {
             const activeEl = document.activeElement;
