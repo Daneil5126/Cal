@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title id="pageTitle">Product Calculator | Offline</title>
+    <title id="pageTitle">成本利润计算器 | 离线可用</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #f0f4f9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
@@ -49,17 +49,17 @@
         .gp-value { font-size: 1.4rem; font-weight: 800; color: #ffeaac; font-family: monospace; }
         .badge { background: #ff6b5c; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: bold; margin-left: 10px; }
         .action-btn { background: #1a2e3f; border: none; color: white; width: 100%; padding: 14px; border-radius: 80px; font-weight: 700; font-size: 0.9rem; margin-top: 12px; cursor: pointer; }
-        .error-msg { text-align: center; font-size: 0.7rem; margin-top: 12px; padding: 6px; border-radius: 50px; background: #fff2e6; color: #cb6e2e; }
-        .footer { font-size: 0.6rem; text-align: center; color: #8da3bb; margin-top: 20px; }
+        .error-msg { text-align: center; font-size: 0.7rem; margin-top: 12px; padding: 6px; border-radius: 50px; background: #fff2e6; color: #cb6e2e; min-height: 36px; }
+        .footer { font-size: 0.6rem; text-align: center; color: #8da3bb; margin-top: 20px; border-top: 1px solid #eef2f8; padding-top: 12px; }
         .source-badge { font-size: 0.55rem; background: #e1e9f0; display: inline-block; padding: 2px 6px; border-radius: 20px; margin-top: 4px; }
-        .calibration-note { font-size: 0.65rem; color: #6c8faa; text-align: center; margin-top: 8px; }
+        .powered { margin-top: 8px; font-size: 0.65rem; color: #5d7f9e; }
         @media (max-width: 550px) { .input-label { width: 100%; margin-bottom: 4px; } .input-row { flex-direction: column; align-items: stretch; } .manual-rate-row { flex-direction: column; align-items: stretch; } .plus-area { width: 100%; margin-top: 8px; } }
     </style>
 </head>
 <body>
 <div class="calculator" id="app">
     <div class="header">
-        <div><span class="title" id="mainTitle">📊 Product Calculator</span><span class="version" id="versionText"> v6.3</span></div>
+        <div><span class="title" id="mainTitle">📊 成本利润计算器</span><span class="version" id="versionText"> v6.4</span></div>
         <div class="datetime" id="datetimeDisplay">--</div>
         <div class="lang-switch">
             <button class="lang-btn active" data-lang="cn">中文</button>
@@ -84,7 +84,7 @@
     <!-- 手动汇率覆盖区域 -->
     <div class="manual-rate-row">
         <span id="manualLabel">✏️ 手动输入汇率 (MYR/USD)</span>
-        <input type="text" id="manualRateInput" class="manual-rate-input" inputmode="decimal" placeholder="例如 4.0465">
+        <input type="text" id="manualRateInput" class="manual-rate-input" inputmode="decimal" placeholder="例如 4.0465" step="0.0001">
         <button id="applyManualBtn" class="apply-manual-btn">📌 应用并保存</button>
         <button id="resetAutoBtn" class="reset-auto-btn">🔄 恢复自动汇率</button>
         <span class="manual-note" id="manualNote">离线时可用，将覆盖自动获取值</span>
@@ -117,7 +117,8 @@
     <button id="clearBtn" class="action-btn">🗑️ <span id="clearText">一键清除</span></button>
     <div id="errorMsg" class="error-msg"></div>
     <div class="footer">
-        <span id="versionInfo">💡 提示：汇率会自动</span>
+        <div id="versionInfo">💡 提示：汇率会自动</div>
+        <div class="powered" id="poweredBy">Powered By Daneil.G.CS</div>
     </div>
 </div>
 
@@ -125,8 +126,8 @@
     // ==================== 完整双语映射 ====================
     const langMap = {
         cn: {
-            pageTitle: "Product Calculator | OFFLINE",
-            mainTitle: "📊 Product Calculator", versionText: " v6.3", liveLabel: "USD/MYR 基准汇率",
+            pageTitle: "成本利润计算器 | 离线可用",
+            mainTitle: "📊 成本利润计算器", versionText: " v6.4", liveLabel: "USD/MYR 基准汇率",
             plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 (基准+加成) :",
             formulaLabel: "📐 公式：", formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -135,7 +136,6 @@
             landingLabel: "📦 Landing Cost (向上取整)", gpLabelText: "📊 毛利率 (基于售价)", profitLabel: "💵 毛利额 :", clearText: "一键清除",
             errorGp: "❌ GP% 除数不能为0或负数", errorFreight: "❌ Freight 除数不能为0或负数", errorDiv: "❌ 除数不能为零",
             errorRate: "❌ 应用汇率无效 (≤0)", fetchErr: "⚠️ 网络失败，使用本地存储汇率", 
-            hintFob: "Powered By Daneil.G.CS",
             clearOk: "✅ 已重置所有输入",
             loading: "获取中...", datePrefix: "📅 ", marketRate: "在线汇率", cacheMsg: "📦 使用本地存储汇率",
             refreshBtn: "🔄 刷新汇率", 
@@ -144,11 +144,12 @@
             applyManual: "📌 应用并保存",
             resetAuto: "🔄 恢复自动汇率",
             sourceManual: "✏️ 手动设定",
-            versionInfo: "💡 提示：汇率会自动"
+            versionInfo: "💡 提示：汇率会自动",
+            poweredBy: "Powered By Daneil.G.CS"
         },
         en: {
-            pageTitle: "Product Calculator | Offline Ready",
-            mainTitle: "📊 Product Calculator", versionText: " v6.3", liveLabel: "USD/MYR Base Rate",
+            pageTitle: "Cost & Profit Calculator | Offline Ready",
+            mainTitle: "📊 Cost & Profit Calculator", versionText: " v6.4", liveLabel: "USD/MYR Base Rate",
             plusLabel: "➕ Markup", appliedRateLabel: "💱 Final Rate (Base+Markup) :",
             formulaLabel: "📐 Formula: ", formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -157,7 +158,6 @@
             landingLabel: "📦 Landing Cost (Ceil)", gpLabelText: "📊 Gross Margin (based on price)", profitLabel: "💵 Gross Profit :", clearText: "Clear All",
             errorGp: "❌ GP divisor cannot be 0 or negative", errorFreight: "❌ Freight divisor cannot be 0 or negative", errorDiv: "❌ Divisor cannot be zero",
             errorRate: "❌ Applied rate invalid (≤0)", fetchErr: "⚠️ Network failed, using stored rate", 
-            hintFob: "Powered By Daneil.G.CS",
             clearOk: "✅ Cleared",
             loading: "Loading...", datePrefix: "📅 ", marketRate: "Live rate", cacheMsg: "📦 Using stored rate",
             refreshBtn: "🔄 Refresh Rate",
@@ -166,7 +166,8 @@
             applyManual: "📌 Apply & Save",
             resetAuto: "🔄 Reset to Auto",
             sourceManual: "✏️ Manual",
-            versionInfo: "💡 Tip: Rate auto-saves"
+            versionInfo: "💡 Tip: Rate auto-saves",
+            poweredBy: "Powered By Daneil.G.CS"
         }
     };
     let curLang = 'cn';
@@ -196,6 +197,7 @@
     const datetimeSpan = document.getElementById('datetimeDisplay');
     const sourceHintSpan = document.getElementById('sourceHint');
     const versionInfoSpan = document.getElementById('versionInfo');
+    const poweredBySpan = document.getElementById('poweredBy');
     const freightHintSpan = document.getElementById('freightHint');
     const gpHintSpan = document.getElementById('gpHint');
     const pageTitleElem = document.getElementById('pageTitle');
@@ -241,8 +243,8 @@
 
     function setManualRate(rate) {
         if (isNaN(rate) || rate <= 0) return false;
-        currentBaseRate = rate;
-        saveCachedRate(rate, true);
+        currentBaseRate = parseFloat(rate.toFixed(4));
+        saveCachedRate(currentBaseRate, true);
         liveRateSpan.innerText = currentBaseRate.toFixed(4);
         liveDateSpan.innerText = t('datePrefix') + new Date().toLocaleString();
         sourceHintSpan.innerText = t('sourceManual');
@@ -304,7 +306,7 @@
         for (let key in langMap[curLang]) {
             let el = document.getElementById(key);
             if (el && el.tagName !== 'INPUT' && el.tagName !== 'CODE') {
-                if (el.id === 'manualNote') continue;
+                if (el.id === 'manualNote' || el.id === 'poweredBy') continue;
                 el.innerText = t(key);
             }
         }
@@ -316,11 +318,12 @@
         applyManualBtn.innerText = t('applyManual');
         resetAutoBtn.innerText = t('resetAuto');
         document.getElementById('manualLabel').innerText = t('manualLabel');
+        versionInfoSpan.innerText = t('versionInfo');
+        poweredBySpan.innerText = t('poweredBy');
 
         updateFreightHint();
         updateGpHint();
-        versionInfoSpan.innerText = t('versionInfo');
-        errorDiv.innerText = lastSystemError || lastUserHint || '';
+        errorDiv.innerText = lastSystemError || '';
         updateDateTime();
         if (localStorage.getItem('manualBaseRate') && sourceHintSpan.innerText !== t('sourceManual')) {
             sourceHintSpan.innerText = t('sourceManual');
@@ -340,7 +343,6 @@
 
     function updateErrorDisplay() {
         if (lastSystemError) errorDiv.innerText = lastSystemError;
-        else if (lastUserHint) errorDiv.innerText = lastUserHint;
         else errorDiv.innerText = '';
     }
 
@@ -444,15 +446,23 @@
             margin = (gross / landing) * 100;
         } else if (price > 0 && landing === 0) {
             gross = price;
-            margin = 999.99;
+            margin = NaN;  // 无意义
         } else if (landing > 0 && price <= 0) {
             gross = -landing;
             margin = -100;
+        } else {
+            margin = 0;
+            gross = 0;
         }
-        if (margin > 1000) margin = 999.99;
-        if (margin < -1000) margin = -999.99;
-
-        gpPercentSpan.innerText = margin.toFixed(2) + '%';
+        
+        // 处理无意义毛利率显示为 N/A
+        if (isNaN(margin) || !isFinite(margin)) {
+            gpPercentSpan.innerText = 'N/A';
+        } else {
+            if (margin > 1000) margin = 999.99;
+            if (margin < -1000) margin = -999.99;
+            gpPercentSpan.innerText = margin.toFixed(2) + '%';
+        }
         profitSpan.innerText = formatMoney(gross) + ' MYR';
 
         if (margin < -0.01) {
@@ -464,12 +474,9 @@
         }
 
         if (!lastSystemError) {
-            if (fob === 0 && parseFloat(fobInput.value.replace(/,/g, '')) === 0) {
-                lastUserHint = t('hintFob');
-            } else {
-                lastUserHint = '';
-            }
-            updateErrorDisplay();
+            // 清空错误提示，品牌信息已移到 footer
+            lastUserHint = '';
+            errorDiv.innerText = '';
         } else {
             updateErrorDisplay();
         }
@@ -491,7 +498,6 @@
         setTimeout(() => {
             if (errorDiv.innerText === t('clearOk')) {
                 if (lastSystemError) errorDiv.innerText = lastSystemError;
-                else if (lastUserHint) errorDiv.innerText = lastUserHint;
                 else errorDiv.innerText = '';
             }
         }, 2000);
