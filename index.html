@@ -59,7 +59,7 @@
 <body>
 <div class="calculator" id="app">
     <div class="header">
-        <div><span class="title" id="mainTitle">📊 Product Calculator</span><span class="version" id="versionText"> v6.2</span></div>
+        <div><span class="title" id="mainTitle">📊 Product Calculator</span><span class="version" id="versionText"> v6.3</span></div>
         <div class="datetime" id="datetimeDisplay">--</div>
         <div class="lang-switch">
             <button class="lang-btn active" data-lang="cn">中文</button>
@@ -117,17 +117,16 @@
     <button id="clearBtn" class="action-btn">🗑️ <span id="clearText">一键清除</span></button>
     <div id="errorMsg" class="error-msg"></div>
     <div class="footer">
-        <span id="versionInfo">💡 提示：汇率会自动</span><br>
-        <span id="footerHint" class="calibration-note">💡 提示：汇率会自动保存，离线时仍可用；也可手动修改并保存。</span>
+        <span id="versionInfo">💡 提示：汇率会自动</span>
     </div>
 </div>
 
 <script>
-    // ==================== 完整双语映射（包含新增手动汇率模块）====================
+    // ==================== 完整双语映射 ====================
     const langMap = {
         cn: {
             pageTitle: "Product Calculator | OFFLINE",
-            mainTitle: "📊 Product Calculator", versionText: " v6.2", liveLabel: "USD/MYR 基准汇率",
+            mainTitle: "📊 Product Calculator", versionText: " v6.3", liveLabel: "USD/MYR 基准汇率",
             plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 (基准+加成) :",
             formulaLabel: "📐 公式：", formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -136,8 +135,8 @@
             landingLabel: "📦 Landing Cost (向上取整)", gpLabelText: "📊 毛利率 (基于售价)", profitLabel: "💵 毛利额 :", clearText: "一键清除",
             errorGp: "❌ GP% 除数不能为0或负数", errorFreight: "❌ Freight 除数不能为0或负数", errorDiv: "❌ 除数不能为零",
             errorRate: "❌ 应用汇率无效 (≤0)", fetchErr: "⚠️ 网络失败，使用本地存储汇率", 
-            hintFob: "Powered By Daneil.G.CS",   // 修改为指定文字
-            clearOk: "✅ 已重置所有输入", footerHint: "💡 提示：汇率会自动保存，离线时仍可用；也可手动修改并保存。",
+            hintFob: "Powered By Daneil.G.CS",
+            clearOk: "✅ 已重置所有输入",
             loading: "获取中...", datePrefix: "📅 ", marketRate: "在线汇率", cacheMsg: "📦 使用本地存储汇率",
             refreshBtn: "🔄 刷新汇率", 
             freightHintPrefix: "增加成本 ≈ ", gpHintPrefix: "毛利率 ≈ ", percent: "%",
@@ -149,7 +148,7 @@
         },
         en: {
             pageTitle: "Product Calculator | Offline Ready",
-            mainTitle: "📊 Product Calculator", versionText: " v6.2", liveLabel: "USD/MYR Base Rate",
+            mainTitle: "📊 Product Calculator", versionText: " v6.3", liveLabel: "USD/MYR Base Rate",
             plusLabel: "➕ Markup", appliedRateLabel: "💱 Final Rate (Base+Markup) :",
             formulaLabel: "📐 Formula: ", formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -158,8 +157,8 @@
             landingLabel: "📦 Landing Cost (Ceil)", gpLabelText: "📊 Gross Margin (based on price)", profitLabel: "💵 Gross Profit :", clearText: "Clear All",
             errorGp: "❌ GP divisor cannot be 0 or negative", errorFreight: "❌ Freight divisor cannot be 0 or negative", errorDiv: "❌ Divisor cannot be zero",
             errorRate: "❌ Applied rate invalid (≤0)", fetchErr: "⚠️ Network failed, using stored rate", 
-            hintFob: "💡 Enter FOB amount",
-            clearOk: "✅ Cleared", footerHint: "💡 Tip: Rate saved locally; manual override also works offline.",
+            hintFob: "Powered By Daneil.G.CS",
+            clearOk: "✅ Cleared",
             loading: "Loading...", datePrefix: "📅 ", marketRate: "Live rate", cacheMsg: "📦 Using stored rate",
             refreshBtn: "🔄 Refresh Rate",
             freightHintPrefix: "Cost increase ≈ ", gpHintPrefix: "Gross margin ≈ ", percent: "%",
@@ -196,7 +195,6 @@
     const errorDiv = document.getElementById('errorMsg');
     const datetimeSpan = document.getElementById('datetimeDisplay');
     const sourceHintSpan = document.getElementById('sourceHint');
-    const footerHintSpan = document.getElementById('footerHint');
     const versionInfoSpan = document.getElementById('versionInfo');
     const freightHintSpan = document.getElementById('freightHint');
     const gpHintSpan = document.getElementById('gpHint');
@@ -208,21 +206,19 @@
 
     // ==================== 全局变量 ====================
     const WORKER_URL = 'https://liverate.daneilgoh.workers.dev';
-    let currentBaseRate = 3.97;          // 当前使用的基准汇率
+    let currentBaseRate = 3.97;
     let lastSystemError = '', lastUserHint = '';
     let autoRefreshTimer = null;
     let lastFetchTime = null;
 
     // ---------- localStorage 读写 ----------
     function loadStoredRate() {
-        // 优先读取手动设置的汇率
         const manual = localStorage.getItem('manualBaseRate');
         if (manual && !isNaN(parseFloat(manual))) {
             currentBaseRate = parseFloat(manual);
             sourceHintSpan.innerText = t('sourceManual');
             return true;
         }
-        // 其次读取自动缓存汇率
         const cached = localStorage.getItem('cachedBaseRate');
         if (cached && !isNaN(parseFloat(cached))) {
             currentBaseRate = parseFloat(cached);
@@ -255,22 +251,18 @@
         return true;
     }
 
-    // 清除手动设置，恢复自动获取
     async function resetToAuto() {
         localStorage.removeItem('manualBaseRate');
-        // 重新加载缓存（如果有自动缓存则使用，否则使用默认）
         if (!loadStoredRate()) {
             currentBaseRate = 3.97;
             liveRateSpan.innerText = currentBaseRate.toFixed(4);
             sourceHintSpan.innerText = t('cacheMsg');
         }
-        // 立即重新获取在线汇率（会覆盖自动缓存）
         await refreshRateAndUI();
-        // 清空手动输入框
         manualRateInput.value = '';
     }
 
-    // ---------- 原有函数（保留全部）----------
+    // ---------- 辅助函数 ----------
     function formatMoney(v) {
         let n = Number(v);
         if (!isFinite(n)) return "0.00";
@@ -328,7 +320,6 @@
         updateFreightHint();
         updateGpHint();
         versionInfoSpan.innerText = t('versionInfo');
-        footerHintSpan.innerText = t('footerHint');
         errorDiv.innerText = lastSystemError || lastUserHint || '';
         updateDateTime();
         if (localStorage.getItem('manualBaseRate') && sourceHintSpan.innerText !== t('sourceManual')) {
@@ -380,9 +371,7 @@
             }
         } catch (err) {
             console.warn('Worker fetch failed', err);
-            if (!loadStoredRate()) {
-                // 保持原有 currentBaseRate
-            }
+            if (!loadStoredRate()) { }
             liveRateSpan.innerText = currentBaseRate.toFixed(4);
             liveDateSpan.innerText = t('datePrefix') + (lastFetchTime ? lastFetchTime.toLocaleString() : t('loading'));
             if (!localStorage.getItem('manualBaseRate')) {
@@ -476,7 +465,7 @@
 
         if (!lastSystemError) {
             if (fob === 0 && parseFloat(fobInput.value.replace(/,/g, '')) === 0) {
-                lastUserHint = t('hintFob');   // 显示 "Powered By Daneil.G.CS"
+                lastUserHint = t('hintFob');
             } else {
                 lastUserHint = '';
             }
