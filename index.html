@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title id="pageTitle">Product Calculator | v6.6 (修复版)</title>
-    <!-- 手机图标：为提升兼容性，改用外部 PNG 存储（请上传 icon.png 到同目录） -->
-    <!-- 若没有上传 icon.png，则自动使用 SVG 备用 -->
+    <title id="pageTitle">Product Calculator | v6.6 (最终修正)</title>
+    <!-- 手机图标 -->
     <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
-    <!-- 备用图标（SVG 内嵌，仅当 icon.png 不存在时可能被 iOS 忽略） -->
     <meta name="apple-mobile-web-app-title" content="Product Calc">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -65,7 +63,7 @@
 <body>
 <div class="calculator" id="app">
     <div class="header">
-        <div><span class="title" id="mainTitle">Product Calculator</span><span class="version" id="versionText"> v6.6 (修复版)</span></div>
+        <div><span class="title" id="mainTitle">Product Calculator</span><span class="version" id="versionText"> v6.6 (最终修正)</span></div>
         <div class="datetime" id="datetimeDisplay">--</div>
         <div class="lang-switch">
             <button class="lang-btn active" data-lang="en">EN</button>
@@ -103,11 +101,11 @@
     <div class="formula-banner"><span id="formulaLabel">📐 公式：</span><code id="formulaCode">Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP</code></div>
 
     <div class="input-group">
-        <div class="input-row"><span class="input-label" id="fobLabel">💰 FOB (USD)</span><input type="text" id="fobInput" class="input-field smart-number-input" inputmode="decimal" value="0.00"></div>
+        <div class="input-row"><span class="input-label" id="fobLabel">💰 FOB (USD)</span><input type="text" id="fobInput" class="input-field smart-number-input" inputmode="decimal" value="0"></div>
         <div class="input-row"><span class="input-label" id="sstLabel">🧾 SST/VAT Tax</span><div class="radio-group" id="sstGroup"><label><input type="radio" name="sst" value="0.95" checked> <span id="sstOpt1">0.95 (5%)</span></label><label><input type="radio" name="sst" value="0.90"> <span id="sstOpt2">0.90 (10%)</span></label></div></div>
         <div class="input-row"><span class="input-label" id="freightLabel">🚢 Freight (除数)</span><input type="text" id="freightInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="freightHint">动态提示</div></div>
         <div class="input-row"><span class="input-label" id="gpLabel">📈 GP% 除数</span><input type="text" id="gpInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="gpHint">动态提示</div></div>
-        <div class="input-row"><span class="input-label" id="priceLabel">🏷️ 预期售价 (MYR)</span><input type="text" id="sellingPrice" class="input-field smart-number-input" inputmode="decimal" value="0.00"></div>
+        <div class="input-row"><span class="input-label" id="priceLabel">🏷️ 预期售价 (MYR)</span><input type="text" id="sellingPrice" class="input-field smart-number-input" inputmode="decimal" value="0"></div>
     </div>
 
     <div class="result-card">
@@ -132,7 +130,7 @@
     const langMap = {
         cn: {
             pageTitle: "Product Calculator | v6.6",
-            mainTitle: "Product Calculator", versionText: " v6.6 (修复版)", liveLabel: "USD/MYR 基准汇率",
+            mainTitle: "Product Calculator", versionText: " v6.6 (最终修正)", liveLabel: "USD/MYR 基准汇率",
             plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 (基准+加成) :",
             formulaLabel: "📐 公式：", formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -152,11 +150,12 @@
             versionInfo: "💡 提示：汇率会自动",
             poweredBy: "Powered By Daneil.G.CS | 智能识别版 v6.6",
             errorFreightNan: "❌ Freight 不能为空或非数字",
-            errorGpNan: "❌ GP% 不能为空或非数字"
+            errorGpNan: "❌ GP% 不能为空或非数字",
+            confirmRefresh: "当前处于手动汇率模式，刷新将覆盖手动设定。确定要继续吗？"
         },
         en: {
             pageTitle: "Product Calculator | v6.6",
-            mainTitle: "Product Calculator", versionText: " v6.6 (Fixed)", liveLabel: "USD/MYR Base Rate",
+            mainTitle: "Product Calculator", versionText: " v6.6 (Final)", liveLabel: "USD/MYR Base Rate",
             plusLabel: "➕ Markup", appliedRateLabel: "💱 Final Rate (Base+Markup) :",
             formulaLabel: "📐 Formula: ", formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -176,7 +175,8 @@
             versionInfo: "💡 Tip: Rate auto-saves",
             poweredBy: "Powered By Daneil.G.CS | Smart Edition v6.6",
             errorFreightNan: "❌ Freight cannot be empty or NaN",
-            errorGpNan: "❌ GP% cannot be empty or NaN"
+            errorGpNan: "❌ GP% cannot be empty or NaN",
+            confirmRefresh: "Manual mode is active. Refreshing will override your manual rate. Continue?"
         }
     };
     let curLang = 'en';
@@ -218,20 +218,33 @@
     // ==================== 全局变量 ====================
     const WORKER_URL = 'https://liverate.daneilgoh.workers.dev';
     let currentBaseRate = 3.97;
-    let lastSystemError = '', lastUserHint = '';
+    let lastSystemError = '';
     let autoRefreshTimer = null;
     let lastFetchTime = null;
 
     // ========== 辅助函数 ==========
-    // 解析数字，支持千位分隔符
+    // 智能数字格式化：保留最多6位小数，去除尾部零
+    function smartNumberFormat(n) {
+        if (isNaN(n)) return "0";
+        if (n === 0) return "0";
+        // 如果是整数，不显示小数点
+        if (Number.isInteger(n)) return n.toString();
+        // 转换为字符串，最多保留6位小数
+        let s = n.toFixed(6);
+        // 去除末尾多余的零和小数点
+        s = s.replace(/\.?0+$/, '');
+        return s;
+    }
+
     function parseMoney(s) {
         let num = Number(String(s).replace(/,/g, ''));
         return isFinite(num) ? num : 0;
     }
+
     function formatMoney(v) {
         let n = Number(v);
-        if (!isFinite(n)) return "0.00";
-        return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        if (!isFinite(n)) return "0";
+        return smartNumberFormat(n);
     }
 
     // 智能数字输入框设置 (FOB 和 售价)
@@ -240,11 +253,11 @@
             let num = parseMoney(this.value);
             if (isNaN(num)) num = 0;
             if (num < 0) num = 0;
-            this.value = num.toFixed(2);
+            this.value = smartNumberFormat(num);
             compute();
         });
         inputElement.addEventListener('focus', function() {
-            if (this.value === '0.00') this.select();
+            if (this.value === '0' || this.value === '0.00') this.select();
         });
         inputElement.addEventListener('input', compute);
     }
@@ -423,6 +436,21 @@
         updateErrorDisplay();
     }
 
+    async function refreshAll() {
+        // 如果处于手动模式，询问用户是否覆盖
+        if (localStorage.getItem('manualBaseRate')) {
+            const confirmMsg = t('confirmRefresh');
+            if (!confirm(confirmMsg)) {
+                return;  // 用户取消刷新
+            }
+            // 用户确认后，清除手动标记，然后刷新
+            localStorage.removeItem('manualBaseRate');
+            await refreshRateAndUI();
+        } else {
+            await refreshRateAndUI();
+        }
+    }
+
     function getSST() {
         for (let r of sstRadios) if (r.checked) return parseFloat(r.value);
         return 0.95;
@@ -467,7 +495,7 @@
         step1Span.innerText = '$' + step1.toFixed(2);
         step2Span.innerText = step2.toFixed(2) + ' MYR';
         step3Span.innerText = step3.toFixed(2) + ' MYR';
-        landingSpan.innerText = formatMoney(landing) + ' MYR';
+        landingSpan.innerText = landing.toFixed(2) + ' MYR';
 
         let gross = 0, margin = 0;
         if (landing > 0 && price > 0) {
@@ -491,7 +519,7 @@
             if (margin < -1000) margin = -999.99;
             gpPercentSpan.innerText = margin.toFixed(2) + '%';
         }
-        profitSpan.innerText = formatMoney(gross) + ' MYR';
+        profitSpan.innerText = gross.toFixed(2) + ' MYR';
 
         if (margin < -0.01) {
             gpCard.classList.add('negative');
@@ -508,18 +536,15 @@
         }
     }
 
-    async function refreshAll() { await refreshRateAndUI(); }
-
     function clearAll() {
-        fobInput.value = '0.00';
-        sellingPrice.value = '0.00';
+        fobInput.value = '0';
+        sellingPrice.value = '0';
         freightInput.value = '0.97';
         gpInput.value = '0.97';
         markupInput.value = '0.00';
         compute();
         updateFreightHint();
         updateGpHint();
-        lastUserHint = '';
         errorDiv.innerText = t('clearOk');
         setTimeout(() => {
             if (errorDiv.innerText === t('clearOk')) {
