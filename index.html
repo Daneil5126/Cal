@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title id="pageTitle">Product Calculator | Offline Ready</title>
-    <!-- 手机主屏幕图标（全息科技风格） -->
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231a2e3f'/%3E%3Cstop offset='100%25' stop-color='%230d1c2a'/%3E%3C/linearGradient%3E%3ClinearGradient id='holo' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff6b6b'/%3E%3Cstop offset='33%25' stop-color='%23feca57'/%3E%3Cstop offset='66%25' stop-color='%2348dbfb'/%3E%3Cstop offset='100%25' stop-color='%23ff9f4a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='38' fill='url(%23bg)'/%3E%3Crect x='15' y='15' width='150' height='150' rx='28' fill='none' stroke='url(%23holo)' stroke-width='3'/%3E%3Ctext x='90' y='85' font-family='monospace' font-size='48' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3E📊%3C/text%3E%3Ctext x='90' y='130' font-family='Arial, sans-serif' font-size='24' font-weight='800' fill='url(%23holo)' text-anchor='middle' letter-spacing='2'%3EPRO%3C/text%3E%3Ctext x='90' y='158' font-family='Arial, sans-serif' font-size='20' font-weight='600' fill='%2388aacc' text-anchor='middle' letter-spacing='3'%3ECALC%3C/text%3E%3C/svg%3E">
-    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231a2e3f'/%3E%3Cstop offset='100%25' stop-color='%230d1c2a'/%3E%3C/linearGradient%3E%3ClinearGradient id='holo' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff6b6b'/%3E%3Cstop offset='33%25' stop-color='%23feca57'/%3E%3Cstop offset='66%25' stop-color='%2348dbfb'/%3E%3Cstop offset='100%25' stop-color='%23ff9f4a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='38' fill='url(%23bg)'/%3E%3Crect x='15' y='15' width='150' height='150' rx='28' fill='none' stroke='url(%23holo)' stroke-width='3'/%3E%3Ctext x='90' y='85' font-family='monospace' font-size='48' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3E📊%3C/text%3E%3Ctext x='90' y='130' font-family='Arial, sans-serif' font-size='24' font-weight='800' fill='url(%23holo)' text-anchor='middle' letter-spacing='2'%3EPRO%3C/text%3E%3Ctext x='90' y='158' font-family='Arial, sans-serif' font-size='20' font-weight='600' fill='%2388aacc' text-anchor='middle' letter-spacing='3'%3ECALC%3C/text%3E%3C/svg%3E">
-    <meta name="apple-mobile-web-app-title" content="Product Calculator">
-    <meta name="application-name" content="Product Calculator">
+    <title id="pageTitle">Product Calculator | v6.6 (修复版)</title>
+    <!-- 手机图标：为提升兼容性，改用外部 PNG 存储（请上传 icon.png 到同目录） -->
+    <!-- 若没有上传 icon.png，则自动使用 SVG 备用 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <!-- 备用图标（SVG 内嵌，仅当 icon.png 不存在时可能被 iOS 忽略） -->
+    <meta name="apple-mobile-web-app-title" content="Product Calc">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #f0f4f9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
@@ -16,7 +17,7 @@
         .header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #eef2f8; }
         .title { font-size: 1.6rem; font-weight: 700; background: linear-gradient(135deg, #1e6f4c, #2b8c5e); background-clip: text; -webkit-background-clip: text; color: transparent; }
         .version { font-size: 0.7rem; background: #edf2f7; padding: 3px 10px; border-radius: 40px; }
-        .datetime { font-size: 0.7rem; font-family: monospace; background: #f0f2f5; padding: 4px 12px; border-radius: 30px; text-align: center; }
+        .datetime { font-size: 0.7rem; font-family: monospace; background: #f0f2f5; padding: 4px 12px; border-radius: 30px; }
         .lang-switch { display: flex; gap: 6px; background: #f1f5f9; padding: 3px; border-radius: 40px; }
         .lang-btn { border: none; background: transparent; font-size: 0.8rem; font-weight: 600; padding: 6px 14px; border-radius: 40px; cursor: pointer; transition: 0.1s; color: #2d5f4a; }
         .lang-btn.active { background: #2b8c5e; color: white; }
@@ -40,7 +41,8 @@
         .formula-banner code { background: #1e2f3e; color: #f0bd6c; padding: 2px 8px; border-radius: 30px; }
         .input-row { background: #fbfdfe; border-radius: 60px; border: 1px solid #e2ecf5; padding: 6px 18px; margin-bottom: 12px; display: flex; align-items: center; flex-wrap: wrap; }
         .input-label { width: 130px; font-weight: 600; font-size: 0.85rem; color: #1f4a6e; }
-        .input-field { flex: 1; padding: 12px 6px; border: none; background: transparent; font-size: 1rem; font-family: monospace; outline: none; inputmode: decimal; }
+        .input-field { flex: 1; padding: 12px 6px; border: none; background: transparent; font-size: 1rem; font-family: monospace; outline: none; }
+        .smart-number-input { text-align: right; }
         .radio-group { display: flex; gap: 12px; flex: 1; padding: 6px 0; }
         .radio-group label { background: #f3f9fe; border: 1px solid #dee9f2; padding: 5px 16px; border-radius: 40px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; cursor: pointer; }
         .small-hint { background: #e4f3ec; padding: 4px 12px; border-radius: 30px; font-size: 0.65rem; color: #226b49; margin-left: 8px; }
@@ -57,14 +59,13 @@
         .error-msg { text-align: center; font-size: 0.7rem; margin-top: 12px; padding: 6px; border-radius: 50px; background: #fff2e6; color: #cb6e2e; min-height: 36px; }
         .footer { font-size: 0.6rem; text-align: center; color: #8da3bb; margin-top: 20px; border-top: 1px solid #eef2f8; padding-top: 12px; }
         .source-badge { font-size: 0.55rem; background: #e1e9f0; display: inline-block; padding: 2px 6px; border-radius: 20px; margin-top: 4px; }
-        .powered { margin-top: 8px; font-size: 0.65rem; color: #5d7f9e; }
         @media (max-width: 550px) { .input-label { width: 100%; margin-bottom: 4px; } .input-row { flex-direction: column; align-items: stretch; } .manual-rate-row { flex-direction: column; align-items: stretch; } .plus-area { width: 100%; margin-top: 8px; } }
     </style>
 </head>
 <body>
 <div class="calculator" id="app">
     <div class="header">
-        <div><span class="title" id="mainTitle">Product Calculator</span><span class="version" id="versionText"> v6.5</span></div>
+        <div><span class="title" id="mainTitle">Product Calculator</span><span class="version" id="versionText"> v6.6 (修复版)</span></div>
         <div class="datetime" id="datetimeDisplay">--</div>
         <div class="lang-switch">
             <button class="lang-btn active" data-lang="en">EN</button>
@@ -86,7 +87,6 @@
         </div>
     </div>
 
-    <!-- 手动汇率覆盖区域 -->
     <div class="manual-rate-row">
         <span id="manualLabel">✏️ 手动输入汇率 (MYR/USD)</span>
         <input type="text" id="manualRateInput" class="manual-rate-input" inputmode="decimal" placeholder="例如 4.0465" step="0.0001">
@@ -103,11 +103,11 @@
     <div class="formula-banner"><span id="formulaLabel">📐 公式：</span><code id="formulaCode">Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP</code></div>
 
     <div class="input-group">
-        <div class="input-row"><span class="input-label" id="fobLabel">💰 FOB (USD)</span><input type="text" id="fobInput" class="input-field" inputmode="decimal" value="0.00"></div>
+        <div class="input-row"><span class="input-label" id="fobLabel">💰 FOB (USD)</span><input type="text" id="fobInput" class="input-field smart-number-input" inputmode="decimal" value="0.00"></div>
         <div class="input-row"><span class="input-label" id="sstLabel">🧾 SST/VAT Tax</span><div class="radio-group" id="sstGroup"><label><input type="radio" name="sst" value="0.95" checked> <span id="sstOpt1">0.95 (5%)</span></label><label><input type="radio" name="sst" value="0.90"> <span id="sstOpt2">0.90 (10%)</span></label></div></div>
         <div class="input-row"><span class="input-label" id="freightLabel">🚢 Freight (除数)</span><input type="text" id="freightInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="freightHint">动态提示</div></div>
         <div class="input-row"><span class="input-label" id="gpLabel">📈 GP% 除数</span><input type="text" id="gpInput" class="input-field" inputmode="decimal" value="0.97"><div class="small-hint" id="gpHint">动态提示</div></div>
-        <div class="input-row"><span class="input-label" id="priceLabel">🏷️ 预期售价 (MYR)</span><input type="text" id="sellingPrice" class="input-field" inputmode="decimal" value="0.00"></div>
+        <div class="input-row"><span class="input-label" id="priceLabel">🏷️ 预期售价 (MYR)</span><input type="text" id="sellingPrice" class="input-field smart-number-input" inputmode="decimal" value="0.00"></div>
     </div>
 
     <div class="result-card">
@@ -123,7 +123,7 @@
     <div id="errorMsg" class="error-msg"></div>
     <div class="footer">
         <div id="versionInfo">💡 提示：汇率会自动</div>
-        <div class="powered" id="poweredBy">Powered By Daneil.G.CS</div>
+        <div class="powered" id="poweredBy">Powered By Daneil.G.CS | 智能识别版 v6.6</div>
     </div>
 </div>
 
@@ -131,8 +131,8 @@
     // ==================== 完整双语映射 ====================
     const langMap = {
         cn: {
-            pageTitle: "Product Calculator | Offline Ready",
-            mainTitle: "Product Calculator", versionText: " v6.5", liveLabel: "USD/MYR 基准汇率",
+            pageTitle: "Product Calculator | v6.6",
+            mainTitle: "Product Calculator", versionText: " v6.6 (修复版)", liveLabel: "USD/MYR 基准汇率",
             plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 (基准+加成) :",
             formulaLabel: "📐 公式：", formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -150,11 +150,13 @@
             resetAuto: "🔄 恢复自动汇率",
             sourceManual: "✏️ 手动设定",
             versionInfo: "💡 提示：汇率会自动",
-            poweredBy: "Powered By Daneil.G.CS"
+            poweredBy: "Powered By Daneil.G.CS | 智能识别版 v6.6",
+            errorFreightNan: "❌ Freight 不能为空或非数字",
+            errorGpNan: "❌ GP% 不能为空或非数字"
         },
         en: {
-            pageTitle: "Product Calculator | Offline Ready",
-            mainTitle: "Product Calculator", versionText: " v6.5", liveLabel: "USD/MYR Base Rate",
+            pageTitle: "Product Calculator | v6.6",
+            mainTitle: "Product Calculator", versionText: " v6.6 (Fixed)", liveLabel: "USD/MYR Base Rate",
             plusLabel: "➕ Markup", appliedRateLabel: "💱 Final Rate (Base+Markup) :",
             formulaLabel: "📐 Formula: ", formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
             fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
@@ -172,10 +174,12 @@
             resetAuto: "🔄 Reset to Auto",
             sourceManual: "✏️ Manual",
             versionInfo: "💡 Tip: Rate auto-saves",
-            poweredBy: "Powered By Daneil.G.CS"
+            poweredBy: "Powered By Daneil.G.CS | Smart Edition v6.6",
+            errorFreightNan: "❌ Freight cannot be empty or NaN",
+            errorGpNan: "❌ GP% cannot be empty or NaN"
         }
     };
-    let curLang = 'en';   // 默认英文
+    let curLang = 'en';
     function t(key) { return langMap[curLang][key] || key; }
 
     // ==================== DOM 元素 ====================
@@ -217,6 +221,33 @@
     let lastSystemError = '', lastUserHint = '';
     let autoRefreshTimer = null;
     let lastFetchTime = null;
+
+    // ========== 辅助函数 ==========
+    // 解析数字，支持千位分隔符
+    function parseMoney(s) {
+        let num = Number(String(s).replace(/,/g, ''));
+        return isFinite(num) ? num : 0;
+    }
+    function formatMoney(v) {
+        let n = Number(v);
+        if (!isFinite(n)) return "0.00";
+        return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // 智能数字输入框设置 (FOB 和 售价)
+    function setupSmartNumberInput(inputElement) {
+        inputElement.addEventListener('blur', function() {
+            let num = parseMoney(this.value);
+            if (isNaN(num)) num = 0;
+            if (num < 0) num = 0;
+            this.value = num.toFixed(2);
+            compute();
+        });
+        inputElement.addEventListener('focus', function() {
+            if (this.value === '0.00') this.select();
+        });
+        inputElement.addEventListener('input', compute);
+    }
 
     // ---------- localStorage 读写 ----------
     function loadStoredRate() {
@@ -269,17 +300,7 @@
         manualRateInput.value = '';
     }
 
-    // ---------- 辅助函数 ----------
-    function formatMoney(v) {
-        let n = Number(v);
-        if (!isFinite(n)) return "0.00";
-        return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
-    function parseMoney(s) {
-        let num = Number(String(s).replace(/,/g, ''));
-        return isFinite(num) ? num : 0;
-    }
-
+    // ---------- 界面更新 ----------
     function updateDateTime() {
         const now = new Date();
         const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
@@ -335,6 +356,7 @@
         }
     }
 
+    // ---------- 汇率相关 ----------
     function getMarkup() { let val = parseFloat(markupInput.value); return isNaN(val) ? 0 : val; }
     function getAppliedRate() { return currentBaseRate + getMarkup(); }
 
@@ -406,6 +428,7 @@
         return 0.95;
     }
 
+    // ========== 核心计算 ==========
     function compute() {
         let fob = parseMoney(fobInput.value);
         let sst = getSST();
@@ -415,9 +438,10 @@
         let price = parseMoney(sellingPrice.value);
         let errorMsg = '';
 
-        if (rate <= 0) errorMsg = t('errorRate');
-        else if (freight <= 0) errorMsg = t('errorFreight');
-        else if (gp <= 0) errorMsg = t('errorGp');
+        // 错误检测 (包含 NaN 处理)
+        if (isNaN(rate) || rate <= 0) errorMsg = t('errorRate');
+        else if (isNaN(freight) || freight <= 0) errorMsg = t('errorFreight');
+        else if (isNaN(gp) || gp <= 0) errorMsg = t('errorGp');
         else if (sst === 0) errorMsg = t('errorDiv');
 
         if (errorMsg) {
@@ -460,7 +484,6 @@
             gross = 0;
         }
         
-        // 处理无意义毛利率显示为 N/A
         if (isNaN(margin) || !isFinite(margin)) {
             gpPercentSpan.innerText = 'N/A';
         } else {
@@ -488,8 +511,8 @@
     async function refreshAll() { await refreshRateAndUI(); }
 
     function clearAll() {
-        fobInput.value = formatMoney(0);
-        sellingPrice.value = formatMoney(0);
+        fobInput.value = '0.00';
+        sellingPrice.value = '0.00';
         freightInput.value = '0.97';
         gpInput.value = '0.97';
         markupInput.value = '0.00';
@@ -506,51 +529,14 @@
         }, 2000);
     }
 
-    function bindMoneyField(inp) {
-        inp.addEventListener('blur', () => {
-            let num = parseMoney(inp.value);
-            inp.value = formatMoney(num);
-            compute();
-        });
-        inp.addEventListener('focus', () => {
-            let num = parseMoney(inp.value);
-            inp.value = num.toFixed(2);
-        });
-        inp.value = formatMoney(parseMoney(inp.value));
-    }
-
-    function bindPositiveNumberField(inp, isFreight = false, isGp = false) {
-        inp.addEventListener('blur', () => {
-            let v = parseFloat(inp.value);
-            if (isNaN(v) || v <= 0) v = 0.97;
-            inp.value = v;
-            if (isFreight) updateFreightHint();
-            if (isGp) updateGpHint();
-            compute();
-        });
-        inp.addEventListener('input', () => {
-            if (isFreight) updateFreightHint();
-            if (isGp) updateGpHint();
-            compute();
-        });
-    }
-
-    function setLanguage(lang) {
-        curLang = lang;
-        updateUI();
-        compute();
-    }
-
+    // ========== 事件绑定 ==========
     function bindEvents() {
-        bindMoneyField(fobInput);
-        bindMoneyField(sellingPrice);
-        bindPositiveNumberField(freightInput, true, false);
-        bindPositiveNumberField(gpInput, false, true);
-        markupInput.addEventListener('input', compute);
-        fobInput.addEventListener('input', compute);
-        sellingPrice.addEventListener('input', compute);
+        setupSmartNumberInput(fobInput);
+        setupSmartNumberInput(sellingPrice);
+        
         freightInput.addEventListener('input', () => { updateFreightHint(); compute(); });
         gpInput.addEventListener('input', () => { updateGpHint(); compute(); });
+        markupInput.addEventListener('input', compute);
         sstRadios.forEach(r => r.addEventListener('change', compute));
         refreshBtn.addEventListener('click', () => refreshAll());
         clearBtn.addEventListener('click', clearAll);
@@ -564,6 +550,7 @@
             manualRateInput.value = '';
         });
         resetAutoBtn.addEventListener('click', () => resetToAuto());
+        
         document.querySelectorAll('.lang-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 setLanguage(btn.dataset.lang);
@@ -571,6 +558,12 @@
                 btn.classList.add('active');
             });
         });
+    }
+
+    function setLanguage(lang) {
+        curLang = lang;
+        updateUI();
+        compute();
     }
 
     async function init() {
