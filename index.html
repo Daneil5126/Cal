@@ -422,7 +422,7 @@
         <div class="kpi-grid" id="salesKpiGrid"></div>
         <div class="content-grid">
           <div class="card">
-            <div class="card-title"> Sales Revenue & Agent Performance </div>
+            <div class="card-title">Sales Revenue & Agent Performance</div>
             <div class="dual-chart-container">
               <div class="chart-item"><canvas id="salesChart"></canvas></div>
               <div class="chart-item"><canvas id="agentPerfChart"></canvas></div>
@@ -455,12 +455,13 @@
           </div>
         </div>
         <div class="table-card">
-          <div class="card-title">3 Months Dealer Analysis (Rolling)</div>
+          <div class="card-title">3 Months Dealer Analysis</div>
           <div class="table-wrapper">
             <table id="sales-dealerTable">
               <thead>
                 <tr>
                   <th data-sort="dealer">Dealer <i class="fas fa-sort"></i></th>
+                  <th data-sort="agentCode">Sales Agent Code <i class="fas fa-sort"></i></th>
                   <th data-sort="thisMonth">This Month <i class="fas fa-sort"></i></th>
                   <th data-sort="lastMonth">Last Month <i class="fas fa-sort"></i></th>
                   <th data-sort="twoMonthsAgo">2 Months Ago <i class="fas fa-sort"></i></th>
@@ -1338,7 +1339,7 @@
       (async function init(){ loadStoredRate(); updateUI(); await refreshRateAndUI(); compute(); updateFreightHint(); updateGpHint(); if(autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer=setInterval(async ()=>{ const calcPage=document.getElementById('page-calculator'); if(!calcPage||!calcPage.classList.contains('active')) return; const activeEl=document.activeElement; const isEditing=activeEl===els.fobInput||activeEl===els.sellingPrice||activeEl===els.markupInput||activeEl===els.freightInput||activeEl===els.gpInput; if(!isEditing&&!localStorage.getItem('manualBaseRate')) await refreshRateAndUI(); },10*60*1000); setInterval(()=>{ els.datetimeSpan.innerText=new Date().toLocaleString(curLang==='cn'?'zh-CN':'en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}); },1000); })();
     })();
 
-    // ========== Sales Dashboard Module (Refactored & Fixed Sync) ==========
+    // ========== Sales Dashboard Module (with Agent Code column) ==========
     (function() {
       const DEFAULT_SYNC_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUlfv03e1X_g1MoUIrVKUfQtv8A0HjktG-XPD4L6w_3uXSq_pj3OnxfRT4c33JQ/pub?output=xlsx";
       let rawData = [];
@@ -1469,17 +1470,40 @@
       }
       function buildDealerTable() {
         const tbody=document.querySelector('#sales-dealerTable tbody');
-        if(rawData.length===0){tbody.innerHTML='<tr><td colspan="6" class="no-data-message">No dealer data.</td></tr>';return;}
+        if(rawData.length===0){tbody.innerHTML='<tr><td colspan="7" class="no-data-message">No dealer data.</td></tr>';return;}
         let maxDate=new Date(0); rawData.forEach(r=>{if(r.date>maxDate) maxDate=r.date;});
         let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
         let map=new Map();
-        rawData.forEach(r=>{ let diff=(ly-r.date.getFullYear())*12+(lm-r.date.getMonth()); if(!map.has(r.company)) map.set(r.company,{m0:0,m1:0,m2:0}); let o=map.get(r.company); if(diff===0) o.m0+=r.subtotal; else if(diff===1) o.m1+=r.subtotal; else if(diff===2) o.m2+=r.subtotal; });
-        let list=Array.from(map.entries()).map(([n,v])=>({dealer:n,thisMonth:v.m0,lastMonth:v.m1,twoMonthsAgo:v.m2,qtd:v.m0+v.m1+v.m2,mom:v.m1?((v.m0-v.m1)/v.m1)*100:0}));
-        list.sort((a,b)=>{ let va,vb; switch(dealerSortColumn){ case'dealer':va=a.dealer;vb=b.dealer;break; case'thisMonth':va=a.thisMonth;vb=b.thisMonth;break; case'lastMonth':va=a.lastMonth;vb=b.lastMonth;break; case'twoMonthsAgo':va=a.twoMonthsAgo;vb=b.twoMonthsAgo;break; case'qtd':va=a.qtd;vb=b.qtd;break; case'mom':va=a.mom;vb=b.mom;break; default:va=a.qtd;vb=b.qtd; } return typeof va==='string'? dealerSortDirection==='asc'?va.localeCompare(vb):vb.localeCompare(va) : dealerSortDirection==='asc'?va-vb:vb-va; });
-        tbody.innerHTML=list.map(d=>`<tr><td>${d.dealer}</td><td class="highlight-month">${formatRM(d.thisMonth)}</td><td>${formatRM(d.lastMonth)}</td><td>${formatRM(d.twoMonthsAgo)}</td><td>${formatRM(d.qtd)}</td><td class="${d.mom>=0?'green':'red'}">${d.mom.toFixed(1)}%</td></tr>`).join('');
+        rawData.forEach(r=>{
+          let diff=(ly-r.date.getFullYear())*12+(lm-r.date.getMonth());
+          if(!map.has(r.company)) map.set(r.company,{m0:0,m1:0,m2:0, agentCode:''});
+          let o=map.get(r.company);
+          if(diff===0) o.m0+=r.subtotal;
+          else if(diff===1) o.m1+=r.subtotal;
+          else if(diff===2) o.m2+=r.subtotal;
+          // 记录最后一个agentCode（或可改为取最多的）
+          if(r.agentCode) o.agentCode = r.agentCode;
+        });
+        let list=Array.from(map.entries()).map(([n,v])=>({dealer:n, agentCode:v.agentCode, thisMonth:v.m0, lastMonth:v.m1, twoMonthsAgo:v.m2, qtd:v.m0+v.m1+v.m2, mom:v.m1?((v.m0-v.m1)/v.m1)*100:0}));
+        list.sort((a,b)=>{
+          let va,vb;
+          switch(dealerSortColumn){
+            case'dealer':va=a.dealer;vb=b.dealer;break;
+            case'agentCode':va=a.agentCode||'';vb=b.agentCode||'';break;
+            case'thisMonth':va=a.thisMonth;vb=b.thisMonth;break;
+            case'lastMonth':va=a.lastMonth;vb=b.lastMonth;break;
+            case'twoMonthsAgo':va=a.twoMonthsAgo;vb=b.twoMonthsAgo;break;
+            case'qtd':va=a.qtd;vb=b.qtd;break;
+            case'mom':va=a.mom;vb=b.mom;break;
+            default:va=a.qtd;vb=b.qtd;
+          }
+          if(typeof va==='string') return dealerSortDirection==='asc'?va.localeCompare(vb):vb.localeCompare(va);
+          return dealerSortDirection==='asc'?va-vb:vb-va;
+        });
+        tbody.innerHTML=list.map(d=>`<tr><td>${d.dealer}</td><td>${d.agentCode||''}</td><td class="highlight-month">${formatRM(d.thisMonth)}</td><td>${formatRM(d.lastMonth)}</td><td>${formatRM(d.twoMonthsAgo)}</td><td>${formatRM(d.qtd)}</td><td class="${d.mom>=0?'green':'red'}">${d.mom.toFixed(1)}%</td></tr>`).join('');
         let total={m0:0,m1:0,m2:0}; for(let v of map.values()){total.m0+=v.m0;total.m1+=v.m1;total.m2+=v.m2;}
         let totalMom=total.m1?((total.m0-total.m1)/total.m1)*100:0;
-        tbody.innerHTML+=`<tr class="total-row"><td>📊 ALL DEALERS</td><td class="highlight-month">${formatRM(total.m0)}</td><td>${formatRM(total.m1)}</td><td>${formatRM(total.m2)}</td><td>${formatRM(total.m0+total.m1+total.m2)}</td><td class="${totalMom>=0?'green':'red'}">${totalMom.toFixed(1)}%</td></tr>`;
+        tbody.innerHTML+=`<tr class="total-row"><td>📊 ALL DEALERS</td><td></td><td class="highlight-month">${formatRM(total.m0)}</td><td>${formatRM(total.m1)}</td><td>${formatRM(total.m2)}</td><td>${formatRM(total.m0+total.m1+total.m2)}</td><td class="${totalMom>=0?'green':'red'}">${totalMom.toFixed(1)}%</td></tr>`;
       }
       function buildTopDealer() {
         const div=document.getElementById('salesTopDealerList');
@@ -1566,7 +1590,6 @@
         }
       }
 
-      // Bind all events after DOM is ready (using DOMContentLoaded)
       function bindSalesEvents() {
         const uploadBtn = document.getElementById('sales-uploadBtn');
         const fileInput = document.getElementById('sales-fileInput');
@@ -1603,17 +1626,15 @@
         initSalesSorting();
         refreshSalesUI();
         updateSyncStatus(false, 'Not synced');
-        window.refreshSalesDashboard = refreshSalesUI; // expose for page switch
+        window.refreshSalesDashboard = refreshSalesUI;
       }
 
-      // Ensure FileSaver is loaded
       if (typeof saveAs === 'undefined') {
         let s = document.createElement('script');
         s.src = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
         document.head.appendChild(s);
       }
 
-      // Wait for DOM then bind everything
       document.addEventListener('DOMContentLoaded', bindSalesEvents);
     })();
   </script>
