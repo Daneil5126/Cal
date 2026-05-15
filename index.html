@@ -650,179 +650,524 @@
         // ============================================================
         // 2. Sales Dashboard 持久化脚本（完整功能，独立运行）
         // ============================================================
-        (function() {
-            const STORAGE_KEY = 'sales_dashboard_data';
-            const DEFAULT_SYNC_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUlfv03e1X_g1MoUIrVKUfQtv8A0HjktG-XPD4L6w_3uXSq_pj3OnxfRT4c33JQ/pub?output=xlsx";
-            
-            let rawData = [];
-            let monthlyTarget = 0;
-            let lastUpdateDate = null;
-            let agentNameMap = { "B003": "Vivien", "B008": "Nicole", "B005": "Jacky", "B007": "Edmund" };
-            let fixedTargetMap = { "B003": 2500000, "B008": 1500000, "B005": 1500000, "B007": 500000 };
-            let agentTargetOverride = new Map();
-            let agentSortColumn = 'revenue';
-            let agentSortDirection = 'desc';
-            let dealerSortColumn = 'qtd';
-            let dealerSortDirection = 'desc';
-            let salesChart = null;
-            let agentChart = null;
-            let ctrlPressed = false;
+       // ========== Sales Dashboard Module (Fixed Sync & Feedback) ==========
+(function() {
+  const DEFAULT_SYNC_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUlfv03e1X_g1MoUIrVKUfQtv8A0HjktG-XPD4L6w_3uXSq_pj3OnxfRT4c33JQ/pub?output=xlsx";
+  let rawData = [];
+  let monthlyTarget = 0;
+  let lastUpdateDate = null;
+  let agentNameMap = { "B003":"Vivien","B008":"Nicole","B005":"Jacky","B007":"Edmund" };
+  let fixedTargetMap = { "B003":2500000,"B008":1500000,"B005":1500000,"B007":500000 };
+  let agentTargetOverride = new Map();
+  let agentSortColumn = 'revenue', agentSortDirection = 'desc';
+  let dealerSortColumn = 'qtd', dealerSortDirection = 'desc';
+  let salesChart = null, agentChart = null;
+  let ctrlPressed = false;
+  let initialized = false;
 
-            function formatRM(v) { return new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR', minimumFractionDigits: 2 }).format(v || 0); }
-            function parseExcelDate(val) { if (!val) return null; if (typeof val === 'number' && val > 30000 && val < 100000) { let d = XLSX.SSF.parse_date_code(val); if (d) return new Date(d.y, d.m-1, d.d); } let s = val.toString().trim(); let d = new Date(s); if (!isNaN(d.getTime())) return d; let parts = s.split(/[-/]/); if (parts.length === 3) { let y = parseInt(parts[0]), m = parseInt(parts[1]), day = parseInt(parts[2]); if (!isNaN(y) && !isNaN(m) && !isNaN(day)) { if (y > 2000) return new Date(y, m-1, day); if (y < 100) return new Date(2000 + y, m-1, day); } } return null; }
-            function getLast3MonthsRevenue() { if (rawData.length === 0) return 0; let maxDate = new Date(0); rawData.forEach(t => { if (t.date > maxDate) maxDate = t.date; }); let currentYear = maxDate.getFullYear(); let currentMonth = maxDate.getMonth(); let total = 0; for (let i = 1; i <= 3; i++) { let targetMonth = currentMonth - i; let targetYear = currentYear; if (targetMonth < 0) { targetMonth += 12; targetYear -= 1; } rawData.forEach(t => { if (t.date.getFullYear() === targetYear && t.date.getMonth() === targetMonth) total += t.subtotal; }); } return total; }
-            function processRows(rows) { function normalize(s) { return (s || '').toString().trim().toLowerCase(); } let headerRowIdx = -1; for (let i = 0; i < Math.min(rows.length, 25); i++) { let row = rows[i].map(normalize); let hasCompany = row.some(c => c.includes('company') || c.includes('dealer')); let hasAmount = row.some(c => c.includes('sub total') || c.includes('amount') || c.includes('sales') || c.includes('revenue')); if (hasCompany && hasAmount) { headerRowIdx = i; break; } } if (headerRowIdx === -1) { alert("Cannot detect header row."); return; } let headers = rows[headerRowIdx].map(normalize); function findCol(keywords) { return headers.findIndex(h => keywords.some(k => h.includes(k))); } const idxAgent = findCol(['sales agent', 'agent']); const idxSalesman = findCol(['salesman', 'saleman', 'staff', 'name']); const idxCompany = findCol(['company name', 'company', 'dealer']); const idxDate = findCol(['date', 'invoice date']); const idxQty = findCol(['qty', 'quantity']); const idxSubtotal = findCol(['sub total', 'subtotal', 'amount', 'sales amount', 'total sales', 'sale total', 'total', '销售额']); const idxMargin = findCol(['profit margin (%)', 'profit margin', 'margin', '利润率']); const idxProfit = findCol(['local profit', 'profit']); if (idxCompany === -1 || idxSubtotal === -1) { alert("Missing Company or Sub Total column"); return; } let lastAgent = "", lastCompany = "", lastSalesman = ""; let transactions = []; for (let i = headerRowIdx + 1; i < rows.length; i++) { let row = rows[i]; if (!row || row.length === 0) continue; let companyRaw = row[idxCompany] ? row[idxCompany].toString().trim() : ""; let company = companyRaw; if (company === "" && lastCompany !== "") company = lastCompany; if (company !== "") lastCompany = company; if (company === "") continue; let subtotal = parseFloat(row[idxSubtotal]) || 0; if (subtotal === 0) continue; let qty = parseFloat(row[idxQty]) || 0; let margin = (idxMargin >= 0) ? parseFloat(row[idxMargin]) : 0; if (isNaN(margin)) margin = 0; let profit = (idxProfit >= 0) ? parseFloat(row[idxProfit]) : 0; if (isNaN(profit)) profit = 0; let agent = (idxAgent >= 0 && row[idxAgent]) ? row[idxAgent].toString().trim() : ""; let salesman = (idxSalesman >= 0 && row[idxSalesman]) ? row[idxSalesman].toString().trim() : ""; if (agent === "" && lastAgent !== "") agent = lastAgent; if (salesman === "" && lastSalesman !== "") salesman = lastSalesman; if (agent !== "") lastAgent = agent; if (salesman !== "") lastSalesman = salesman; let finalAgent = agent || salesman || "Unknown"; let agentCode = agent || ""; let rawDate = (idxDate >= 0 && row[idxDate]) ? row[idxDate] : null; let date = parseExcelDate(rawDate); if (!date) continue; transactions.push({ agent: finalAgent, agentCode: agentCode, salesman: salesman, company: company, subtotal: subtotal, qty: qty, margin: margin, profit: profit, date: date }); } if (transactions.length === 0) { alert("No valid transactions found"); return; } rawData = transactions; let maxDate = new Date(0); rawData.forEach(t => { if (t.date > maxDate) maxDate = t.date; }); lastUpdateDate = maxDate; const formattedDate = maxDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); document.getElementById('sales-lastUpdateTimeDisplay').innerText = formattedDate; refreshAll(); saveToLocalStorage(); alert(`✅ Loaded ${transactions.length} transactions`); }
-            function refreshAll() { buildKPIs(); buildAgentTable(); buildDealerTable(); buildTopDealer(); buildCharts(); }
-            function buildKPIs() { let maxDate = (rawData.length > 0) ? rawData.reduce((max, t) => t.date > max ? t.date : max, new Date(0)) : new Date(0); let latestYear = maxDate.getFullYear(), latestMonth = maxDate.getMonth(); let currentMonthSales = (rawData.length > 0) ? rawData.filter(t=> t.date.getFullYear()===latestYear && t.date.getMonth()===latestMonth).reduce((s,t)=>s+t.subtotal,0) : 0; if (monthlyTarget === 0) monthlyTarget = currentMonthSales * 1.2; let achievement = monthlyTarget ? (currentMonthSales / monthlyTarget) * 100 : 0; let balanceToGo = monthlyTarget - currentMonthSales; let last3MonthsRevenue = getLast3MonthsRevenue(); let totalProfit = rawData.reduce((s,t)=>s+t.profit,0); let remainingDays = localStorage.getItem('sales_remainingWorkingDays') || ''; const formattedAsOf = maxDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); let html = `<div class="kpi"><div class="kpi-label">Total Revenue (Last 3 Months)</div><div class="kpi-value">${formatRM(last3MonthsRevenue)}</div><div class="kpi-small">Excluding current month</div></div><div class="kpi"><div class="kpi-label">Monthly Sales (Latest Month)</div><div class="kpi-value">${formatRM(currentMonthSales)}</div><div class="kpi-small"><span class="highlight-date">Data as of: ${formattedAsOf}</span></div></div><div class="kpi"><div class="kpi-label">Monthly Target</div><div class="kpi-value"><span class="editable-target" onclick="window.salesEditMonthlyTarget && window.salesEditMonthlyTarget()">${formatRM(monthlyTarget)}</span></div><div class="kpi-small">Click to edit</div></div><div class="kpi"><div class="kpi-label">Achievement %</div><div class="kpi-value">${achievement.toFixed(1)}%</div><div class="kpi-small">vs Target</div><div class="inline-row"><div class="inline-item"><div class="label">Remaining Working Days</div><div class="value"><span id="sales-remainingDaysInput" class="editable-number" contenteditable="true" style="font-size:18px;">${remainingDays}</span></div></div></div></div><div class="kpi"><div class="kpi-label">Balance To Go</div><div class="kpi-value">${formatRM(balanceToGo)}</div><div class="daily-item"><div class="label">Daily Required Sale</div><div class="value" id="sales-dailyRequiredSale">${formatRM(0)}</div></div></div>`; document.getElementById('sales-kpiGrid').innerHTML = html; updateDailyRequired(balanceToGo); const remainingInput = document.getElementById('sales-remainingDaysInput'); if (remainingInput) { remainingInput.addEventListener('input', function() { let v = this.innerText.replace(/[^0-9]/g, ''); if (v === '') v = ''; else { let num = parseInt(v, 10); if (num < 1) num = 1; this.innerText = num; } const range = document.createRange(); const sel = window.getSelection(); range.selectNodeContents(this); range.collapse(false); sel.removeAllRanges(); sel.addRange(range); }); remainingInput.addEventListener('blur', function() { let days = parseFloat(this.innerText.replace(/[^0-9]/g, '')); if (isNaN(days) || days < 1) days = ''; localStorage.setItem('sales_remainingWorkingDays', days); updateDailyRequired(balanceToGo); }); remainingInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } }); } }
-            function updateDailyRequired(balanceToGo) { const remainingSpan = document.getElementById('sales-remainingDaysInput'); const dailySpan = document.getElementById('sales-dailyRequiredSale'); if (!remainingSpan || !dailySpan) return; let days = parseFloat(remainingSpan.innerText.replace(/[^0-9\.]/g, '')); if (isNaN(days) || days <= 0) { dailySpan.innerText = formatRM(0); } else { let daily = balanceToGo / days; dailySpan.innerText = formatRM(daily); } }
-            window.salesEditMonthlyTarget = function() { let newTarget = prompt("Enter Monthly Target (RM):", monthlyTarget.toFixed(2)); if (newTarget !== null && !isNaN(parseFloat(newTarget))) { monthlyTarget = parseFloat(newTarget); refreshAll(); saveToLocalStorage(); } };
-            function getAgentMonthlyData() { if (rawData.length === 0) return { labels: [], data: [] }; let maxDate = new Date(0); rawData.forEach(r=>{ if(r.date > maxDate) maxDate = r.date; }); let latestYear = maxDate.getFullYear(), latestMonth = maxDate.getMonth(); let agentMap = new Map(); rawData.forEach(r => { let code = r.agentCode || r.agent; if (!code) return; let isLatest = (r.date.getFullYear()===latestYear && r.date.getMonth()===latestMonth); if (isLatest) { agentMap.set(code, (agentMap.get(code)||0) + r.subtotal); } }); let arr = Array.from(agentMap.entries()).map(([code, revenue]) => ({ code, revenue })); arr.sort((a,b) => b.revenue - a.revenue); return { labels: arr.map(a => agentNameMap[a.code] || a.code), data: arr.map(a => a.revenue) }; }
-            function createChartConfig(type, label, data, bgColorOrArray, yFormat = formatRM) { return { type: type, data: { labels: data.labels, datasets: [{ label: label, data: data.data, backgroundColor: bgColorOrArray, borderRadius: 8, barPercentage: 0.7 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { tooltip: { callbacks: { label: (ctx) => yFormat(ctx.raw) } }, legend: { display: false }, datalabels: { display: (ctx) => ctrlPressed, color: '#1e293b', backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 12, padding: { left: 6, right: 6, top: 4, bottom: 4 }, font: { weight: 'bold', size: 11 }, formatter: (value) => yFormat(value), anchor: 'end', align: 'top', offset: 4 } }, scales: { y: { ticks: { callback: (val) => yFormat(val), font: { size: 13 } }, grid: { color: '#e2e8f0' } }, x: { ticks: { font: { size: 13 } }, grid: { display: false } } } } }; }
-            function buildCharts() { let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; let monthly = new Array(12).fill(0); rawData.forEach(r=>{ monthly[r.date.getMonth()] += r.subtotal; }); const monthlyData = { labels: months, data: monthly }; const agentData = getAgentMonthlyData(); const vibrantColors = ['#e6194b', '#f58231', '#ffe119', '#bfef45', '#3cb44b', '#42d4f4', '#4363d8', '#911eb4', '#f032e6', '#a9a9a9']; const agentColors = agentData.labels.map((_, i) => vibrantColors[i % vibrantColors.length]); if (salesChart) salesChart.destroy(); if (agentChart) agentChart.destroy(); salesChart = new Chart(document.getElementById('sales-salesChart'), createChartConfig('bar', 'Monthly Revenue (RM)', monthlyData, '#2563eb')); agentChart = new Chart(document.getElementById('sales-agentPerfChart'), createChartConfig('bar', 'Latest Month Sales by Agent (RM)', agentData, agentColors)); }
-            document.addEventListener('keydown', (e) => { if (e.key === 'Control') { ctrlPressed = true; if (salesChart) salesChart.update(); if (agentChart) agentChart.update(); } }); document.addEventListener('keyup', (e) => { if (e.key === 'Control') { ctrlPressed = false; if (salesChart) salesChart.update(); if (agentChart) agentChart.update(); } });
-            function buildAgentTable() { const tbody = document.querySelector('#sales-agentTable tbody'); const tfoot = document.getElementById('sales-agentTableFoot'); if (rawData.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="no-data-message">No transaction data. Please upload Excel.</td></tr>'; tfoot.innerHTML = ''; return; } let maxDate = new Date(0); rawData.forEach(r=>{ if(r.date > maxDate) maxDate = r.date; }); let latestYear = maxDate.getFullYear(), latestMonth = maxDate.getMonth(); let agentMap = new Map(); rawData.forEach(r => { let code = r.agentCode || r.agent; if (!code) return; let isLatest = (r.date.getFullYear()===latestYear && r.date.getMonth()===latestMonth); if (!agentMap.has(code)) { agentMap.set(code, { revenue:0, profit:0, latestRevenue:0 }); } let a = agentMap.get(code); a.revenue += r.subtotal; a.profit += r.profit; if (isLatest) a.latestRevenue += r.subtotal; }); let agents = []; for (let [code, val] of agentMap.entries()) { let target = agentTargetOverride.has(code) ? agentTargetOverride.get(code) : (fixedTargetMap[code] || 0); let hitRate = target ? (val.latestRevenue / target) * 100 : 0; let balanceToGo = target - val.latestRevenue; let balancePct = target ? (balanceToGo / target) * 100 : 0; let margin = val.revenue ? (val.profit / val.revenue) * 100 : 0; agents.push({ code, name: agentNameMap[code] || code, revenue: val.latestRevenue, hitRate, target, balanceToGo, balancePct, margin }); } agents.sort((a,b)=>{ let va, vb; switch(agentSortColumn){ case 'rank': va=agents.indexOf(a); vb=agents.indexOf(b); break; case 'code': va=a.code; vb=b.code; break; case 'name': va=a.name; vb=b.name; break; case 'revenue': va=a.revenue; vb=b.revenue; break; case 'hitrate': va=a.hitRate; vb=b.hitRate; break; case 'target': va=a.target; vb=b.target; break; case 'balance': va=a.balanceToGo; vb=b.balanceToGo; break; case 'balancePct': va=a.balancePct; vb=b.balancePct; break; default: va=a.revenue; vb=b.revenue; } if (typeof va === 'string') return agentSortDirection === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); return agentSortDirection === 'asc' ? va - vb : vb - va; }); tbody.innerHTML = ''; agents.forEach((a, idx) => { tbody.innerHTML += `<tr><td>${idx+1}</td><td>${a.code}</td><td><input type="text" class="agent-name-input" data-code="${a.code}" value="${escapeHtml(a.name)}" placeholder="Name"></td><td>${formatRM(a.revenue)}</td><td class="${a.hitRate>=0?'green':'red'}">${a.hitRate.toFixed(2)}%</td><td><span class="editable-target agent-target" data-code="${a.code}">${formatRM(a.target)}</span></td><td>${formatRM(a.balanceToGo)}</td><td class="${a.balancePct>=0?'red':'green'}">${a.balancePct.toFixed(2)}%</td></tr>`; }); let totalRevenue = agents.reduce((s,a)=>s+a.revenue,0); let totalTarget = agents.reduce((s,a)=>s+a.target,0); let totalBalance = totalTarget - totalRevenue; let totalHitRate = totalTarget ? (totalRevenue/totalTarget)*100 : 0; let totalBalancePct = totalTarget ? (totalBalance/totalTarget)*100 : 0; tfoot.innerHTML = `<tr class="total-row"><td colspan="3"><strong>Total</strong></td><td>${formatRM(totalRevenue)}</td><td>${totalHitRate.toFixed(2)}%</td><td>${formatRM(totalTarget)}</td><td>${formatRM(totalBalance)}</td><td>${totalBalancePct.toFixed(2)}%</td></tr>`; document.querySelectorAll('#sales-agentTable .agent-name-input').forEach(inp => { inp.onchange = (e) => { agentNameMap[inp.dataset.code] = inp.value; buildAgentTable(); buildCharts(); saveToLocalStorage(); }; }); document.querySelectorAll('#sales-agentTable .agent-target').forEach(el => { el.onclick = (e) => { let code = el.dataset.code; let current = parseFloat(el.innerText.replace(/[^0-9.-]/g,'')); let newTarget = prompt("Enter new target (RM):", current); if (newTarget && !isNaN(parseFloat(newTarget))) { agentTargetOverride.set(code, parseFloat(newTarget)); buildAgentTable(); saveToLocalStorage(); } }; }); }
-            function buildDealerTable() { if (rawData.length === 0) { const tbody = document.querySelector('#sales-dealerTable tbody'); tbody.innerHTML = '<tr><td colspan="6" class="no-data-message">No dealer data available. Please upload Excel.</td></tr>'; return; } let maxDate = new Date(0); rawData.forEach(r=>{ if(r.date>maxDate) maxDate=r.date; }); let latestYear = maxDate.getFullYear(), latestMonth = maxDate.getMonth(); let dealerMap = new Map(); rawData.forEach(r=>{ let diff = (latestYear - r.date.getFullYear())*12 + (latestMonth - r.date.getMonth()); if (!dealerMap.has(r.company)) dealerMap.set(r.company, {m0:0,m1:0,m2:0}); let obj = dealerMap.get(r.company); if (diff===0) obj.m0 += r.subtotal; else if (diff===1) obj.m1 += r.subtotal; else if (diff===2) obj.m2 += r.subtotal; }); let dealerList = []; for (let [name, v] of dealerMap.entries()) { let qtd = v.m0 + v.m1 + v.m2; let mom = v.m1 ? ((v.m0 - v.m1)/v.m1)*100 : 0; dealerList.push({ dealer:name, thisMonth:v.m0, lastMonth:v.m1, twoMonthsAgo:v.m2, qtd, mom }); } dealerList.sort((a,b)=>{ let va, vb; switch(dealerSortColumn){ case 'dealer': va=a.dealer; vb=b.dealer; break; case 'thisMonth': va=a.thisMonth; vb=b.thisMonth; break; case 'lastMonth': va=a.lastMonth; vb=b.lastMonth; break; case 'twoMonthsAgo': va=a.twoMonthsAgo; vb=b.twoMonthsAgo; break; case 'qtd': va=a.qtd; vb=b.qtd; break; case 'mom': va=a.mom; vb=b.mom; break; default: va=a.qtd; vb=b.qtd; } if (typeof va === 'string') return dealerSortDirection==='asc' ? va.localeCompare(vb) : vb.localeCompare(va); return dealerSortDirection==='asc' ? va - vb : vb - va; }); let tbody = document.querySelector('#sales-dealerTable tbody'); tbody.innerHTML = ''; dealerList.forEach(d => { tbody.innerHTML += `<tr><td>${d.dealer}</td><td class="highlight-month">${formatRM(d.thisMonth)}</td><td>${formatRM(d.lastMonth)}</td><td>${formatRM(d.twoMonthsAgo)}</td><td>${formatRM(d.qtd)}</td><td class="${d.mom>=0?'green':'red'}">${d.mom.toFixed(1)}%</td></tr>`; }); let total = {m0:0,m1:0,m2:0}; for (let v of dealerMap.values()) { total.m0+=v.m0; total.m1+=v.m1; total.m2+=v.m2; } let totalQtd = total.m0+total.m1+total.m2; let totalMom = total.m1 ? ((total.m0-total.m1)/total.m1)*100 : 0; tbody.innerHTML += `<tr class="total-row"><td><strong>📊 ALL DEALERS (Grand Total)</strong></td><td class="highlight-month">${formatRM(total.m0)}</td><td>${formatRM(total.m1)}</td><td>${formatRM(total.m2)}</td><td>${formatRM(totalQtd)}</td><td class="${totalMom>=0?'green':'red'}">${totalMom.toFixed(1)}%</td></tr>`; }
-            function buildTopDealer() { if (rawData.length === 0) { document.getElementById('sales-topDealerList').innerHTML = '<div class="no-data-message">No data available</div>'; return; } let maxDate = new Date(0); rawData.forEach(r=>{ if(r.date>maxDate) maxDate=r.date; }); let latestYear = maxDate.getFullYear(), latestMonth = maxDate.getMonth(); let map = new Map(); rawData.forEach(r=>{ if (r.date.getFullYear()===latestYear && r.date.getMonth()===latestMonth) { map.set(r.company, (map.get(r.company)||0) + r.subtotal); } }); let arr = Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).slice(0,10); let div = document.getElementById('sales-topDealerList'); div.innerHTML = ''; if (arr.length===0) { div.innerHTML = '<div>No data</div>'; return; } arr.forEach(([name, rev], idx)=>{ div.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;"><div>${idx+1}. ${name}</div><div style="font-weight:700;color:#2563eb;">${formatRM(rev)}</div></div>`; }); }
-            function escapeHtml(str) { return (str||'').replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-            function initSorting() { document.querySelectorAll('#sales-agentTable th').forEach(th => { let key = th.getAttribute('data-sort'); if (!key) return; th.onclick = () => { if (agentSortColumn === key) agentSortDirection = agentSortDirection==='asc' ? 'desc' : 'asc'; else { agentSortColumn = key; agentSortDirection = 'desc'; } buildAgentTable(); }; }); document.querySelectorAll('#sales-dealerTable th').forEach(th => { let key = th.getAttribute('data-sort'); if (!key) return; th.onclick = () => { if (dealerSortColumn === key) dealerSortDirection = dealerSortDirection==='asc' ? 'desc' : 'asc'; else { dealerSortColumn = key; dealerSortDirection = 'desc'; } buildDealerTable(); }; }); }
-            function onFileSelected(file) { const reader = new FileReader(); reader.onload = function(e) { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, { type: 'array' }); const sheet = workbook.Sheets[workbook.SheetNames[0]]; let rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" }); if (rows.length < 3) { alert("File too short"); return; } processRows(rows); }; reader.readAsArrayBuffer(file); }
-            function exportToCSV() { if (typeof saveAs === 'undefined') { alert("FileSaver not ready"); return; } let headers = ["Agent","AgentName","Company","Date","Qty","Subtotal","Margin","Profit"]; let rows = [headers, ...rawData.map(r=>[r.agentCode, r.salesman, r.company, r.date.toISOString().slice(0,10), r.qty, r.subtotal, r.margin, r.profit])]; let csv = rows.map(row=>row.map(cell=>`"${cell}"`).join(",")).join("\n"); let blob = new Blob([csv], {type:"text/csv;charset=utf-8"}); saveAs(blob, "sales_data.csv"); }
-            function exportToExcel() { let wsData = [["Agent","AgentName","Company","Date","Qty","Subtotal","Margin","Profit"], ...rawData.map(r=>[r.agentCode, r.salesman, r.company, r.date.toISOString().slice(0,10), r.qty, r.subtotal, r.margin, r.profit])]; let ws = XLSX.utils.aoa_to_sheet(wsData); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "SalesData"); XLSX.writeFile(wb, "sales_data.xlsx"); }
-            function clearData() { if (confirm("Clear all sales data?")) { rawData = []; monthlyTarget = 0; agentTargetOverride.clear(); refreshAll(); document.getElementById('sales-lastUpdateTimeDisplay').innerText = '—'; saveToLocalStorage(); } }
-            function updateSyncStatusUI(success, message, timestamp = null) { const iconDiv = document.getElementById('sales-syncStatusIcon'); const timeSpan = document.getElementById('sales-syncLastTime'); const statusText = document.getElementById('sales-syncStatusText'); if (success) { iconDiv.className = 'sync-status-badge success'; statusText.innerText = message || 'Synced successfully'; if (timestamp) timeSpan.innerText = `Last sync: ${timestamp}`; else timeSpan.innerText = `Last sync: ${new Date().toLocaleString()}`; } else { iconDiv.className = 'sync-status-badge failed'; statusText.innerText = message || 'Sync failed'; if (timestamp) timeSpan.innerText = `Failed at: ${timestamp}`; else timeSpan.innerText = `Failed at: ${new Date().toLocaleString()}`; } }
-            async function syncFromCloud() { const syncBtn = document.getElementById('sales-syncCloudBtn'); const originalText = syncBtn.innerHTML; syncBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing...'; updateSyncStatusUI(false, 'Syncing...', null); try { const response = await fetch(DEFAULT_SYNC_URL); if (!response.ok) throw new Error(`HTTP ${response.status}`); const blob = await response.blob(); const file = new File([blob], 'sync_cloud_data.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }); const reader = new FileReader(); reader.onload = function(e) { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, { type: 'array' }); const sheet = workbook.Sheets[workbook.SheetNames[0]]; let rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" }); if (rows.length > 2) { processRows(rows); updateSyncStatusUI(true, 'Synced successfully', new Date().toLocaleString()); } else throw new Error("No data found in the cloud file."); }; reader.onerror = () => { throw new Error("Failed to read cloud file."); }; reader.readAsArrayBuffer(file); } catch (err) { console.error(err); updateSyncStatusUI(false, `Sync failed: ${err.message}`, new Date().toLocaleString()); } finally { syncBtn.innerHTML = originalText; } }
-            function saveToLocalStorage() { const toStore = { rawData: rawData.map(t => ({ ...t, date: t.date.toISOString() })), monthlyTarget: monthlyTarget, agentNameMap: agentNameMap, agentTargetOverride: Array.from(agentTargetOverride.entries()), lastUpdateDate: lastUpdateDate ? lastUpdateDate.toISOString() : null }; localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore)); }
-            function loadFromLocalStorage() { const stored = localStorage.getItem(STORAGE_KEY); if (!stored) return false; try { const data = JSON.parse(stored); rawData = (data.rawData || []).map(t => ({ ...t, date: new Date(t.date) })); monthlyTarget = data.monthlyTarget || 0; agentNameMap = data.agentNameMap || { "B003": "Vivien", "B008": "Nicole", "B005": "Jacky", "B007": "Edmund" }; agentTargetOverride = new Map(data.agentTargetOverride || []); if (data.lastUpdateDate) lastUpdateDate = new Date(data.lastUpdateDate); return true; } catch(e) { return false; } }
-            document.addEventListener('DOMContentLoaded', () => { const hasData = loadFromLocalStorage(); if (hasData && rawData.length > 0) { refreshAll(); if (lastUpdateDate) document.getElementById('sales-lastUpdateTimeDisplay').innerText = lastUpdateDate.toLocaleDateString(); } else { refreshAll(); } initSorting(); document.getElementById('sales-uploadBtn').onclick = () => document.getElementById('sales-fileInput').click(); document.getElementById('sales-fileInput').onchange = (e) => { if (e.target.files[0]) onFileSelected(e.target.files[0]); }; document.getElementById('sales-exportCSVBtn').onclick = exportToCSV; document.getElementById('sales-exportExcelBtn').onclick = exportToExcel; document.getElementById('sales-clearDataBtn').onclick = clearData; document.getElementById('sales-syncCloudBtn').onclick = syncFromCloud; updateSyncStatusUI(false, 'Not synced', null); });
-        })();
+  const $s = (sel) => document.querySelector(sel);
+  const $$s = (sel) => Array.from(document.querySelectorAll(sel));
+  const formatRM = v => new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR',minimumFractionDigits:2}).format(v||0);
 
-        // ============================================================
-        // 3. 原版 Product Calculator v6.6 脚本（完整，无改动）
-        // ============================================================
-        (function() {
-            // 完整双语映射（和用户提供的一致）
-            const langMap = {
-                cn: {
-                    pageTitle: "Product Calculator | v6.6",
-                    mainTitle: "Product Calculator", versionText: " v6.6 (修复版)", liveLabel: "USD/MYR 基准汇率",
-                    plusLabel: "➕ 额外加成", appliedRateLabel: "💱 最终应用汇率 (基准+加成) :",
-                    formulaLabel: "📐 公式：", formulaCode: "Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP",
-                    fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
-                    freightLabel: "🚢 Freight (除数)", gpLabel: "📈 GP% 除数",
-                    priceLabel: "🏷️ 预期售价 (MYR)", step1Label: "FOB ÷ SST (USD) :", step2Label: "× 汇率后 :", step3Label: "÷ Freight :",
-                    landingLabel: "📦 Landing Cost (向上取整)", gpLabelText: "📊 毛利率 (基于售价)", profitLabel: "💵 毛利额 :", clearText: "一键清除",
-                    errorGp: "❌ GP% 除数不能为0或负数", errorFreight: "❌ Freight 除数不能为0或负数", errorDiv: "❌ 除数不能为零",
-                    errorRate: "❌ 应用汇率无效 (≤0)", fetchErr: "⚠️ 网络失败，使用本地存储汇率", 
-                    clearOk: "✅ 已重置所有输入",
-                    loading: "获取中...", datePrefix: "📅 ", marketRate: "在线汇率", cacheMsg: "📦 使用本地存储汇率",
-                    refreshBtn: "🔄 刷新汇率", 
-                    freightHintPrefix: "增加成本 ≈ ", gpHintPrefix: "毛利率 ≈ ", percent: "%",
-                    manualLabel: "✏️ 手动输入汇率 (MYR/USD)", manualNote: "离线时可用，将覆盖自动获取值",
-                    applyManual: "📌 应用并保存",
-                    resetAuto: "🔄 恢复自动汇率",
-                    sourceManual: "✏️ 手动设定",
-                    versionInfo: "💡 提示：汇率会自动",
-                    poweredBy: "Powered By Daneil.G.CS | 智能识别版 v6.6",
-                    errorFreightNan: "❌ Freight 不能为空或非数字",
-                    errorGpNan: "❌ GP% 不能为空或非数字"
-                },
-                en: {
-                    pageTitle: "Product Calculator | v6.6",
-                    mainTitle: "Product Calculator", versionText: " v6.6 (Fixed)", liveLabel: "USD/MYR Base Rate",
-                    plusLabel: "➕ Markup", appliedRateLabel: "💱 Final Rate (Base+Markup) :",
-                    formulaLabel: "📐 Formula: ", formulaCode: "Landing Cost = FOB ÷ SST × Rate ÷ Freight ÷ GP",
-                    fobLabel: "💰 FOB (USD)", sstLabel: "🧾 SST/VAT Tax", sstOpt1: "0.95 (5%)", sstOpt2: "0.90 (10%)",
-                    freightLabel: "🚢 Freight (Divisor)", gpLabel: "📈 GP% Divisor",
-                    priceLabel: "🏷️ Selling Price (MYR)", step1Label: "FOB ÷ SST (USD) :", step2Label: "× Rate :", step3Label: "÷ Freight :",
-                    landingLabel: "📦 Landing Cost (Ceil)", gpLabelText: "📊 Gross Margin (based on price)", profitLabel: "💵 Gross Profit :", clearText: "Clear All",
-                    errorGp: "❌ GP divisor cannot be 0 or negative", errorFreight: "❌ Freight divisor cannot be 0 or negative", errorDiv: "❌ Divisor cannot be zero",
-                    errorRate: "❌ Applied rate invalid (≤0)", fetchErr: "⚠️ Network failed, using stored rate", 
-                    clearOk: "✅ Cleared",
-                    loading: "Loading...", datePrefix: "📅 ", marketRate: "Live rate", cacheMsg: "📦 Using stored rate",
-                    refreshBtn: "🔄 Refresh Rate",
-                    freightHintPrefix: "Cost increase ≈ ", gpHintPrefix: "Gross margin ≈ ", percent: "%",
-                    manualLabel: "✏️ Manual Rate (MYR/USD)", manualNote: "Overrides auto-fetch, works offline",
-                    applyManual: "📌 Apply & Save",
-                    resetAuto: "🔄 Reset to Auto",
-                    sourceManual: "✏️ Manual",
-                    versionInfo: "💡 Tip: Rate auto-saves",
-                    poweredBy: "Powered By Daneil.G.CS | Smart Edition v6.6",
-                    errorFreightNan: "❌ Freight cannot be empty or NaN",
-                    errorGpNan: "❌ GP% cannot be empty or NaN"
-                }
-            };
-            let curLang = 'en';
-            function t(key) { return langMap[curLang][key] || key; }
+  // ---------- Date Parser ----------
+  function parseExcelDate(val) {
+    if(!val) return null;
+    if(typeof val==='number' && val>30000 && val<100000) {
+      let d=XLSX.SSF.parse_date_code(val);
+      if(d) return new Date(d.y,d.m-1,d.d);
+    }
+    let s=val.toString().trim();
+    let d=new Date(s);
+    if(!isNaN(d.getTime())) return d;
+    let parts=s.split(/[-/]/);
+    if(parts.length===3) {
+      let y=parseInt(parts[0]), m=parseInt(parts[1]), day=parseInt(parts[2]);
+      if(!isNaN(y)&&!isNaN(m)&&!isNaN(day)) {
+        if(y>2000) return new Date(y,m-1,day);
+        if(y<100) return new Date(2000+y,m-1,day);
+      }
+    }
+    return null;
+  }
 
-            // DOM 元素
-            const fobInput = document.getElementById('fobInput');
-            const freightInput = document.getElementById('freightInput');
-            const gpInput = document.getElementById('gpInput');
-            const sellingPrice = document.getElementById('sellingPrice');
-            const markupInput = document.getElementById('markupInput');
-            const refreshBtn = document.getElementById('refreshBtn');
-            const clearBtn = document.getElementById('clearBtn');
-            const sstRadios = document.querySelectorAll('input[name="sst"]');
-            const liveRateSpan = document.getElementById('liveRateValue');
-            const liveDateSpan = document.getElementById('liveDate');
-            const appliedRateSpan = document.getElementById('appliedRateValue');
-            const step1Span = document.getElementById('step1Val');
-            const step2Span = document.getElementById('step2Val');
-            const step3Span = document.getElementById('step3Val');
-            const landingSpan = document.getElementById('landingVal');
-            const gpPercentSpan = document.getElementById('gpPercent');
-            const profitSpan = document.getElementById('profitAmount');
-            const gpCard = document.getElementById('gpCard');
-            const warningIcon = document.getElementById('warningIcon');
-            const errorDiv = document.getElementById('errorMsg');
-            const datetimeSpan = document.getElementById('datetimeDisplay');
-            const sourceHintSpan = document.getElementById('sourceHint');
-            const versionInfoSpan = document.getElementById('versionInfo');
-            const poweredBySpan = document.getElementById('poweredBy');
-            const freightHintSpan = document.getElementById('freightHint');
-            const gpHintSpan = document.getElementById('gpHint');
-            const pageTitleElem = document.getElementById('pageTitle');
-            const manualRateInput = document.getElementById('manualRateInput');
-            const applyManualBtn = document.getElementById('applyManualBtn');
-            const resetAutoBtn = document.getElementById('resetAutoBtn');
-            const manualNoteSpan = document.getElementById('manualNote');
+  function getLast3MonthsRevenue() {
+    if(rawData.length===0) return 0;
+    let maxDate=new Date(0);
+    rawData.forEach(t=>{ if(t.date>maxDate) maxDate=t.date; });
+    let total=0, cy=maxDate.getFullYear(), cm=maxDate.getMonth();
+    for(let i=1;i<=3;i++) {
+      let m=cm-i, y=cy;
+      if(m<0){m+=12;y--;}
+      rawData.forEach(t=>{ if(t.date.getFullYear()===y&&t.date.getMonth()===m) total+=t.subtotal; });
+    }
+    return total;
+  }
 
-            const WORKER_URL = 'https://liverate.daneilgoh.workers.dev';
-            let currentBaseRate = 3.97;
-            let lastSystemError = '', lastUserHint = '';
-            let autoRefreshTimer = null;
-            let lastFetchTime = null;
+  // ---------- Process Excel rows ----------
+  function processRows(rows) {
+    function normalize(s){ return (s||'').toString().trim().toLowerCase(); }
+    let headerRowIdx=-1;
+    for(let i=0;i<Math.min(rows.length,25);i++){
+      let row=rows[i].map(normalize);
+      if(row.some(c=>c.includes('company')||c.includes('dealer')) &&
+         row.some(c=>c.includes('sub total')||c.includes('amount')||c.includes('sales')||c.includes('revenue'))){
+        headerRowIdx=i; break;
+      }
+    }
+    if(headerRowIdx===-1){ alert("Cannot detect header row."); return; }
+    let headers=rows[headerRowIdx].map(normalize);
+    function findCol(keywords){return headers.findIndex(h=>keywords.some(k=>h.includes(k)));}
+    const idxAgent=findCol(['sales agent','agent']),
+          idxSalesman=findCol(['salesman','saleman','staff','name']),
+          idxCompany=findCol(['company name','company','dealer']),
+          idxDate=findCol(['date','invoice date']),
+          idxQty=findCol(['qty','quantity']),
+          idxSubtotal=findCol(['sub total','subtotal','amount','sales amount','total sales','sale total','total','销售额']),
+          idxMargin=findCol(['profit margin (%)','profit margin','margin','利润率']),
+          idxProfit=findCol(['local profit','profit']);
+    if(idxCompany===-1||idxSubtotal===-1){ alert("Missing Company or Sub Total column"); return; }
+    let lastAgent="", lastCompany="", lastSalesman="";
+    let transactions=[];
+    for(let i=headerRowIdx+1;i<rows.length;i++){
+      let row=rows[i];
+      if(!row||row.length===0) continue;
+      let companyRaw=row[idxCompany]?row[idxCompany].toString().trim():"";
+      let company=companyRaw;
+      if(company===""&&lastCompany!=="") company=lastCompany;
+      if(company!=="") lastCompany=company;
+      if(company==="") continue;
+      let subtotal=parseFloat(row[idxSubtotal])||0;
+      if(subtotal===0) continue;
+      let rawItem=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():"";
+      if(companyRaw===""&&rawItem===""&&row[idxSubtotal]!==undefined) continue;
+      let qty=parseFloat(row[idxQty])||0,
+          margin=(idxMargin>=0)?parseFloat(row[idxMargin]):0,
+          profit=(idxProfit>=0)?parseFloat(row[idxProfit]):0;
+      if(isNaN(margin)) margin=0;
+      if(isNaN(profit)) profit=0;
+      let agent=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():"";
+      let salesman=(idxSalesman>=0&&row[idxSalesman])?row[idxSalesman].toString().trim():"";
+      if(agent===""&&lastAgent!=="") agent=lastAgent;
+      if(salesman===""&&lastSalesman!=="") salesman=lastSalesman;
+      if(agent!=="") lastAgent=agent;
+      if(salesman!=="") lastSalesman=salesman;
+      let finalAgent=agent||salesman||"Unknown";
+      let rawDate=(idxDate>=0&&row[idxDate])?row[idxDate]:null;
+      let date=parseExcelDate(rawDate);
+      if(!date) continue;
+      transactions.push({agent:finalAgent,agentCode:agent,salesman:salesman,company:company,subtotal,qty,margin,profit,date});
+    }
+    if(transactions.length===0){ alert("No valid transactions found"); return; }
+    rawData=transactions;
+    let maxDate=new Date(0);
+    rawData.forEach(t=>{ if(t.date>maxDate) maxDate=t.date; });
+    lastUpdateDate=maxDate;
+    document.getElementById('sales-lastUpdateTimeDisplay').innerText = maxDate.toLocaleDateString();
+    refreshSalesUI();
+    alert(`✅ Loaded ${transactions.length} transactions`);
+  }
 
-            function parseMoney(s) { let num = Number(String(s).replace(/,/g, '')); return isFinite(num) ? num : 0; }
-            function formatMoney(v) { let n = Number(v); if (!isFinite(n)) return "0.00"; return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-            function setupSmartNumberInput(inputElement) {
-                inputElement.addEventListener('blur', function() { let num = parseMoney(this.value); if (isNaN(num)) num = 0; if (num < 0) num = 0; this.value = num.toFixed(2); compute(); });
-                inputElement.addEventListener('focus', function() { if (this.value === '0.00') this.select(); });
-                inputElement.addEventListener('input', compute);
-            }
-            function loadStoredRate() { const manual = localStorage.getItem('manualBaseRate'); if (manual && !isNaN(parseFloat(manual))) { currentBaseRate = parseFloat(manual); sourceHintSpan.innerText = t('sourceManual'); return true; } const cached = localStorage.getItem('cachedBaseRate'); if (cached && !isNaN(parseFloat(cached))) { currentBaseRate = parseFloat(cached); sourceHintSpan.innerText = t('cacheMsg'); return true; } return false; }
-            function saveCachedRate(rate, isManual = false) { if (isManual) { localStorage.setItem('manualBaseRate', rate.toFixed(4)); localStorage.removeItem('cachedBaseRate'); } else { if (!localStorage.getItem('manualBaseRate')) { localStorage.setItem('cachedBaseRate', rate.toFixed(4)); } } }
-            function setManualRate(rate) { if (isNaN(rate) || rate <= 0) return false; currentBaseRate = parseFloat(rate.toFixed(4)); saveCachedRate(currentBaseRate, true); liveRateSpan.innerText = currentBaseRate.toFixed(4); liveDateSpan.innerText = t('datePrefix') + new Date().toLocaleString(); sourceHintSpan.innerText = t('sourceManual'); updateAppliedRateDisplay(); compute(); return true; }
-            async function resetToAuto() { localStorage.removeItem('manualBaseRate'); if (!loadStoredRate()) { currentBaseRate = 3.97; liveRateSpan.innerText = currentBaseRate.toFixed(4); sourceHintSpan.innerText = t('cacheMsg'); } await refreshRateAndUI(); manualRateInput.value = ''; }
-            function updateDateTime() { const now = new Date(); const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }; datetimeSpan.innerText = now.toLocaleString(curLang === 'cn' ? 'zh-CN' : 'en-US', options); }
-            function updateFreightHint() { let freight = parseFloat(freightInput.value); if (isNaN(freight) || freight <= 0) { freightHintSpan.innerText = curLang === 'cn' ? '无效' : 'invalid'; return; } let increase = (1 / freight - 1) * 100; freightHintSpan.innerText = t('freightHintPrefix') + increase.toFixed(2) + t('percent'); }
-            function updateGpHint() { let gp = parseFloat(gpInput.value); if (isNaN(gp) || gp <= 0) { gpHintSpan.innerText = curLang === 'cn' ? '无效' : 'invalid'; return; } let margin = (1 / gp - 1) * 100; gpHintSpan.innerText = t('gpHintPrefix') + margin.toFixed(2) + t('percent'); }
-            function updateUI() { if (pageTitleElem) pageTitleElem.innerText = t('pageTitle'); for (let key in langMap[curLang]) { let el = document.getElementById(key); if (el && el.tagName !== 'INPUT' && el.tagName !== 'CODE') { if (el.id === 'manualNote' || el.id === 'poweredBy') continue; el.innerText = t(key); } } refreshBtn.innerText = t('refreshBtn'); document.getElementById('clearText').innerText = t('clearText'); document.getElementById('sstOpt1').innerText = t('sstOpt1'); document.getElementById('sstOpt2').innerText = t('sstOpt2'); manualNoteSpan.innerText = t('manualNote'); applyManualBtn.innerText = t('applyManual'); resetAutoBtn.innerText = t('resetAuto'); document.getElementById('manualLabel').innerText = t('manualLabel'); versionInfoSpan.innerText = t('versionInfo'); poweredBySpan.innerText = t('poweredBy'); updateFreightHint(); updateGpHint(); errorDiv.innerText = lastSystemError || ''; updateDateTime(); if (localStorage.getItem('manualBaseRate') && sourceHintSpan.innerText !== t('sourceManual')) { sourceHintSpan.innerText = t('sourceManual'); } }
-            function getMarkup() { let val = parseFloat(markupInput.value); return isNaN(val) ? 0 : val; }
-            function getAppliedRate() { return currentBaseRate + getMarkup(); }
-            function updateAppliedRateDisplay() { let applied = getAppliedRate(); appliedRateSpan.innerText = applied.toFixed(4); if (applied <= 0 && !lastSystemError) lastSystemError = t('errorRate'); else if (applied > 0 && lastSystemError === t('errorRate')) lastSystemError = ''; updateErrorDisplay(); }
-            function updateErrorDisplay() { if (lastSystemError) errorDiv.innerText = lastSystemError; else errorDiv.innerText = ''; }
-            async function fetchMarketRate() { try { const controller = new AbortController(); const timeoutId = setTimeout(() => controller.abort(), 8000); const res = await fetch(WORKER_URL, { signal: controller.signal }); clearTimeout(timeoutId); if (!res.ok) throw new Error(`HTTP ${res.status}`); const data = await res.json(); if (data.success && typeof data.rate === 'number' && data.rate > 0) { if (!localStorage.getItem('manualBaseRate')) { currentBaseRate = data.rate; saveCachedRate(currentBaseRate, false); liveRateSpan.innerText = currentBaseRate.toFixed(4); const dateStr = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : new Date().toLocaleString(); liveDateSpan.innerText = t('datePrefix') + dateStr; sourceHintSpan.innerText = t('marketRate'); } else { liveDateSpan.innerText = t('datePrefix') + new Date().toLocaleString(); sourceHintSpan.innerText = t('sourceManual'); } lastSystemError = ''; return true; } else { throw new Error(data.error || 'Invalid data'); } } catch (err) { console.warn('Worker fetch failed', err); if (!loadStoredRate()) { } liveRateSpan.innerText = currentBaseRate.toFixed(4); liveDateSpan.innerText = t('datePrefix') + (lastFetchTime ? lastFetchTime.toLocaleString() : t('loading')); if (!localStorage.getItem('manualBaseRate')) { sourceHintSpan.innerText = t('cacheMsg'); } else { sourceHintSpan.innerText = t('sourceManual'); } if (!lastSystemError) lastSystemError = t('fetchErr'); return false; } }
-            async function refreshRateAndUI() { const success = await fetchMarketRate(); lastFetchTime = new Date(); updateAppliedRateDisplay(); compute(); if (!success) updateErrorDisplay(); else if (lastSystemError === t('fetchErr')) lastSystemError = ''; updateErrorDisplay(); }
-            function getSST() { for (let r of sstRadios) if (r.checked) return parseFloat(r.value); return 0.95; }
-            function compute() { let fob = parseMoney(fobInput.value); let sst = getSST(); let rate = getAppliedRate(); let freight = parseFloat(freightInput.value); let gp = parseFloat(gpInput.value); let price = parseMoney(sellingPrice.value); let errorMsg = ''; if (isNaN(rate) || rate <= 0) errorMsg = t('errorRate'); else if (isNaN(freight) || freight <= 0) errorMsg = t('errorFreight'); else if (isNaN(gp) || gp <= 0) errorMsg = t('errorGp'); else if (sst === 0) errorMsg = t('errorDiv'); if (errorMsg) { lastSystemError = errorMsg; step1Span.innerText = '$0.00'; step2Span.innerText = step3Span.innerText = '0.00 MYR'; landingSpan.innerText = '0.00 MYR'; gpPercentSpan.innerText = '0.00%'; profitSpan.innerText = '0.00 MYR'; gpCard.classList.remove('negative'); warningIcon.style.display = 'none'; updateErrorDisplay(); return; } const step1 = fob / sst; const step2 = step1 * rate; const step3 = step2 / freight; let landingRaw = step3 / gp; let landing = Math.ceil(landingRaw * 100) / 100; if (landing < 0) landing = 0; step1Span.innerText = '$' + step1.toFixed(2); step2Span.innerText = step2.toFixed(2) + ' MYR'; step3Span.innerText = step3.toFixed(2) + ' MYR'; landingSpan.innerText = formatMoney(landing) + ' MYR'; let gross = 0, margin = 0; if (landing > 0 && price > 0) { gross = price - landing; margin = (gross / landing) * 100; } else if (price > 0 && landing === 0) { gross = price; margin = NaN; } else if (landing > 0 && price <= 0) { gross = -landing; margin = -100; } else { margin = 0; gross = 0; } if (isNaN(margin) || !isFinite(margin)) { gpPercentSpan.innerText = 'N/A'; } else { if (margin > 1000) margin = 999.99; if (margin < -1000) margin = -999.99; gpPercentSpan.innerText = margin.toFixed(2) + '%'; } profitSpan.innerText = formatMoney(gross) + ' MYR'; if (margin < -0.01) { gpCard.classList.add('negative'); warningIcon.style.display = 'inline-block'; } else { gpCard.classList.remove('negative'); warningIcon.style.display = 'none'; } if (!lastSystemError) { errorDiv.innerText = ''; } else { updateErrorDisplay(); } }
-            async function refreshAll() { await refreshRateAndUI(); }
-            function clearAll() { fobInput.value = '0.00'; sellingPrice.value = '0.00'; freightInput.value = '0.97'; gpInput.value = '0.97'; markupInput.value = '0.00'; compute(); updateFreightHint(); updateGpHint(); lastUserHint = ''; errorDiv.innerText = t('clearOk'); setTimeout(() => { if (errorDiv.innerText === t('clearOk')) { if (lastSystemError) errorDiv.innerText = lastSystemError; else errorDiv.innerText = ''; } }, 2000); }
-            function bindEvents() { setupSmartNumberInput(fobInput); setupSmartNumberInput(sellingPrice); freightInput.addEventListener('input', () => { updateFreightHint(); compute(); }); gpInput.addEventListener('input', () => { updateGpHint(); compute(); }); markupInput.addEventListener('input', compute); sstRadios.forEach(r => r.addEventListener('change', compute)); refreshBtn.addEventListener('click', () => refreshAll()); clearBtn.addEventListener('click', clearAll); applyManualBtn.addEventListener('click', () => { let val = parseFloat(manualRateInput.value); if (isNaN(val) || val <= 0) { alert(curLang === 'cn' ? '请输入有效的正数汇率' : 'Please enter a valid positive rate'); return; } setManualRate(val); manualRateInput.value = ''; }); resetAutoBtn.addEventListener('click', () => resetToAuto()); document.querySelectorAll('.lang-btn').forEach(btn => { btn.addEventListener('click', () => { setLanguage(btn.dataset.lang); document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }); }); }
-            function setLanguage(lang) { curLang = lang; updateUI(); compute(); }
-            async function init() { bindEvents(); loadStoredRate(); updateUI(); await refreshRateAndUI(); compute(); updateFreightHint(); updateGpHint(); if (autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer = setInterval(async () => { const activeEl = document.activeElement; const isEditing = activeEl === fobInput || activeEl === sellingPrice || activeEl === markupInput || activeEl === freightInput || activeEl === gpInput; if (!isEditing && !localStorage.getItem('manualBaseRate')) { await refreshRateAndUI(); } }, 10 * 60 * 1000); setInterval(updateDateTime, 1000); updateDateTime(); }
-            init();
-        })();
-    </script>
-</body>
-</html>
+  // ---------- UI Refresh ----------
+  function refreshSalesUI() {
+    buildKPIs();
+    buildAgentTable();
+    buildDealerTable();
+    buildTopDealer();
+    buildCharts();
+  }
+
+  // ---------- KPI Cards ----------
+  function buildKPIs() {
+    let maxDate=rawData.length>0?rawData.reduce((max,t)=>t.date>max?t.date:max,new Date(0)):new Date(0);
+    let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
+    let currentMonthSales=rawData.length>0?rawData.filter(t=>t.date.getFullYear()===ly&&t.date.getMonth()===lm).reduce((s,t)=>s+t.subtotal,0):0;
+    if(monthlyTarget===0) monthlyTarget=currentMonthSales*1.2;
+    let achievement=monthlyTarget?(currentMonthSales/monthlyTarget)*100:0;
+    let balanceToGo=monthlyTarget-currentMonthSales;
+    let last3MonthsRevenue=getLast3MonthsRevenue();
+    let totalProfit=rawData.reduce((s,t)=>s+t.profit,0);
+    let avgMargin=last3MonthsRevenue?(totalProfit/last3MonthsRevenue)*100:0;
+    let remainingDays=localStorage.getItem('remainingWorkingDays')||'';
+    document.getElementById('salesKpiGrid').innerHTML = `
+      <div class="kpi"><div class="kpi-label">Total Revenue (Last 3 Months)</div><div class="kpi-value">${formatRM(last3MonthsRevenue)}</div><div class="kpi-small">Excluding current month</div></div>
+      <div class="kpi"><div class="kpi-label">Monthly Sales (Latest Month)</div><div class="kpi-value">${formatRM(currentMonthSales)}</div><div class="kpi-small"><span class="highlight-date">Data as of: ${maxDate.toLocaleDateString()}</span></div></div>
+      <div class="kpi"><div class="kpi-label">Monthly Target</div><div class="kpi-value"><span class="editable-target" onclick="window.editSalesTarget()">${formatRM(monthlyTarget)}</span></div><div class="kpi-small">Click to edit</div></div>
+      <div class="kpi"><div class="kpi-label">Achievement %</div><div class="kpi-value">${achievement.toFixed(1)}%</div><div class="kpi-small">vs Target</div><div class="inline-row"><div class="inline-item"><div class="label">Remaining Working Days</div><div class="value"><span id="remainingDaysInput" class="editable-number" contenteditable="true">${remainingDays}</span></div></div></div></div>
+      <div class="kpi"><div class="kpi-label">Balance To Go</div><div class="kpi-value">${formatRM(balanceToGo)}</div><div class="daily-item"><div class="label">Daily Required Sale</div><div class="value" id="dailyRequiredSale">${formatRM(0)}</div></div></div>
+    `;
+    updateDailyRequired(balanceToGo);
+    const remainingInput = document.getElementById('remainingDaysInput');
+    if(remainingInput) {
+      remainingInput.addEventListener('blur', function(){
+        let days=parseFloat(this.innerText.replace(/[^0-9]/g,''));
+        if(isNaN(days)||days<1) days='';
+        localStorage.setItem('remainingWorkingDays',days);
+        updateDailyRequired(balanceToGo);
+      });
+      remainingInput.addEventListener('keypress', function(e){
+        if(e.key==='Enter'){ e.preventDefault(); this.blur(); }
+      });
+    }
+  }
+  function updateDailyRequired(balanceToGo) {
+    const remainingSpan = document.getElementById('remainingDaysInput');
+    const dailySpan = document.getElementById('dailyRequiredSale');
+    if(!remainingSpan||!dailySpan) return;
+    let days = parseFloat(remainingSpan.innerText.replace(/[^0-9\.]/g,''));
+    dailySpan.innerText = (isNaN(days)||days<=0) ? formatRM(0) : formatRM(balanceToGo/days);
+  }
+  window.editSalesTarget = function() {
+    let newTarget = prompt("Enter Monthly Target (RM):", monthlyTarget.toFixed(2));
+    if(newTarget !== null && !isNaN(parseFloat(newTarget))) { monthlyTarget = parseFloat(newTarget); refreshSalesUI(); }
+  };
+
+  // ---------- Charts ----------
+  function getAgentMonthlyData() {
+    if(rawData.length===0) return {labels:[],data:[]};
+    let maxDate=new Date(0);
+    rawData.forEach(r=>{ if(r.date>maxDate) maxDate=r.date; });
+    let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
+    let map=new Map();
+    rawData.forEach(r=>{
+      let code=r.agentCode||r.agent; if(!code) return;
+      if(r.date.getFullYear()===ly&&r.date.getMonth()===lm) map.set(code,(map.get(code)||0)+r.subtotal);
+    });
+    let arr=Array.from(map.entries()).map(([code,rev])=>({code,rev}));
+    arr.sort((a,b)=>b.rev-a.rev);
+    return {labels:arr.map(a=>agentNameMap[a.code]||a.code), data:arr.map(a=>a.rev)};
+  }
+  function createChartConfig(type,label,data,bgColor){
+    return {
+      type, data:{labels:data.labels,datasets:[{label,data:data.data,backgroundColor:bgColor,borderRadius:8,barPercentage:0.7}]},
+      options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{
+          tooltip:{callbacks:{label:(ctx)=>formatRM(ctx.raw)}},
+          legend:{display:false},
+          datalabels:{display:(ctx)=>ctrlPressed, color:'#1e293b', backgroundColor:'rgba(255,255,255,0.7)', borderRadius:12, padding:4, font:{weight:'bold',size:11}, formatter:(value)=>formatRM(value), anchor:'end', align:'top', offset:4}
+        },
+        scales:{ y:{ ticks:{callback:(val)=>formatRM(val)}, grid:{color:'#e2e8f0'} }, x:{ grid:{display:false} } }
+      }
+    };
+  }
+  function buildCharts() {
+    let months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let monthly=new Array(12).fill(0);
+    rawData.forEach(r=>{ monthly[r.date.getMonth()] += r.subtotal; });
+    const agentData=getAgentMonthlyData();
+    const colors=['#e6194b','#f58231','#ffe119','#bfef45','#3cb44b','#42d4f4','#4363d8','#911eb4','#f032e6','#a9a9a9'];
+    if(salesChart) salesChart.destroy();
+    if(agentChart) agentChart.destroy();
+    salesChart = new Chart(document.getElementById('salesChart'), createChartConfig('bar','Monthly Revenue',{labels:months,data:monthly},'#2563eb'));
+    agentChart = new Chart(document.getElementById('agentPerfChart'), createChartConfig('bar','Agent Sales',agentData,agentData.labels.map((_,i)=>colors[i%colors.length])));
+  }
+  document.addEventListener('keydown', e=>{ if(e.key==='Control'){ ctrlPressed=true; if(salesChart)salesChart.update(); if(agentChart)agentChart.update(); } });
+  document.addEventListener('keyup', e=>{ if(e.key==='Control'){ ctrlPressed=false; if(salesChart)salesChart.update(); if(agentChart)agentChart.update(); } });
+
+  // ---------- Agent Table ----------
+  function buildAgentTable() {
+    const tbody=document.querySelector('#sales-agentTable tbody');
+    const tfoot=document.getElementById('sales-agentTableFoot');
+    if(rawData.length===0){
+      tbody.innerHTML='<tr><td colspan="8" class="no-data-message">No transaction data.</td></tr>';
+      tfoot.innerHTML=''; return;
+    }
+    let maxDate=new Date(0);
+    rawData.forEach(r=>{ if(r.date>maxDate) maxDate=r.date; });
+    let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
+    let map=new Map();
+    rawData.forEach(r=>{
+      let code=r.agentCode||r.agent; if(!code) return;
+      let isLatest=(r.date.getFullYear()===ly&&r.date.getMonth()===lm);
+      if(!map.has(code)) map.set(code,{revenue:0,profit:0,latestRevenue:0});
+      let a=map.get(code); a.revenue+=r.subtotal; a.profit+=r.profit;
+      if(isLatest) a.latestRevenue+=r.subtotal;
+    });
+    let agents=[];
+    for(let [code,val] of map.entries()){
+      let target=agentTargetOverride.has(code)?agentTargetOverride.get(code):(fixedTargetMap[code]||0);
+      let hitRate=target?(val.latestRevenue/target)*100:0;
+      let balanceToGo=target-val.latestRevenue;
+      let balancePct=target?(balanceToGo/target)*100:0;
+      agents.push({code,name:agentNameMap[code]||code,revenue:val.latestRevenue,hitRate,target,balanceToGo,balancePct});
+    }
+    agents.sort((a,b)=>{
+      let va,vb;
+      switch(agentSortColumn){
+        case'revenue':va=a.revenue;vb=b.revenue;break;
+        case'hitrate':va=a.hitRate;vb=b.hitRate;break;
+        case'target':va=a.target;vb=b.target;break;
+        case'balance':va=a.balanceToGo;vb=b.balanceToGo;break;
+        case'balancePct':va=a.balancePct;vb=b.balancePct;break;
+        default:va=a.revenue;vb=b.revenue;
+      }
+      return agentSortDirection==='asc'?va-vb:vb-va;
+    });
+    tbody.innerHTML = agents.map((a,idx)=>`
+      <tr>
+        <td>${idx+1}</td>
+        <td>${a.code}</td>
+        <td><input class="agent-name-input" data-code="${a.code}" value="${a.name.replace(/&/g,'&amp;')}"></td>
+        <td>${formatRM(a.revenue)}</td>
+        <td class="${a.hitRate>=0?'green':'red'}">${a.hitRate.toFixed(2)}%</td>
+        <td><span class="editable-target agent-target" data-code="${a.code}">${formatRM(a.target)}</span></td>
+        <td>${formatRM(a.balanceToGo)}</td>
+        <td class="${a.balancePct>=0?'red':'green'}">${a.balancePct.toFixed(2)}%</td>
+      </tr>`).join('');
+    let totalRev=agents.reduce((s,a)=>s+a.revenue,0),
+        totalTarget=agents.reduce((s,a)=>s+a.target,0),
+        totalBal=totalTarget-totalRev;
+    tfoot.innerHTML = `<tr class="total-row">
+      <td colspan="3">Total</td>
+      <td>${formatRM(totalRev)}</td>
+      <td>${totalTarget?(totalRev/totalTarget*100).toFixed(2):'0.00'}%</td>
+      <td>${formatRM(totalTarget)}</td>
+      <td>${formatRM(totalBal)}</td>
+      <td>${totalTarget?(totalBal/totalTarget*100).toFixed(2):'0.00'}%</td>
+    </tr>`;
+    $$s('.agent-name-input').forEach(inp=>{
+      inp.onchange = () => { agentNameMap[inp.dataset.code]=inp.value; buildAgentTable(); buildCharts(); };
+    });
+    $$s('.agent-target').forEach(el=>{
+      el.onclick = () => {
+        let code=el.dataset.code;
+        let cur=parseFloat(el.innerText.replace(/[^0-9.-]/g,''));
+        let n=prompt("New target:",cur);
+        if(n&&!isNaN(parseFloat(n))){ agentTargetOverride.set(code,parseFloat(n)); buildAgentTable(); }
+      };
+    });
+  }
+
+  // ---------- Dealer Table ----------
+  function buildDealerTable() {
+    const tbody=document.querySelector('#sales-dealerTable tbody');
+    if(rawData.length===0){
+      tbody.innerHTML='<tr><td colspan="6" class="no-data-message">No dealer data.</td></tr>'; return;
+    }
+    let maxDate=new Date(0);
+    rawData.forEach(r=>{ if(r.date>maxDate) maxDate=r.date; });
+    let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
+    let map=new Map();
+    rawData.forEach(r=>{
+      let diff=(ly-r.date.getFullYear())*12+(lm-r.date.getMonth());
+      if(!map.has(r.company)) map.set(r.company,{m0:0,m1:0,m2:0});
+      let o=map.get(r.company);
+      if(diff===0) o.m0+=r.subtotal;
+      else if(diff===1) o.m1+=r.subtotal;
+      else if(diff===2) o.m2+=r.subtotal;
+    });
+    let list=Array.from(map.entries()).map(([n,v])=>({dealer:n,thisMonth:v.m0,lastMonth:v.m1,twoMonthsAgo:v.m2,qtd:v.m0+v.m1+v.m2,mom:v.m1?((v.m0-v.m1)/v.m1)*100:0}));
+    list.sort((a,b)=>{
+      let va,vb;
+      switch(dealerSortColumn){
+        case'dealer':va=a.dealer;vb=b.dealer;break;
+        case'thisMonth':va=a.thisMonth;vb=b.thisMonth;break;
+        case'lastMonth':va=a.lastMonth;vb=b.lastMonth;break;
+        case'twoMonthsAgo':va=a.twoMonthsAgo;vb=b.twoMonthsAgo;break;
+        case'qtd':va=a.qtd;vb=b.qtd;break;
+        case'mom':va=a.mom;vb=b.mom;break;
+        default:va=a.qtd;vb=b.qtd;
+      }
+      return typeof va==='string'? (dealerSortDirection==='asc'?va.localeCompare(vb):vb.localeCompare(va)) : (dealerSortDirection==='asc'?va-vb:vb-va);
+    });
+    tbody.innerHTML = list.map(d=>`
+      <tr>
+        <td>${d.dealer}</td>
+        <td class="highlight-month">${formatRM(d.thisMonth)}</td>
+        <td>${formatRM(d.lastMonth)}</td>
+        <td>${formatRM(d.twoMonthsAgo)}</td>
+        <td>${formatRM(d.qtd)}</td>
+        <td class="${d.mom>=0?'green':'red'}">${d.mom.toFixed(1)}%</td>
+      </tr>`).join('');
+    let total={m0:0,m1:0,m2:0};
+    for(let v of map.values()){total.m0+=v.m0;total.m1+=v.m1;total.m2+=v.m2;}
+    let totalMom=total.m1?((total.m0-total.m1)/total.m1)*100:0;
+    tbody.innerHTML += `<tr class="total-row">
+      <td>📊 ALL DEALERS</td>
+      <td class="highlight-month">${formatRM(total.m0)}</td>
+      <td>${formatRM(total.m1)}</td>
+      <td>${formatRM(total.m2)}</td>
+      <td>${formatRM(total.m0+total.m1+total.m2)}</td>
+      <td class="${totalMom>=0?'green':'red'}">${totalMom.toFixed(1)}%</td>
+    </tr>`;
+  }
+
+  function buildTopDealer() {
+    const div=document.getElementById('salesTopDealerList');
+    if(rawData.length===0){ div.innerHTML='<div class="no-data-message">No data</div>'; return; }
+    let maxDate=new Date(0);
+    rawData.forEach(r=>{ if(r.date>maxDate) maxDate=r.date; });
+    let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
+    let map=new Map();
+    rawData.forEach(r=>{ if(r.date.getFullYear()===ly&&r.date.getMonth()===lm) map.set(r.company,(map.get(r.company)||0)+r.subtotal); });
+    let arr=Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    div.innerHTML = arr.map(([n,rev],i)=>`
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+        <div>${i+1}. ${n}</div>
+        <div style="font-weight:700;color:#2563eb;">${formatRM(rev)}</div>
+      </div>`).join('') || '<div>No data</div>';
+  }
+
+  // ---------- Sorting ----------
+  function initSalesSorting() {
+    $$s('#sales-agentTable th[data-sort]').forEach(th=>{
+      th.onclick = () => {
+        let key=th.dataset.sort;
+        if(agentSortColumn===key) agentSortDirection = agentSortDirection==='asc'?'desc':'asc';
+        else { agentSortColumn=key; agentSortDirection='desc'; }
+        buildAgentTable();
+      };
+    });
+    $$s('#sales-dealerTable th[data-sort]').forEach(th=>{
+      th.onclick = () => {
+        let key=th.dataset.sort;
+        if(dealerSortColumn===key) dealerSortDirection = dealerSortDirection==='asc'?'desc':'asc';
+        else { dealerSortColumn=key; dealerSortDirection='desc'; }
+        buildDealerTable();
+      };
+    });
+  }
+
+  // ---------- Cloud Sync with Feedback ----------
+  function updateSyncStatus(success, message) {
+    const iconDiv = document.getElementById('syncStatusIcon');
+    const timeSpan = document.getElementById('syncLastTime');
+    const statusText = document.getElementById('syncStatusText');
+    if (!iconDiv || !statusText) return;
+    if (success) {
+      iconDiv.className = 'sync-status-badge success';
+      statusText.innerText = message || 'Synced';
+      timeSpan.innerText = `Last sync: ${new Date().toLocaleString()}`;
+    } else {
+      iconDiv.className = 'sync-status-badge failed';
+      statusText.innerText = message || 'Sync failed';
+      timeSpan.innerText = `Failed: ${new Date().toLocaleString()}`;
+    }
+  }
+
+  async function syncSalesFromCloud() {
+    const btn = document.getElementById('sales-syncCloudBtn');
+    if (!btn) return;
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing…';
+    updateSyncStatus(false, 'Syncing…');
+
+    if (typeof XLSX === 'undefined') {
+      alert('Excel library not loaded yet. Please wait a moment and try again.');
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+      updateSyncStatus(false, 'Library missing');
+      return;
+    }
+
+    try {
+      const response = await fetch(DEFAULT_SYNC_URL);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      const file = new File([blob], 'sales_cloud.xlsx');
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, { type: 'array' });
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        let rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+        if (rows.length > 2) {
+          processRows(rows);
+          updateSyncStatus(true, 'Synced successfully');
+        } else {
+          throw new Error('No data found in the cloud file.');
+        }
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      };
+      reader.onerror = () => {
+        throw new Error('Failed to read cloud file.');
+      };
+      reader.readAsArrayBuffer(file);
+    } catch (err) {
+      console.error(err);
+      updateSyncStatus(false, `Sync failed: ${err.message}`);
+      alert(`Sync failed: ${err.message}`);
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  }
+
+  function exportCSV() {
+    if(!rawData.length) return alert('No data');
+    let csv = 'Agent,AgentCode,Company,Date,Qty,Subtotal,Margin,Profit\n' +
+      rawData.map(r=>`"${r.agent}","${r.agentCode}","${r.company}","${r.date.toISOString().slice(0,10)}",${r.qty},${r.subtotal},${r.margin},${r.profit}`).join('\n');
+    let blob = new Blob([csv], {type:'text/csv'});
+    saveAs(blob, 'sales_data.csv');
+  }
+  function exportExcel() {
+    if(!rawData.length) return alert('No data');
+    let ws = XLSX.utils.aoa_to_sheet([['Agent','AgentCode','Company','Date','Qty','Subtotal','Margin','Profit'],
+      ...rawData.map(r=>[r.agent,r.agentCode,r.company,r.date.toISOString().slice(0,10),r.qty,r.subtotal,r.margin,r.profit])]);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sales');
+    XLSX.writeFile(wb, 'sales_data.xlsx');
+  }
+  function clearSalesData() {
+    if(confirm('Clear all sales data?')){
+      rawData = [];
+      monthlyTarget = 0;
+      agentTargetOverride.clear();
+      refreshSalesUI();
+      document.getElementById('sales-lastUpdateTimeDisplay').innerText = '—';
+      updateSyncStatus(false, 'Not synced');
+    }
+  }
+
+  // ---------- Initialization ----------
+  window.initSalesDashboard = function() {
+    if (initialized) return;
+    initialized = true;
+
+    // Bind toolbar buttons
+    const uploadBtn = document.getElementById('sales-uploadBtn');
+    const fileInput = document.getElementById('sales-fileInput');
+    if (uploadBtn && fileInput) {
+      uploadBtn.onclick = () => fileInput.click();
+      fileInput.onchange = (e) => {
+        if (e.target.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            const data = new Uint8Array(ev.target.result);
+            const wb = XLSX.read(data, { type: 'array' });
+            const sheet = wb.Sheets[wb.SheetNames[0]];
+            let rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+            if (rows.length > 2) processRows(rows);
+            else alert("File too short");
+          };
+          reader.readAsArrayBuffer(e.target.files[0]);
+        }
+      };
+    }
+
+    const syncBtn = document.getElementById('sales-syncCloudBtn');
+    if (syncBtn) syncBtn.onclick = syncSalesFromCloud;
+
+    const exportCSVBtn = document.getElementById('sales-exportCSVBtn');
+    if (exportCSVBtn) exportCSVBtn.onclick = exportCSV;
+
+    const exportExcelBtn = document.getElementById('sales-exportExcelBtn');
+    if (exportExcelBtn) exportExcelBtn.onclick = exportExcel;
+
+    const clearBtn = document.getElementById('sales-clearDataBtn');
+    if (clearBtn) clearBtn.onclick = clearSalesData;
+
+    initSalesSorting();
+    refreshSalesUI();
+    updateSyncStatus(false, 'Not synced'); // initial status
+    window.refreshSalesDashboard = refreshSalesUI;
+  };
+
+  // Ensure FileSaver is loaded
+  if (typeof saveAs === 'undefined') {
+    let s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
+    document.head.appendChild(s);
+  }
+})();
