@@ -1186,7 +1186,7 @@
         if(pageName === 'dashboard') renderDashboard();
         if(pageName === 'inventory') renderInventoryPage();
         if(pageName === 'reports') { renderChangeReport(); renderRunRate(); }
-        if(pageName === 'sales' && window.salesDashboardInitialized) window.refreshSalesDashboard();
+        if(pageName === 'sales' && window.refreshSalesDashboard) window.refreshSalesDashboard();
       }
       window.switchPage = switchPage;
       
@@ -1338,7 +1338,7 @@
       (async function init(){ loadStoredRate(); updateUI(); await refreshRateAndUI(); compute(); updateFreightHint(); updateGpHint(); if(autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer=setInterval(async ()=>{ const calcPage=document.getElementById('page-calculator'); if(!calcPage||!calcPage.classList.contains('active')) return; const activeEl=document.activeElement; const isEditing=activeEl===els.fobInput||activeEl===els.sellingPrice||activeEl===els.markupInput||activeEl===els.freightInput||activeEl===els.gpInput; if(!isEditing&&!localStorage.getItem('manualBaseRate')) await refreshRateAndUI(); },10*60*1000); setInterval(()=>{ els.datetimeSpan.innerText=new Date().toLocaleString(curLang==='cn'?'zh-CN':'en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}); },1000); })();
     })();
 
-    // ========== Sales Dashboard Module (Fixed Sync & Feedback) ==========
+    // ========== Sales Dashboard Module (Refactored & Fixed Sync) ==========
     (function() {
       const DEFAULT_SYNC_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUlfv03e1X_g1MoUIrVKUfQtv8A0HjktG-XPD4L6w_3uXSq_pj3OnxfRT4c33JQ/pub?output=xlsx";
       let rawData = [];
@@ -1351,7 +1351,6 @@
       let dealerSortColumn = 'qtd', dealerSortDirection = 'desc';
       let salesChart = null, agentChart = null;
       let ctrlPressed = false;
-      let initialized = false;
 
       const $s = (sel) => document.querySelector(sel);
       const $$s = (sel) => Array.from(document.querySelectorAll(sel));
@@ -1567,15 +1566,13 @@
         }
       }
 
-      window.initSalesDashboard = function() {
-        if (initialized) return;
-        initialized = true;
-
+      // Bind all events after DOM is ready (using DOMContentLoaded)
+      function bindSalesEvents() {
         const uploadBtn = document.getElementById('sales-uploadBtn');
         const fileInput = document.getElementById('sales-fileInput');
         if (uploadBtn && fileInput) {
-          uploadBtn.onclick = () => fileInput.click();
-          fileInput.onchange = (e) => {
+          uploadBtn.addEventListener('click', () => fileInput.click());
+          fileInput.addEventListener('change', (e) => {
             if (e.target.files[0]) {
               const reader = new FileReader();
               reader.onload = function(ev) {
@@ -1588,51 +1585,36 @@
               };
               reader.readAsArrayBuffer(e.target.files[0]);
             }
-          };
+          });
         }
 
         const syncBtn = document.getElementById('sales-syncCloudBtn');
-        if (syncBtn) syncBtn.onclick = syncSalesFromCloud;
+        if (syncBtn) syncBtn.addEventListener('click', syncSalesFromCloud);
 
         const exportCSVBtn = document.getElementById('sales-exportCSVBtn');
-        if (exportCSVBtn) exportCSVBtn.onclick = exportCSV;
+        if (exportCSVBtn) exportCSVBtn.addEventListener('click', exportCSV);
 
         const exportExcelBtn = document.getElementById('sales-exportExcelBtn');
-        if (exportExcelBtn) exportExcelBtn.onclick = exportExcel;
+        if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportExcel);
 
         const clearBtn = document.getElementById('sales-clearDataBtn');
-        if (clearBtn) clearBtn.onclick = clearSalesData;
+        if (clearBtn) clearBtn.addEventListener('click', clearSalesData);
 
         initSalesSorting();
         refreshSalesUI();
         updateSyncStatus(false, 'Not synced');
-        window.refreshSalesDashboard = refreshSalesUI;
-      };
+        window.refreshSalesDashboard = refreshSalesUI; // expose for page switch
+      }
 
+      // Ensure FileSaver is loaded
       if (typeof saveAs === 'undefined') {
         let s = document.createElement('script');
         s.src = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
         document.head.appendChild(s);
       }
-    })();
 
-    // ---------- Hook Sales module to page switching ----------
-    (function() {
-      const originalSwitch = window.switchPage;
-      window.switchPage = function(pageName) {
-        originalSwitch(pageName);
-        if(pageName === 'sales') {
-          if(!window.salesDashboardInitialized) {
-            window.initSalesDashboard();
-            window.salesDashboardInitialized = true;
-          } else if(window.refreshSalesDashboard) {
-            window.refreshSalesDashboard();
-          }
-        }
-      };
-      if(location.hash === '#sales') {
-        setTimeout(() => window.switchPage('sales'), 100);
-      }
+      // Wait for DOM then bind everything
+      document.addEventListener('DOMContentLoaded', bindSalesEvents);
     })();
   </script>
 </body>
