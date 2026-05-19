@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>Business Unit Suite | Unified Dashboard</title>
-  <!-- XLSX loader -->
+  <!-- XLSX loader (jsDelivr 优先，亚洲节点快) -->
   <script>
     (function () {
       var cdns = [
-        'https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js',
         'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
-        'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js'
+        'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js',
+        'https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js'
       ];
       var idx = 0;
       function tryLoad() {
@@ -253,7 +253,7 @@
   </style>
 </head>
 <body>
-  <div id="confirmModal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(15,23,42,0.5);align-items:center;justify-content:center;">
+  <div id="confirmModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(15,23,42,0.5);align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:12px;padding:24px 28px;max-width:380px;width:90%;box-shadow:0 20px 40px rgba(0,0,0,0.2);">
       <p id="confirmMsg" style="margin:0 0 20px;font-size:0.95rem;line-height:1.5;color:#263646;"></p>
       <div style="display:flex;gap:10px;justify-content:flex-end;">
@@ -312,6 +312,7 @@
       <div class="app-credit">Created by DANEIL G.CS | Optimized Edition</div>
     </section>
     <section class="page" id="page-calculator">
+      <!-- Calculator unchanged except CSS already included -->
       <div class="calculator" id="app">
         <div class="calc-header">
           <div><span class="calc-title" id="mainTitle">Product Calculator</span><span class="calc-version" id="versionText"> v6.6</span></div>
@@ -389,7 +390,18 @@
         <div style="overflow-x:auto;">
           <table class="full-table" id="invTable">
             <thead id="invTableHead">
-              <tr><th data-col="0">Name</th><th data-col="1">ID</th><th data-col="2">Location</th><th data-col="3" class="numeric">Available</th><th data-col="4" class="amount">Unit Cost (RM)</th><th data-col="5" class="amount">Landing Cost (RM)</th><th data-col="6" class="amount">Min Sell Price (RM)</th><th data-col="7" class="numeric">Sales Qty</th><th data-col="8" class="numeric">Restock Qty</th><th data-col="9" class="numeric">No Move Days</th></tr>
+              <tr>
+                <th data-col="0">Name <span class="sort-arrow"></span></th>
+                <th data-col="1">ID <span class="sort-arrow"></span></th>
+                <th data-col="2">Location <span class="sort-arrow"></span></th>
+                <th data-col="3" class="numeric">Available <span class="sort-arrow"></span></th>
+                <th data-col="4" class="amount">Unit Cost (RM) <span class="sort-arrow"></span></th>
+                <th data-col="5" class="amount">Landing Cost (RM) <span class="sort-arrow"></span></th>
+                <th data-col="6" class="amount">Min Sell Price (RM) <span class="sort-arrow"></span></th>
+                <th data-col="7" class="numeric">Sales Qty <span class="sort-arrow"></span></th>
+                <th data-col="8" class="numeric">Restock Qty <span class="sort-arrow"></span></th>
+                <th data-col="9" class="numeric">No Move Days <span class="sort-arrow"></span></th>
+              </tr>
             </thead>
             <tbody id="invTableBody"></tbody>
           </table>
@@ -514,7 +526,8 @@
       const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
       const getLandingSST = () => {
         const inp = document.getElementById('sstInputInv');
-        return inp ? parseFloat(inp.value) || 0.95 : 0.95;
+        const v = inp ? parseFloat(inp.value) : NaN;
+        return (isFinite(v) && v > 0.1 && v <= 1.0) ? v : 0.95;
       };
       const state = { currentPage: 1, pageSize: INITIAL_PAGE_SIZE, sortColumn: -1, sortDirection: 'asc', pieChart: null, clockTimer: null };
       const $ = (s, r = document) => r.querySelector(s);
@@ -568,7 +581,6 @@
       async function fetchFromCloud() {
         setStatus('⏳ Fetching latest inventory from Google Sheets...');
         try {
-          localStorage.removeItem(STORAGE.allSheets);
           const response = await fetch(PUBLISH_URL);
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           const blob = await response.blob();
@@ -780,7 +792,7 @@
         return report;
       }
 
-      // ===== MISSING ITEMS TRACKING (基于Sheet日期精确计算) =====
+      // ===== MISSING ITEMS TRACKING (based on sheet dates) =====
       function updateMissingItems() {
         const allSheets = getJson(STORAGE.allSheets, {});
         const dateKeys = Object.keys(allSheets).sort();
@@ -1239,6 +1251,13 @@
               if (!latestDateObj || d > latestDateObj) { latestDateObj = d; latestDateSheetName = sn; }
             }
           });
+          // 快照上限控制
+          const MAX_SNAPSHOTS = 60;
+          const allKeys = Object.keys(allSheetsData).sort();
+          if (allKeys.length > MAX_SNAPSHOTS) {
+            allKeys.slice(0, allKeys.length - MAX_SNAPSHOTS)
+                   .forEach(k => delete allSheetsData[k]);
+          }
           if (Object.keys(allSheetsData).length) setJson(STORAGE.allSheets, allSheetsData);
           const sheetName = latestDateSheetName || wb.SheetNames[0] || 'Sheet1';
           const sheet = wb.Sheets[sheetName];
@@ -1276,7 +1295,7 @@
           if(newItems.length===0) throw new Error('No valid rows found');
           saveInventory(newItems);
           generateChangeReport(oldData, newItems);
-          updateMissingItems();  // 升级：基于Sheet日期计算缺失
+          updateMissingItems();
           localStorage.setItem(STORAGE.lastUpload, new Date().toISOString());
           localStorage.setItem(STORAGE.lastFileName, file.name);
           localStorage.setItem(STORAGE.lastSheetName, sheetName);
@@ -1384,7 +1403,7 @@
       });
     })();
 
-    // ========== Product Calculator v6.6 Final ==========
+    // ========== Product Calculator v6.6 Final (unchanged) ==========
     (function() {
       const langMap = {
         cn: { mainTitle:"Product Calculator", versionText:" v6.6", liveLabel:"USD/MYR 基准汇率", plusLabel:"➕ 额外加成", appliedRateLabel:"💱 最终应用汇率 (基准+加成) :", formulaLabel:"📐 公式：", formulaCode:"Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP", fobLabel:"💰 FOB (USD)", sstLabel:"🧾 SST/VAT Tax", sstOpt1:"0.95 (5%)", sstOpt2:"0.90 (10%)", freightLabel:"🚢 Freight (除数)", gpLabel:"📈 GP% 除数", priceLabel:"🏷️ 预期售价 (MYR)", step1Label:"FOB ÷ SST (USD) :", step2Label:"× 汇率后 :", step3Label:"÷ Freight :", landingLabel:"📦 Landing Cost (向上取整)", gpLabelText:"📊 毛利率 (基于售价)", profitLabel:"💵 毛利额 :", clearText:"一键清除", errorGp:"❌ GP% 除数不能为0或负数", errorFreight:"❌ Freight 除数不能为0或负数", errorDiv:"❌ 除数不能为零", errorRate:"❌ 应用汇率无效 (≤0)", fetchErr:"⚠️ 网络失败，使用本地存储汇率", clearOk:"✅ 已重置所有输入", loading:"获取中...", datePrefix:"📅 ", marketRate:"在线汇率", cacheMsg:"📦 使用本地存储汇率", refreshBtn:"🔄 刷新汇率", freightHintPrefix:"增加成本 ≈ ", gpHintPrefix:"毛利率 ≈ ", percent:"%", manualLabel:"✏️ 手动输入汇率 (MYR/USD)", manualNote:"离线时可用，将覆盖自动获取值", applyManual:"📌 应用并保存", resetAuto:"🔄 恢复自动汇率", sourceManual:"✏️ 手动设定", versionInfo:"💡 提示：汇率会自动", poweredBy:"Powered By Daneil.G.CS | 智能识别版 v6.6", confirmRefresh:"当前处于手动汇率模式，刷新将覆盖手动设定。确定要继续吗？" },
@@ -1491,15 +1510,24 @@
       (async function init(){ loadStoredRate(); updateUI(); await refreshRateAndUI(); compute(); updateFreightHint(); updateGpHint(); if(autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer=setInterval(async ()=>{ const calcPage=document.getElementById('page-calculator'); if(!calcPage||!calcPage.classList.contains('active')) return; const activeEl=document.activeElement; const isEditing=activeEl===els.fobInput||activeEl===els.sellingPrice||activeEl===els.markupInput||activeEl===els.freightInput||activeEl===els.gpInput; if(!isEditing&&!localStorage.getItem('manualBaseRate')) await refreshRateAndUI(); },10*60*1000); setInterval(()=>{ els.datetimeSpan.innerText=new Date().toLocaleString(curLang==='cn'?'zh-CN':'en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}); },1000); })();
     })();
 
-    // ========== Sales Dashboard Module (with Agent Code column) ==========
+    // ========== Sales Dashboard Module (patched) ==========
     (function() {
       const DEFAULT_SYNC_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUlfv03e1X_g1MoUIrVKUfQtv8A0HjktG-XPD4L6w_3uXSq_pj3OnxfRT4c33JQ/pub?output=xlsx";
       let rawData = [];
       let monthlyTarget = 0;
       let lastUpdateDate = null;
-      let agentNameMap = { "B003":"Vivien","B008":"Nicole","B005":"Jacky","B007":"Edmund" };
+      // 从 localStorage 恢复 Agent 名字映射
+      let agentNameMap = JSON.parse(localStorage.getItem('sal_agentNameMap') || 'null')
+        || { "B003":"Vivien","B008":"Nicole","B005":"Jacky","B007":"Edmund" };
       let fixedTargetMap = { "B003":2500000,"B008":1500000,"B005":1500000,"B007":500000 };
-      let agentTargetOverride = new Map();
+      // 从 localStorage 恢复 Agent 目标覆盖
+      let agentTargetOverride;
+      try {
+        const savedOverride = JSON.parse(localStorage.getItem('sal_agentTargetOverride') || 'null');
+        agentTargetOverride = savedOverride ? new Map(savedOverride) : new Map();
+      } catch(e) {
+        agentTargetOverride = new Map();
+      }
       let agentSortColumn = 'revenue', agentSortDirection = 'desc';
       let dealerSortColumn = 'qtd', dealerSortDirection = 'desc';
       let salesChart = null, agentChart = null;
@@ -1586,6 +1614,9 @@
         return {type,data:{labels:data.labels,datasets:[{label,data:data.data,backgroundColor:bgColor,borderRadius:8,barPercentage:0.7}]},options:{responsive:true,maintainAspectRatio:true,plugins:{tooltip:{callbacks:{label:(ctx)=>formatRM(ctx.raw)}},legend:{display:false},datalabels:{display:(ctx)=>ctrlPressed,color:'#1e293b',backgroundColor:'rgba(255,255,255,0.7)',borderRadius:12,padding:4,font:{weight:'bold',size:11},formatter:(value)=>formatRM(value),anchor:'end',align:'top',offset:4}},scales:{y:{ticks:{callback:(val)=>formatRM(val)},grid:{color:'#e2e8f0'}},x:{grid:{display:false}}}}};
       }
       function buildCharts() {
+        if (window.Chart && window.ChartDataLabels) {
+          Chart.register(ChartDataLabels); // 修复：注册插件
+        }
         let months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         let monthly=new Array(12).fill(0); rawData.forEach(r=>{monthly[r.date.getMonth()]+=r.subtotal;});
         const agentData=getAgentMonthlyData();
@@ -1617,8 +1648,10 @@
         tbody.innerHTML=agents.map((a,idx)=>`<tr><td>${idx+1}</td><td>${a.code}</td><td><input class="agent-name-input" data-code="${a.code}" value="${a.name.replace(/&/g,'&amp;')}"></td><td>${formatRM(a.revenue)}</td><td class="${a.hitRate>=0?'green':'red'}">${a.hitRate.toFixed(2)}%</td><td><span class="editable-target agent-target" data-code="${a.code}">${formatRM(a.target)}</span></td><td>${formatRM(a.balanceToGo)}</td><td class="${a.balancePct>=0?'red':'green'}">${a.balancePct.toFixed(2)}%</td></tr>`).join('');
         let totalRev=agents.reduce((s,a)=>s+a.revenue,0), totalTarget=agents.reduce((s,a)=>s+a.target,0), totalBal=totalTarget-totalRev;
         tfoot.innerHTML=`<tr class="total-row"><td colspan="3">Total</td><td>${formatRM(totalRev)}</td><td>${totalTarget?(totalRev/totalTarget*100).toFixed(2):'0.00'}%</td><td>${formatRM(totalTarget)}</td><td>${formatRM(totalBal)}</td><td>${totalTarget?(totalBal/totalTarget*100).toFixed(2):'0.00'}%</td></tr>`;
-        $$s('.agent-name-input').forEach(inp=>{ inp.onchange=()=>{ agentNameMap[inp.dataset.code]=inp.value; buildAgentTable(); buildCharts(); }; });
-        $$s('.agent-target').forEach(el=>{ el.onclick=()=>{ let code=el.dataset.code; let cur=parseFloat(el.innerText.replace(/[^0-9.-]/g,'')); let n=prompt("New target:",cur); if(n&&!isNaN(parseFloat(n))){ agentTargetOverride.set(code,parseFloat(n)); buildAgentTable(); } }; });
+        // 绑定事件：修改名字后保存
+        $$s('.agent-name-input').forEach(inp=>{ inp.onchange=()=>{ agentNameMap[inp.dataset.code]=inp.value; localStorage.setItem('sal_agentNameMap', JSON.stringify(agentNameMap)); buildAgentTable(); buildCharts(); }; });
+        // 绑定事件：修改目标后保存
+        $$s('.agent-target').forEach(el=>{ el.onclick=()=>{ let code=el.dataset.code; let cur=parseFloat(el.innerText.replace(/[^0-9.-]/g,'')); let n=prompt("New target:",cur); if(n&&!isNaN(parseFloat(n))){ agentTargetOverride.set(code,parseFloat(n)); localStorage.setItem('sal_agentTargetOverride', JSON.stringify([...agentTargetOverride])); buildAgentTable(); } }; });
       }
       function buildDealerTable() {
         const tbody=document.querySelector('#sales-dealerTable tbody');
@@ -1712,7 +1745,11 @@
             btn.disabled = false;
             btn.innerHTML = originalHTML;
           };
-          reader.onerror = () => { throw new Error('Failed to read cloud file.'); };
+          reader.onerror = () => {
+            updateSyncStatus(false, 'Failed to read cloud file');
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+          };
           reader.readAsArrayBuffer(file);
         } catch (err) {
           console.error(err);
@@ -1723,9 +1760,13 @@
         }
       }
       function exportCSV() {
-        if(!rawData.length) return alert('No data');
-        let csv='Agent,AgentCode,Company,Date,Qty,Subtotal,Margin,Profit\n'+rawData.map(r=>`"${r.agent}","${r.agentCode}","${r.company}","${r.date.toISOString().slice(0,10)}",${r.qty},${r.subtotal},${r.margin},${r.profit}`).join('\n');
-        let blob=new Blob([csv],{type:'text/csv'}); saveAs(blob,'sales_data.csv');
+        if(!rawData.length) { alert('No data'); return; }
+        const csv = 'Agent,AgentCode,Company,Date,Qty,Subtotal,Margin,Profit\n' +
+          rawData.map(r => `"${r.agent}","${r.agentCode}","${r.company}","${r.date.toISOString().slice(0,10)}",${r.qty},${r.subtotal},${r.margin},${r.profit}`).join('\n');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+        a.download = 'sales_data.csv';
+        a.click();
       }
       function exportExcel() {
         if(!rawData.length) return alert('No data');
@@ -1733,12 +1774,15 @@
         let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Sales'); XLSX.writeFile(wb,'sales_data.xlsx');
       }
       function clearSalesData() {
-        if(confirm('Clear all sales data?')){
-          rawData=[]; monthlyTarget=0; agentTargetOverride.clear();
+        window.showConfirm('Clear all sales data? This cannot be undone.', () => {
+          rawData = [];
+          monthlyTarget = 0;
+          agentTargetOverride.clear();
+          localStorage.removeItem('sal_agentTargetOverride');
           refreshSalesUI();
-          document.getElementById('sales-lastUpdateTimeDisplay').innerText='—';
+          document.getElementById('sales-lastUpdateTimeDisplay').innerText = '—';
           updateSyncStatus(false, 'Not synced');
-        }
+        });
       }
 
       function bindSalesEvents() {
@@ -1780,11 +1824,7 @@
         window.refreshSalesDashboard = refreshSalesUI;
       }
 
-      if (typeof saveAs === 'undefined') {
-        let s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
-        document.head.appendChild(s);
-      }
+      if (typeof saveAs !== 'undefined') { /* no longer needed for CSV, but kept for Excel if wanted */ }
 
       document.addEventListener('DOMContentLoaded', bindSalesEvents);
     })();
