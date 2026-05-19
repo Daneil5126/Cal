@@ -505,7 +505,7 @@
       }
       window.showConfirm = showConfirm;
 
-      const STORAGE = { inventory: 'inv_data', lastUpload: 'inv_last_upload', margin: 'inv_margin', changeReport: 'inv_change_report', sidebarOpen: 'app_sidebar_open', lastFileName: 'inv_last_filename', lastSheetName: 'inv_last_sheetname', lowStockThreshold: 'low_stock_threshold', agingThreshold: 'aging_days_threshold', allSheets: 'inv_all_sheets', sstDivisor: 'sst_divisor_inv' };
+      const STORAGE = { inventory: 'inv_data', lastUpload: 'inv_last_upload', margin: 'inv_margin', changeReport: 'inv_change_report', sidebarOpen: 'app_sidebar_open', lastFileName: 'inv_last_filename', lastSheetName: 'inv_last_sheetname', lowStockThreshold: 'low_stock_threshold', agingThreshold: 'aging_days_threshold', allSheets: 'inv_all_sheets', sstDivisor: 'sst_divisor_inv', missingItems: 'inv_missing_items' };
       const CONFIG = { currency: 'RM', currencyCode: 'MYR', defaultSst: 0.95, defaultFreight: 0.97 };
       const DEFAULT_LOW_STOCK = 5;
       const DEFAULT_AGING = 30;
@@ -779,77 +779,228 @@
         setJson(STORAGE.changeReport, report);
         return report;
       }
+
+      // ===== MISSING ITEMS TRACKING (基于Sheet日期精确计算) =====
+      function updateMissingItems() {
+        const allSheets = getJson(STORAGE.allSheets, {});
+        const dateKeys = Object.keys(allSheets).sort();
+        if (dateKeys.length === 0) {
+          setJson(STORAGE.missingItems, []);
+          return;
+        }
+
+        const latestKey = dateKeys[dateKeys.length - 1];
+        const latestDate = new Date(latestKey + 'T00:00:00');
+
+        const lastSeenMap = new Map();
+        dateKeys.forEach(dateKey => {
+          const sheetDate = new Date(dateKey + 'T00:00:00');
+          const sheetData = allSheets[dateKey];
+          if (sheetData && sheetData.items) {
+            sheetData.items.forEach(item => {
+              const id = String(item.id).trim();
+              if (!id) return;
+              const existing = lastSeenMap.get(id);
+              if (!existing || sheetDate > existing.date) {
+                lastSeenMap.set(id, {
+                  date: sheetDate,
+                  name: item.name || ''
+                });
+              }
+            });
+          }
+        });
+
+        const missingList = [];
+        for (const [id, info] of lastSeenMap.entries()) {
+          if (info.date < latestDate) {
+            const diffTime = latestDate.getTime() - info.date.getTime();
+            const missingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            missingList.push({
+              id,
+              name: info.name,
+              lastSeenDate: info.date.toISOString().slice(0, 10),
+              missingDays
+            });
+          }
+        }
+
+        missingList.sort((a, b) => b.missingDays - a.missingDays);
+        setJson(STORAGE.missingItems, missingList);
+
+        if (document.getElementById('page-reports') &&
+            document.getElementById('page-reports').classList.contains('active')) {
+          renderChangeReport();
+        }
+      }
+
+      let _missingFilter = 'all';
+      let _missingSort = { col: '', asc: true };
+
+      function buildMissingItemsHTML(missingItems) {
+        const itemsWithStatus = missingItems.map(item => {
+          const days = item.missingDays;
+          let status;
+          if (days < 30) status = '⚠️ No Stock';
+          else if (days < 60) status = '🔸 EOL';
+          else status = '❌ Discontinued';
+          return { ...item, status };
+        });
+
+        const counts = itemsWithStatus.reduce((acc, i) => {
+          acc[i.status] = (acc[i.status] || 0) + 1;
+          return acc;
+        }, {});
+        const summary = Object.entries(counts).map(([k, v]) => `${k} (${v})`).join(', ');
+
+        let html = `<div class="change-card open" id="missingCard">
+          <h3 onclick="this.parentElement.classList.toggle('open')">
+            📉 Missing Items Tracking <span class="arrow">▶</span>
+            <span style="font-size:0.7rem;color:#888;">${summary}</span>
+          </h3>
+          <div class="change-body" id="missingBody" style="display:block;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+              <button onclick="window.__filterMissing('all')" style="border:1px solid #d8e0ea; border-radius:20px; padding:4px 12px; font-size:0.75rem; cursor:pointer; background:${_missingFilter==='all'?'var(--primary)':'white'}; color:${_missingFilter==='all'?'white':'var(--text)'};">All</button>
+              <button onclick="window.__filterMissing('⚠️ No Stock')" style="border:1px solid #d8e0ea; border-radius:20px; padding:4px 12px; font-size:0.75rem; cursor:pointer; background:${_missingFilter==='⚠️ No Stock'?'#fef08a':'white'}; color:${_missingFilter==='⚠️ No Stock'?'#854d0e':'var(--text)'};">⚠️ No Stock (${counts['⚠️ No Stock']||0})</button>
+              <button onclick="window.__filterMissing('🔸 EOL')" style="border:1px solid #d8e0ea; border-radius:20px; padding:4px 12px; font-size:0.75rem; cursor:pointer; background:${_missingFilter==='🔸 EOL'?'#fed7aa':'white'}; color:${_missingFilter==='🔸 EOL'?'#9a3412':'var(--text)'};">🔸 EOL (${counts['🔸 EOL']||0})</button>
+              <button onclick="window.__filterMissing('❌ Discontinued')" style="border:1px solid #d8e0ea; border-radius:20px; padding:4px 12px; font-size:0.75rem; cursor:pointer; background:${_missingFilter==='❌ Discontinued'?'#fecaca':'white'}; color:${_missingFilter==='❌ Discontinued'?'#991b1b':'var(--text)'};">❌ Discontinued (${counts['❌ Discontinued']||0})</button>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="full-table" style="font-size:0.77rem;">
+                <thead><tr>
+                  <th onclick="window.__sortMissing('name')">Name ${_missingSort.col==='name' ? (_missingSort.asc ? '▲' : '▼') : ''}</th>
+                  <th onclick="window.__sortMissing('id')">SKU ${_missingSort.col==='id' ? (_missingSort.asc ? '▲' : '▼') : ''}</th>
+                  <th onclick="window.__sortMissing('lastSeenDate')">Last Seen Date ${_missingSort.col==='lastSeenDate' ? (_missingSort.asc ? '▲' : '▼') : ''}</th>
+                  <th onclick="window.__sortMissing('missingDays')">Days Missing ${_missingSort.col==='missingDays' ? (_missingSort.asc ? '▲' : '▼') : ''}</th>
+                  <th>Status</th>
+                </tr></thead>
+                <tbody>`;
+
+        let filtered = _missingFilter === 'all' ? itemsWithStatus : itemsWithStatus.filter(i => i.status === _missingFilter);
+        if (_missingSort.col) {
+          filtered.sort((a, b) => {
+            let va = a[_missingSort.col], vb = b[_missingSort.col];
+            if (typeof va === 'string') va = va.toLowerCase();
+            if (typeof vb === 'string') vb = vb.toLowerCase();
+            return _missingSort.asc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+          });
+        }
+
+        filtered.forEach(item => {
+          const lastSeenFormatted = new Date(item.lastSeenDate + 'T00:00:00').toLocaleDateString();
+          html += `<tr>
+            <td>${escHtml(item.name)}</td>
+            <td>${escHtml(item.id)}</td>
+            <td>${lastSeenFormatted}</td>
+            <td class="numeric">${item.missingDays}</td>
+            <td><span style="background:${item.status==='⚠️ No Stock'?'#fef08a':item.status==='🔸 EOL'?'#fed7aa':'#fecaca'};color:${item.status==='⚠️ No Stock'?'#854d0e':item.status==='🔸 EOL'?'#9a3412':'#991b1b'};padding:2px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;">${item.status}</span></td>
+          </tr>`;
+        });
+
+        html += `</tbody></table></div>
+          <div style="color:var(--muted);font-size:0.68rem;margin-top:8px;">Missing days = days since last appearance in any dated sheet. Updated automatically on each upload.</div>
+        </div></div>`;
+        return html;
+      }
+
+      window.__filterMissing = (status) => {
+        _missingFilter = status;
+        renderChangeReport();
+      };
+      window.__sortMissing = (col) => {
+        if (_missingSort.col === col) _missingSort.asc = !_missingSort.asc;
+        else { _missingSort.col = col; _missingSort.asc = true; }
+        renderChangeReport();
+      };
+      // ===== END MISSING ITEMS =====
+
       function renderChangeReport() {
         const report = getJson(STORAGE.changeReport, null);
         const container = $('#changeReportContainer');
+        let html = '';
+
         if(!report || (!report.newSkus.length && !report.discontinuedSkus.length && !report.salesVelocity.length && !report.restocked.length)) {
-          container.innerHTML = '<div class="change-card"><h3>📈 No changes detected since last upload</h3><div class="change-summary">Upload a new file to compare with previous data.</div></div>';
-          return;
-        }
-        window.__changeReportData = report;
-        const parts = [];
-        if(report.newSkus.length) parts.push(`${report.newSkus.length} new`);
-        if(report.discontinuedSkus.length) parts.push(`${report.discontinuedSkus.length} no stock / EOL`);
-        if(report.salesVelocity.length) parts.push(`${report.salesVelocity.length} sold`);
-        if(report.noMovement.length) parts.push(`${report.noMovement.length} no movement`);
-        if(report.restocked.length) parts.push(`${report.restocked.length} restocked`);
-        container.innerHTML = `<div class="change-card open" id="changeCard">
-          <h3 onclick="this.parentElement.classList.toggle('open')">📈 Inventory Change Report <span class="arrow">▶</span> <span style="font-size:0.7rem;color:#888;">${parts.join(', ')}</span></h3>
-          <div class="change-body" id="changeBody"></div>
-        </div>`;
-        const body = $('#changeBody');
-        function renderSection(title, items, cols, sectionKey) {
-          if (!items.length) return '';
-          const id = `section-${sectionKey}`;
-          return `<div class="change-section" id="${id}">
-            <h4 onclick="window.__toggleChangeSection('${id}')"><span class="section-arrow">▼</span> ${title} (${items.length})</h4>
-            <div class="change-table-wrap">
-              <table class="change-table" id="${id}-table"><thead><tr>${cols.map((col, idx) => `<th onclick="window.__sortChangeSection('${sectionKey}',${idx})">${col}${window.__changeSortState && window.__changeSortState.section===sectionKey && window.__changeSortState.col===idx ? (window.__changeSortState.asc ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${(function(){
-                let sorted = items;
-                if(window.__changeSortState && window.__changeSortState.section===sectionKey) {
-                  const st = window.__changeSortState;
-                  sorted = [...items].sort((a,b)=>{
-                    let va,vb;
-                    if(cols[0]==='Name') { va=(a.name||'').toLowerCase(); vb=(b.name||'').toLowerCase(); }
-                    else if(cols[0]==='ID') { va=(a.id||'').toLowerCase(); vb=(b.id||'').toLowerCase(); }
-                    else if(cols[0]==='Stock Level') { va=a.stockLevel||0; vb=b.stockLevel||0; }
-                    else if(cols[0]==='Change') { va=a.change||0; vb=b.change||0; }
-                    else if(cols[0]==='Old Stock') { va=a.oldStock||0; vb=b.oldStock||0; }
-                    else { va=(a.name||'').toLowerCase(); vb=(b.name||'').toLowerCase(); }
-                    if(va<vb) return st.asc?-1:1;
-                    if(va>vb) return st.asc?1:-1;
-                    return 0;
-                  });
-                }
-                return sorted.map(item => `<tr>${cols.map(c => {
-                  if(c==='Name') return `<td>${escHtml(item.name)}</td>`;
-                  if(c==='ID') return `<td>${escHtml(item.id)}</td>`;
-                  if(c==='Stock Level') return `<td>${item.stockLevel||0}</td>`;
-                  if(c==='Change') return `<td>${item.change>0?'+':''}${item.change}</td>`;
-                  if(c==='Old Stock') return `<td>${item.oldStock||0}</td>`;
-                  return `<td>${item[c]||''}</td>`;
-                }).join('')}</tr>`).join('');
-              })()}</tbody></table>
-            </div>
+          html += '<div class="change-card"><h3>📈 No changes detected since last upload</h3><div class="change-summary">Upload a new file to compare with previous data.</div></div>';
+        } else {
+          window.__changeReportData = report;
+          const parts = [];
+          if(report.newSkus.length) parts.push(`${report.newSkus.length} new`);
+          if(report.discontinuedSkus.length) parts.push(`${report.discontinuedSkus.length} no stock / EOL`);
+          if(report.salesVelocity.length) parts.push(`${report.salesVelocity.length} sold`);
+          if(report.noMovement.length) parts.push(`${report.noMovement.length} no movement`);
+          if(report.restocked.length) parts.push(`${report.restocked.length} restocked`);
+          html += `<div class="change-card open" id="changeCard">
+            <h3 onclick="this.parentElement.classList.toggle('open')">📈 Inventory Change Report <span class="arrow">▶</span> <span style="font-size:0.7rem;color:#888;">${parts.join(', ')}</span></h3>
+            <div class="change-body" id="changeBody"></div>
           </div>`;
         }
-        window.__changeSortState = null;
-        window.__sortChangeSection = function(sectionKey, col) {
-          if(!window.__changeReportData) return;
-          const st = window.__changeSortState;
-          if(st && st.section===sectionKey && st.col===col) { st.asc = !st.asc; }
-          else { window.__changeSortState = {section:sectionKey, col, asc:true}; }
-          renderChangeReport();
-        };
-        window.__toggleChangeSection = function(id) {
-          const section = document.getElementById(id);
-          if(section) section.classList.toggle('collapsed');
-        };
-        if(report.newSkus.length) body.innerHTML += renderSection('🆕 New SKUs', report.newSkus, ['Name','ID','Stock Level'], 'new');
-        if(report.discontinuedSkus.length) body.innerHTML += renderSection('⚠️ No Stock / EOL', report.discontinuedSkus, ['Name','ID'], 'discontinued') + '<div style="color:var(--muted);font-size:0.65rem;margin-top:4px;">Missing in latest upload — may be temporarily out of stock or permanently discontinued.</div>';
-        if(report.salesVelocity.length) body.innerHTML += renderSection('📉 Top Sales Velocity', report.salesVelocity, ['Name','ID','Old Stock','Stock Level','Change'], 'sales');
-        if(report.restocked.length) body.innerHTML += renderSection('📈 Restocked', report.restocked, ['Name','ID','Old Stock','Stock Level','Change'], 'restocked');
-        if(report.noMovement.length) body.innerHTML += renderSection('⏸️ No Movement', report.noMovement, ['Name','ID','Stock Level'], 'nomove');
+
+        const missingItems = getJson(STORAGE.missingItems, []);
+        if (missingItems.length > 0) {
+          html += buildMissingItemsHTML(missingItems);
+        } else {
+          html += '<div class="change-card"><h3>📉 Missing Items Tracking</h3><div class="change-summary">No SKUs are currently missing.</div></div>';
+        }
+
+        container.innerHTML = html;
+
+        if (report && (report.newSkus.length || report.discontinuedSkus.length || report.salesVelocity.length || report.restocked.length)) {
+          const body = $('#changeBody');
+          if (body) {
+            function renderSection(title, items, cols, sectionKey) {
+              if (!items.length) return '';
+              const id = `section-${sectionKey}`;
+              return `<div class="change-section" id="${id}">
+                <h4 onclick="window.__toggleChangeSection('${id}')"><span class="section-arrow">▼</span> ${title} (${items.length})</h4>
+                <div class="change-table-wrap">
+                  <table class="change-table" id="${id}-table"><thead><tr>${cols.map((col, idx) => `<th onclick="window.__sortChangeSection('${sectionKey}',${idx})">${col}${window.__changeSortState && window.__changeSortState.section===sectionKey && window.__changeSortState.col===idx ? (window.__changeSortState.asc ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${(function(){
+                    let sorted = items;
+                    if(window.__changeSortState && window.__changeSortState.section===sectionKey) {
+                      const st = window.__changeSortState;
+                      sorted = [...items].sort((a,b)=>{
+                        let va,vb;
+                        if(cols[0]==='Name') { va=(a.name||'').toLowerCase(); vb=(b.name||'').toLowerCase(); }
+                        else if(cols[0]==='ID') { va=(a.id||'').toLowerCase(); vb=(b.id||'').toLowerCase(); }
+                        else if(cols[0]==='Stock Level') { va=a.stockLevel||0; vb=b.stockLevel||0; }
+                        else if(cols[0]==='Change') { va=a.change||0; vb=b.change||0; }
+                        else if(cols[0]==='Old Stock') { va=a.oldStock||0; vb=b.oldStock||0; }
+                        else { va=(a.name||'').toLowerCase(); vb=(b.name||'').toLowerCase(); }
+                        if(va<vb) return st.asc?-1:1;
+                        if(va>vb) return st.asc?1:-1;
+                        return 0;
+                      });
+                    }
+                    return sorted.map(item => `<tr>${cols.map(c => {
+                      if(c==='Name') return `<td>${escHtml(item.name)}</td>`;
+                      if(c==='ID') return `<td>${escHtml(item.id)}</td>`;
+                      if(c==='Stock Level') return `<td>${item.stockLevel||0}</td>`;
+                      if(c==='Change') return `<td>${item.change>0?'+':''}${item.change}</td>`;
+                      if(c==='Old Stock') return `<td>${item.oldStock||0}</td>`;
+                      return `<td>${item[c]||''}</td>`;
+                    }).join('')}</tr>`).join('');
+                  })()}</tbody></table>
+                </div>
+              </div>`;
+            }
+            window.__changeSortState = null;
+            window.__sortChangeSection = function(sectionKey, col) {
+              if(!window.__changeReportData) return;
+              const st = window.__changeSortState;
+              if(st && st.section===sectionKey && st.col===col) { st.asc = !st.asc; }
+              else { window.__changeSortState = {section:sectionKey, col, asc:true}; }
+              renderChangeReport();
+            };
+            window.__toggleChangeSection = function(id) {
+              const section = document.getElementById(id);
+              if(section) section.classList.toggle('collapsed');
+            };
+            if(report.newSkus.length) body.innerHTML += renderSection('🆕 New SKUs', report.newSkus, ['Name','ID','Stock Level'], 'new');
+            if(report.discontinuedSkus.length) body.innerHTML += renderSection('⚠️ No Stock / EOL', report.discontinuedSkus, ['Name','ID'], 'discontinued') + '<div style="color:var(--muted);font-size:0.65rem;margin-top:4px;">Missing in latest upload — may be temporarily out of stock or permanently discontinued.</div>';
+            if(report.salesVelocity.length) body.innerHTML += renderSection('📉 Top Sales Velocity', report.salesVelocity, ['Name','ID','Old Stock','Stock Level','Change'], 'sales');
+            if(report.restocked.length) body.innerHTML += renderSection('📈 Restocked', report.restocked, ['Name','ID','Old Stock','Stock Level','Change'], 'restocked');
+            if(report.noMovement.length) body.innerHTML += renderSection('⏸️ No Movement', report.noMovement, ['Name','ID','Stock Level'], 'nomove');
+          }
+        }
       }
       
       function renderDashboard() {
@@ -1125,6 +1276,7 @@
           if(newItems.length===0) throw new Error('No valid rows found');
           saveInventory(newItems);
           generateChangeReport(oldData, newItems);
+          updateMissingItems();  // 升级：基于Sheet日期计算缺失
           localStorage.setItem(STORAGE.lastUpload, new Date().toISOString());
           localStorage.setItem(STORAGE.lastFileName, file.name);
           localStorage.setItem(STORAGE.lastSheetName, sheetName);
@@ -1203,7 +1355,7 @@
         $('#exportBtn').addEventListener('click', exportToExcel);
         $('#clearInventoryBtn').addEventListener('click', () => { 
           showConfirm('Clear all inventory data? This cannot be undone.', () => {
-            localStorage.removeItem(STORAGE.inventory); localStorage.removeItem(STORAGE.changeReport); localStorage.removeItem(STORAGE.allSheets); localStorage.removeItem(STORAGE.lastUpload); localStorage.removeItem(STORAGE.lastFileName); localStorage.removeItem(STORAGE.lastSheetName);
+            localStorage.removeItem(STORAGE.inventory); localStorage.removeItem(STORAGE.changeReport); localStorage.removeItem(STORAGE.allSheets); localStorage.removeItem(STORAGE.missingItems); localStorage.removeItem(STORAGE.lastUpload); localStorage.removeItem(STORAGE.lastFileName); localStorage.removeItem(STORAGE.lastSheetName);
             setStatus('Data cleared'); renderDashboard(); renderInventoryPage();
             if($('#page-reports').classList.contains('active')) { renderRunRate(); renderChangeReport(); }
           });
@@ -1381,7 +1533,7 @@
         const idxAgent=findCol(['sales agent','agent']), idxSalesman=findCol(['salesman','saleman','staff','name']), idxCompany=findCol(['company name','company','dealer']), idxDate=findCol(['date','invoice date']), idxQty=findCol(['qty','quantity']), idxSubtotal=findCol(['sub total','subtotal','amount','sales amount','total sales','sale total','total','销售额']), idxMargin=findCol(['profit margin (%)','profit margin','margin','利润率']), idxProfit=findCol(['local profit','profit']);
         if(idxCompany===-1||idxSubtotal===-1){alert("Missing Company or Sub Total column");return;}
         let lastAgent="",lastCompany="",lastSalesman="", transactions=[];
-        for(let i=headerRowIdx+1;i<rows.length;i++){ let row=rows[i]; if(!row||row.length===0) continue; let companyRaw=row[idxCompany]?row[idxCompany].toString().trim():""; let company=companyRaw; if(company===""&&lastCompany!=="") company=lastCompany; if(company!=="") lastCompany=company; if(company==="") continue; let subtotal=parseFloat(row[idxSubtotal])||0; if(subtotal===0) continue; let rawItem=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():""; if(companyRaw===""&&rawItem===""&&row[idxSubtotal]!==undefined) continue; let qty=parseFloat(row[idxQty])||0, margin=(idxMargin>=0)?parseFloat(row[idxMargin]):0, profit=(idxProfit>=0)?parseFloat(row[idxProfit]):0; if(isNaN(margin)) margin=0; if(isNaN(profit)) profit=0; let agent=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():""; let salesman=(idxSalesman>=0&&row[idxSalesman])?row[idxSalesman].toString().trim():""; if(agent===""&&lastAgent!=="") agent=lastAgent; if(salesman===""&&lastSalesman!=="") salesman=lastSalesman; if(agent!=="") lastAgent=agent; if(salesman!=="") lastSalesman=salesman; let finalAgent=agent||salesman||"Unknown"; let rawDate=(idxDate>=0&&row[idxDate])?row[idxDate]:null; let date=parseExcelDate(rawDate); if(!date) continue; transactions.push({agent:finalAgent,agentCode:agent,salesman:salesman,company:company,subtotal,qty,margin,profit,date}); }
+        for(let i=headerRowIdx+1;i<rows.length;i++){ let row=rows[i]; if(!row||row.length===0) continue; let companyRaw=row[idxCompany]?row[idxCompany].toString().trim():""; let company=companyRaw; if(company==""&&lastCompany!="") company=lastCompany; if(company!="") lastCompany=company; if(company=="") continue; let subtotal=parseFloat(row[idxSubtotal])||0; if(subtotal===0) continue; let rawItem=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():""; if(companyRaw==""&&rawItem==""&&row[idxSubtotal]!==undefined) continue; let qty=parseFloat(row[idxQty])||0, margin=(idxMargin>=0)?parseFloat(row[idxMargin]):0, profit=(idxProfit>=0)?parseFloat(row[idxProfit]):0; if(isNaN(margin)) margin=0; if(isNaN(profit)) profit=0; let agent=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():""; let salesman=(idxSalesman>=0&&row[idxSalesman])?row[idxSalesman].toString().trim():""; if(agent==""&&lastAgent!="") agent=lastAgent; if(salesman==""&&lastSalesman!="") salesman=lastSalesman; if(agent!="") lastAgent=agent; if(salesman!="") lastSalesman=salesman; let finalAgent=agent||salesman||"Unknown"; let rawDate=(idxDate>=0&&row[idxDate])?row[idxDate]:null; let date=parseExcelDate(rawDate); if(!date) continue; transactions.push({agent:finalAgent,agentCode:agent,salesman:salesman,company:company,subtotal,qty,margin,profit,date}); }
         if(transactions.length===0){alert("No valid transactions found");return;}
         rawData=transactions; let maxDate=new Date(0); rawData.forEach(t=>{if(t.date>maxDate) maxDate=t.date;}); lastUpdateDate=maxDate;
         document.getElementById('sales-lastUpdateTimeDisplay').innerText = maxDate.toLocaleDateString();
@@ -1481,7 +1633,6 @@
           if(diff===0) o.m0+=r.subtotal;
           else if(diff===1) o.m1+=r.subtotal;
           else if(diff===2) o.m2+=r.subtotal;
-          // 记录最后一个agentCode（或可改为取最多的）
           if(r.agentCode) o.agentCode = r.agentCode;
         });
         let list=Array.from(map.entries()).map(([n,v])=>({dealer:n, agentCode:v.agentCode, thisMonth:v.m0, lastMonth:v.m1, twoMonthsAgo:v.m2, qtd:v.m0+v.m1+v.m2, mom:v.m1?((v.m0-v.m1)/v.m1)*100:0}));
