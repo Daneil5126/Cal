@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>Business Unit Suite | Unified Dashboard</title>
-  <!-- XLSX loader (jsDelivr 优先，亚洲节点快) -->
+  <!-- XLSX loader (jsDelivr 优先) -->
   <script>
     (function () {
       var cdns = [
@@ -30,7 +30,7 @@
   <!-- Chart.js & datalabels plugin -->
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <!-- Font Awesome for Sales -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
     :root {
@@ -253,6 +253,7 @@
   </style>
 </head>
 <body>
+  <!-- Modal 修复: z-index 1100 -->
   <div id="confirmModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(15,23,42,0.5);align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:12px;padding:24px 28px;max-width:380px;width:90%;box-shadow:0 20px 40px rgba(0,0,0,0.2);">
       <p id="confirmMsg" style="margin:0 0 20px;font-size:0.95rem;line-height:1.5;color:#263646;"></p>
@@ -284,6 +285,7 @@
   </aside>
   <main class="main-content">
     <section class="page active" id="page-dashboard">
+      <!-- Dashboard HTML unchanged -->
       <div class="header"><h2>📊 Dashboard</h2><div class="button-row"><input type="file" id="fileInput" accept=".xlsx,.xls" hidden><button class="btn btn-primary" id="uploadBtn">📤 Upload Excel</button><button class="btn btn-success" id="exportBtn">📥 Export</button><button class="btn btn-muted" id="clearInventoryBtn">Clear Data</button><button class="btn" id="autoSyncBtn" style="background:#6366f1;">🔄 Sync from Cloud</button></div></div>
       <div id="syncStatus" style="font-size:0.7rem;color:var(--muted);margin-bottom:8px;"></div>
       <div id="statusMsg" class="status-msg" role="status"></div>
@@ -312,7 +314,6 @@
       <div class="app-credit">Created by DANEIL G.CS | Optimized Edition</div>
     </section>
     <section class="page" id="page-calculator">
-      <!-- Calculator unchanged except CSS already included -->
       <div class="calculator" id="app">
         <div class="calc-header">
           <div><span class="calc-title" id="mainTitle">Product Calculator</span><span class="calc-version" id="versionText"> v6.6</span></div>
@@ -371,6 +372,7 @@
       </div>
     </section>
     <section class="page" id="page-inventory">
+      <!-- Inventory HTML unchanged -->
       <div class="header"><h2>📦 Full Inventory</h2></div>
       <div class="card">
         <div class="search-bar">
@@ -410,6 +412,7 @@
       </div>
     </section>
     <section class="page" id="page-sales">
+      <!-- Sales HTML unchanged -->
       <div class="sales-dashboard" id="salesDashboardRoot">
         <div class="sales-topbar">
           <div class="sales-title">
@@ -792,7 +795,7 @@
         return report;
       }
 
-      // ===== MISSING ITEMS TRACKING (based on sheet dates) =====
+      // ===== MISSING ITEMS TRACKING =====
       function updateMissingItems() {
         const allSheets = getJson(STORAGE.allSheets, {});
         const dateKeys = Object.keys(allSheets).sort();
@@ -924,7 +927,6 @@
         else { _missingSort.col = col; _missingSort.asc = true; }
         renderChangeReport();
       };
-      // ===== END MISSING ITEMS =====
 
       function renderChangeReport() {
         const report = getJson(STORAGE.changeReport, null);
@@ -1251,7 +1253,6 @@
               if (!latestDateObj || d > latestDateObj) { latestDateObj = d; latestDateSheetName = sn; }
             }
           });
-          // 快照上限控制
           const MAX_SNAPSHOTS = 60;
           const allKeys = Object.keys(allSheetsData).sort();
           if (allKeys.length > MAX_SNAPSHOTS) {
@@ -1403,7 +1404,7 @@
       });
     })();
 
-    // ========== Product Calculator v6.6 Final (unchanged) ==========
+    // ========== Product Calculator v6.6 (Percent Fix) ==========
     (function() {
       const langMap = {
         cn: { mainTitle:"Product Calculator", versionText:" v6.6", liveLabel:"USD/MYR 基准汇率", plusLabel:"➕ 额外加成", appliedRateLabel:"💱 最终应用汇率 (基准+加成) :", formulaLabel:"📐 公式：", formulaCode:"Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP", fobLabel:"💰 FOB (USD)", sstLabel:"🧾 SST/VAT Tax", sstOpt1:"0.95 (5%)", sstOpt2:"0.90 (10%)", freightLabel:"🚢 Freight (除数)", gpLabel:"📈 GP% 除数", priceLabel:"🏷️ 预期售价 (MYR)", step1Label:"FOB ÷ SST (USD) :", step2Label:"× 汇率后 :", step3Label:"÷ Freight :", landingLabel:"📦 Landing Cost (向上取整)", gpLabelText:"📊 毛利率 (基于售价)", profitLabel:"💵 毛利额 :", clearText:"一键清除", errorGp:"❌ GP% 除数不能为0或负数", errorFreight:"❌ Freight 除数不能为0或负数", errorDiv:"❌ 除数不能为零", errorRate:"❌ 应用汇率无效 (≤0)", fetchErr:"⚠️ 网络失败，使用本地存储汇率", clearOk:"✅ 已重置所有输入", loading:"获取中...", datePrefix:"📅 ", marketRate:"在线汇率", cacheMsg:"📦 使用本地存储汇率", refreshBtn:"🔄 刷新汇率", freightHintPrefix:"增加成本 ≈ ", gpHintPrefix:"毛利率 ≈ ", percent:"%", manualLabel:"✏️ 手动输入汇率 (MYR/USD)", manualNote:"离线时可用，将覆盖自动获取值", applyManual:"📌 应用并保存", resetAuto:"🔄 恢复自动汇率", sourceManual:"✏️ 手动设定", versionInfo:"💡 提示：汇率会自动", poweredBy:"Powered By Daneil.G.CS | 智能识别版 v6.6", confirmRefresh:"当前处于手动汇率模式，刷新将覆盖手动设定。确定要继续吗？" },
@@ -1420,6 +1421,7 @@
         profitSpan: document.getElementById('profitAmount'), gpCard: document.getElementById('gpCard'), warningIcon: document.getElementById('warningIcon'),
         errorDiv: document.getElementById('errorMsg'), datetimeSpan: document.getElementById('datetimeDisplay'), sourceHintSpan: document.getElementById('sourceHint'),
         manualRateInput: document.getElementById('manualRateInput'), applyManualBtn: document.getElementById('applyManualBtn'), resetAutoBtn: document.getElementById('resetAutoBtn'),
+        freightHintSpan: document.getElementById('freightHint'), gpHintSpan: document.getElementById('gpHint')  // 修复百分比显示
       };
       let currentBaseRate = 3.97, lastSystemError = '', autoRefreshTimer = null;
 
@@ -1510,17 +1512,15 @@
       (async function init(){ loadStoredRate(); updateUI(); await refreshRateAndUI(); compute(); updateFreightHint(); updateGpHint(); if(autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer=setInterval(async ()=>{ const calcPage=document.getElementById('page-calculator'); if(!calcPage||!calcPage.classList.contains('active')) return; const activeEl=document.activeElement; const isEditing=activeEl===els.fobInput||activeEl===els.sellingPrice||activeEl===els.markupInput||activeEl===els.freightInput||activeEl===els.gpInput; if(!isEditing&&!localStorage.getItem('manualBaseRate')) await refreshRateAndUI(); },10*60*1000); setInterval(()=>{ els.datetimeSpan.innerText=new Date().toLocaleString(curLang==='cn'?'zh-CN':'en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}); },1000); })();
     })();
 
-    // ========== Sales Dashboard Module (patched) ==========
+    // ========== Sales Dashboard Module (Vivien Pink + Agent Persistence) ==========
     (function() {
       const DEFAULT_SYNC_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUlfv03e1X_g1MoUIrVKUfQtv8A0HjktG-XPD4L6w_3uXSq_pj3OnxfRT4c33JQ/pub?output=xlsx";
       let rawData = [];
       let monthlyTarget = 0;
       let lastUpdateDate = null;
-      // 从 localStorage 恢复 Agent 名字映射
       let agentNameMap = JSON.parse(localStorage.getItem('sal_agentNameMap') || 'null')
         || { "B003":"Vivien","B008":"Nicole","B005":"Jacky","B007":"Edmund" };
       let fixedTargetMap = { "B003":2500000,"B008":1500000,"B005":1500000,"B007":500000 };
-      // 从 localStorage 恢复 Agent 目标覆盖
       let agentTargetOverride;
       try {
         const savedOverride = JSON.parse(localStorage.getItem('sal_agentTargetOverride') || 'null');
@@ -1602,20 +1602,24 @@
       }
       window.editSalesTarget = function() { let newTarget = prompt("Enter Monthly Target (RM):", monthlyTarget.toFixed(2)); if(newTarget !== null && !isNaN(parseFloat(newTarget))) { monthlyTarget = parseFloat(newTarget); refreshSalesUI(); } };
       function getAgentMonthlyData() {
-        if(rawData.length===0) return {labels:[],data:[]};
+        if(rawData.length===0) return {labels:[],data:[],codes:[]};
         let maxDate=new Date(0); rawData.forEach(r=>{if(r.date>maxDate) maxDate=r.date;});
         let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
         let map=new Map();
         rawData.forEach(r=>{ let code=r.agentCode||r.agent; if(!code) return; if(r.date.getFullYear()===ly&&r.date.getMonth()===lm) map.set(code,(map.get(code)||0)+r.subtotal); });
         let arr=Array.from(map.entries()).map(([code,rev])=>({code,rev})); arr.sort((a,b)=>b.rev-a.rev);
-        return {labels:arr.map(a=>agentNameMap[a.code]||a.code), data:arr.map(a=>a.rev)};
+        return {
+          labels: arr.map(a=>agentNameMap[a.code]||a.code),
+          data: arr.map(a=>a.rev),
+          codes: arr.map(a=>a.code)
+        };
       }
       function createChartConfig(type,label,data,bgColor){
         return {type,data:{labels:data.labels,datasets:[{label,data:data.data,backgroundColor:bgColor,borderRadius:8,barPercentage:0.7}]},options:{responsive:true,maintainAspectRatio:true,plugins:{tooltip:{callbacks:{label:(ctx)=>formatRM(ctx.raw)}},legend:{display:false},datalabels:{display:(ctx)=>ctrlPressed,color:'#1e293b',backgroundColor:'rgba(255,255,255,0.7)',borderRadius:12,padding:4,font:{weight:'bold',size:11},formatter:(value)=>formatRM(value),anchor:'end',align:'top',offset:4}},scales:{y:{ticks:{callback:(val)=>formatRM(val)},grid:{color:'#e2e8f0'}},x:{grid:{display:false}}}}};
       }
       function buildCharts() {
         if (window.Chart && window.ChartDataLabels) {
-          Chart.register(ChartDataLabels); // 修复：注册插件
+          Chart.register(ChartDataLabels);
         }
         let months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         let monthly=new Array(12).fill(0); rawData.forEach(r=>{monthly[r.date.getMonth()]+=r.subtotal;});
@@ -1624,7 +1628,11 @@
         if(salesChart) salesChart.destroy();
         if(agentChart) agentChart.destroy();
         salesChart=new Chart(document.getElementById('salesChart'), createChartConfig('bar','Monthly Revenue',{labels:months,data:monthly},'#2563eb'));
-        agentChart=new Chart(document.getElementById('agentPerfChart'), createChartConfig('bar','Agent Sales',agentData,agentData.labels.map((_,i)=>colors[i%colors.length])));
+        // Vivien 粉色柱子
+        const agentColors = agentData.codes.map((code, i) => {
+          return code === 'B003' ? '#FF69B4' : colors[i % colors.length];
+        });
+        agentChart=new Chart(document.getElementById('agentPerfChart'), createChartConfig('bar','Agent Sales',agentData, agentColors));
       }
       document.addEventListener('keydown',e=>{if(e.key==='Control'){ctrlPressed=true;if(salesChart)salesChart.update();if(agentChart)agentChart.update();}});
       document.addEventListener('keyup',e=>{if(e.key==='Control'){ctrlPressed=false;if(salesChart)salesChart.update();if(agentChart)agentChart.update();}});
@@ -1648,9 +1656,7 @@
         tbody.innerHTML=agents.map((a,idx)=>`<tr><td>${idx+1}</td><td>${a.code}</td><td><input class="agent-name-input" data-code="${a.code}" value="${a.name.replace(/&/g,'&amp;')}"></td><td>${formatRM(a.revenue)}</td><td class="${a.hitRate>=0?'green':'red'}">${a.hitRate.toFixed(2)}%</td><td><span class="editable-target agent-target" data-code="${a.code}">${formatRM(a.target)}</span></td><td>${formatRM(a.balanceToGo)}</td><td class="${a.balancePct>=0?'red':'green'}">${a.balancePct.toFixed(2)}%</td></tr>`).join('');
         let totalRev=agents.reduce((s,a)=>s+a.revenue,0), totalTarget=agents.reduce((s,a)=>s+a.target,0), totalBal=totalTarget-totalRev;
         tfoot.innerHTML=`<tr class="total-row"><td colspan="3">Total</td><td>${formatRM(totalRev)}</td><td>${totalTarget?(totalRev/totalTarget*100).toFixed(2):'0.00'}%</td><td>${formatRM(totalTarget)}</td><td>${formatRM(totalBal)}</td><td>${totalTarget?(totalBal/totalTarget*100).toFixed(2):'0.00'}%</td></tr>`;
-        // 绑定事件：修改名字后保存
         $$s('.agent-name-input').forEach(inp=>{ inp.onchange=()=>{ agentNameMap[inp.dataset.code]=inp.value; localStorage.setItem('sal_agentNameMap', JSON.stringify(agentNameMap)); buildAgentTable(); buildCharts(); }; });
-        // 绑定事件：修改目标后保存
         $$s('.agent-target').forEach(el=>{ el.onclick=()=>{ let code=el.dataset.code; let cur=parseFloat(el.innerText.replace(/[^0-9.-]/g,'')); let n=prompt("New target:",cur); if(n&&!isNaN(parseFloat(n))){ agentTargetOverride.set(code,parseFloat(n)); localStorage.setItem('sal_agentTargetOverride', JSON.stringify([...agentTargetOverride])); buildAgentTable(); } }; });
       }
       function buildDealerTable() {
@@ -1823,8 +1829,6 @@
         updateSyncStatus(false, 'Not synced');
         window.refreshSalesDashboard = refreshSalesUI;
       }
-
-      if (typeof saveAs !== 'undefined') { /* no longer needed for CSV, but kept for Excel if wanted */ }
 
       document.addEventListener('DOMContentLoaded', bindSalesEvents);
     })();
