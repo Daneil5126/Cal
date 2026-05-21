@@ -285,7 +285,6 @@
   </aside>
   <main class="main-content">
     <section class="page active" id="page-dashboard">
-      <!-- Dashboard HTML unchanged -->
       <div class="header"><h2>📊 Dashboard</h2><div class="button-row"><input type="file" id="fileInput" accept=".xlsx,.xls" hidden><button class="btn btn-primary" id="uploadBtn">📤 Upload Excel</button><button class="btn btn-success" id="exportBtn">📥 Export</button><button class="btn btn-muted" id="clearInventoryBtn">Clear Data</button><button class="btn" id="autoSyncBtn" style="background:#6366f1;">🔄 Sync from Cloud</button></div></div>
       <div id="syncStatus" style="font-size:0.7rem;color:var(--muted);margin-bottom:8px;"></div>
       <div id="statusMsg" class="status-msg" role="status"></div>
@@ -372,7 +371,6 @@
       </div>
     </section>
     <section class="page" id="page-inventory">
-      <!-- Inventory HTML unchanged -->
       <div class="header"><h2>📦 Full Inventory</h2></div>
       <div class="card">
         <div class="search-bar">
@@ -412,7 +410,6 @@
       </div>
     </section>
     <section class="page" id="page-sales">
-      <!-- Sales HTML unchanged -->
       <div class="sales-dashboard" id="salesDashboardRoot">
         <div class="sales-topbar">
           <div class="sales-title">
@@ -505,7 +502,7 @@
   </main>
 
   <script>
-    // ========== Inventory Core System ==========
+    // ========== Inventory Core System (完整保留) ==========
     (function() {
       'use strict';
       function showConfirm(msg, onOk) {
@@ -1404,7 +1401,7 @@
       });
     })();
 
-    // ========== Product Calculator v6.6 (Percent Fix) ==========
+    // ========== Product Calculator (Percent Fix) ==========
     (function() {
       const langMap = {
         cn: { mainTitle:"Product Calculator", versionText:" v6.6", liveLabel:"USD/MYR 基准汇率", plusLabel:"➕ 额外加成", appliedRateLabel:"💱 最终应用汇率 (基准+加成) :", formulaLabel:"📐 公式：", formulaCode:"Landing Cost = FOB ÷ SST × 汇率 ÷ Freight ÷ GP", fobLabel:"💰 FOB (USD)", sstLabel:"🧾 SST/VAT Tax", sstOpt1:"0.95 (5%)", sstOpt2:"0.90 (10%)", freightLabel:"🚢 Freight (除数)", gpLabel:"📈 GP% 除数", priceLabel:"🏷️ 预期售价 (MYR)", step1Label:"FOB ÷ SST (USD) :", step2Label:"× 汇率后 :", step3Label:"÷ Freight :", landingLabel:"📦 Landing Cost (向上取整)", gpLabelText:"📊 毛利率 (基于售价)", profitLabel:"💵 毛利额 :", clearText:"一键清除", errorGp:"❌ GP% 除数不能为0或负数", errorFreight:"❌ Freight 除数不能为0或负数", errorDiv:"❌ 除数不能为零", errorRate:"❌ 应用汇率无效 (≤0)", fetchErr:"⚠️ 网络失败，使用本地存储汇率", clearOk:"✅ 已重置所有输入", loading:"获取中...", datePrefix:"📅 ", marketRate:"在线汇率", cacheMsg:"📦 使用本地存储汇率", refreshBtn:"🔄 刷新汇率", freightHintPrefix:"增加成本 ≈ ", gpHintPrefix:"毛利率 ≈ ", percent:"%", manualLabel:"✏️ 手动输入汇率 (MYR/USD)", manualNote:"离线时可用，将覆盖自动获取值", applyManual:"📌 应用并保存", resetAuto:"🔄 恢复自动汇率", sourceManual:"✏️ 手动设定", versionInfo:"💡 提示：汇率会自动", poweredBy:"Powered By Daneil.G.CS | 智能识别版 v6.6", confirmRefresh:"当前处于手动汇率模式，刷新将覆盖手动设定。确定要继续吗？" },
@@ -1421,7 +1418,7 @@
         profitSpan: document.getElementById('profitAmount'), gpCard: document.getElementById('gpCard'), warningIcon: document.getElementById('warningIcon'),
         errorDiv: document.getElementById('errorMsg'), datetimeSpan: document.getElementById('datetimeDisplay'), sourceHintSpan: document.getElementById('sourceHint'),
         manualRateInput: document.getElementById('manualRateInput'), applyManualBtn: document.getElementById('applyManualBtn'), resetAutoBtn: document.getElementById('resetAutoBtn'),
-        freightHintSpan: document.getElementById('freightHint'), gpHintSpan: document.getElementById('gpHint')  // 修复百分比显示
+        freightHintSpan: document.getElementById('freightHint'), gpHintSpan: document.getElementById('gpHint')
       };
       let currentBaseRate = 3.97, lastSystemError = '', autoRefreshTimer = null;
 
@@ -1512,7 +1509,7 @@
       (async function init(){ loadStoredRate(); updateUI(); await refreshRateAndUI(); compute(); updateFreightHint(); updateGpHint(); if(autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer=setInterval(async ()=>{ const calcPage=document.getElementById('page-calculator'); if(!calcPage||!calcPage.classList.contains('active')) return; const activeEl=document.activeElement; const isEditing=activeEl===els.fobInput||activeEl===els.sellingPrice||activeEl===els.markupInput||activeEl===els.freightInput||activeEl===els.gpInput; if(!isEditing&&!localStorage.getItem('manualBaseRate')) await refreshRateAndUI(); },10*60*1000); setInterval(()=>{ els.datetimeSpan.innerText=new Date().toLocaleString(curLang==='cn'?'zh-CN':'en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}); },1000); })();
     })();
 
-    // ========== Sales Dashboard Module (Vivien Pink + Agent Persistence) ==========
+    // ========== Sales Dashboard Module (Vivien Pink + Control Fix) ==========
     (function() {
       const DEFAULT_SYNC_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUlfv03e1X_g1MoUIrVKUfQtv8A0HjktG-XPD4L6w_3uXSq_pj3OnxfRT4c33JQ/pub?output=xlsx";
       let rawData = [];
@@ -1614,8 +1611,64 @@
           codes: arr.map(a=>a.code)
         };
       }
-      function createChartConfig(type,label,data,bgColor){
-        return {type,data:{labels:data.labels,datasets:[{label,data:data.data,backgroundColor:bgColor,borderRadius:8,barPercentage:0.7}]},options:{responsive:true,maintainAspectRatio:true,plugins:{tooltip:{callbacks:{label:(ctx)=>formatRM(ctx.raw)}},legend:{display:false},datalabels:{display:(ctx)=>ctrlPressed,color:'#1e293b',backgroundColor:'rgba(255,255,255,0.7)',borderRadius:12,padding:4,font:{weight:'bold',size:11},formatter:(value)=>formatRM(value),anchor:'end',align:'top',offset:4}},scales:{y:{ticks:{callback:(val)=>formatRM(val)},grid:{color:'#e2e8f0'}},x:{grid:{display:false}}}}};
+      function createChartConfig(type, label, chartData, bgColor) {
+        return {
+          type,
+          data: {
+            labels: chartData.labels,
+            datasets: [{
+              label,
+              data: chartData.data,
+              backgroundColor: bgColor,
+              borderRadius: 8,
+              barPercentage: 0.7
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => formatRM(ctx.raw)
+                }
+              },
+              legend: {
+                display: false
+              },
+              datalabels: {
+                display: (ctx) => ctrlPressed,
+                color: '#1e293b',
+                backgroundColor: 'rgba(255,255,255,0.7)',
+                borderRadius: 12,
+                padding: 4,
+                font: {
+                  weight: 'bold',
+                  size: 11
+                },
+                formatter: (value) => formatRM(value),
+                anchor: 'end',
+                align: 'top',
+                offset: 4
+              }
+            },
+            scales: {
+              y: {
+                ticks: {
+                  callback: (val) => formatRM(val)
+                },
+                grid: {
+                  color: '#e2e8f0'
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                }
+              }
+            }
+          }
+        };
       }
       function buildCharts() {
         if (window.Chart && window.ChartDataLabels) {
@@ -1625,17 +1678,35 @@
         let monthly=new Array(12).fill(0); rawData.forEach(r=>{monthly[r.date.getMonth()]+=r.subtotal;});
         const agentData=getAgentMonthlyData();
         const colors=['#e6194b','#f58231','#ffe119','#bfef45','#3cb44b','#42d4f4','#4363d8','#911eb4','#f032e6','#a9a9a9'];
+
         if(salesChart) salesChart.destroy();
         if(agentChart) agentChart.destroy();
-        salesChart=new Chart(document.getElementById('salesChart'), createChartConfig('bar','Monthly Revenue',{labels:months,data:monthly},'#2563eb'));
-        // Vivien 粉色柱子
+
+        salesChart = new Chart(document.getElementById('salesChart'), createChartConfig('bar', 'Monthly Revenue', {labels: months, data: monthly}, '#2563eb'));
+
         const agentColors = agentData.codes.map((code, i) => {
           return code === 'B003' ? '#FF69B4' : colors[i % colors.length];
         });
-        agentChart=new Chart(document.getElementById('agentPerfChart'), createChartConfig('bar','Agent Sales',agentData, agentColors));
+        const agentDataset = {
+          labels: agentData.labels,
+          data: agentData.data
+        };
+        agentChart = new Chart(document.getElementById('agentPerfChart'), createChartConfig('bar', 'Agent Sales', agentDataset, agentColors));
       }
-      document.addEventListener('keydown',e=>{if(e.key==='Control'){ctrlPressed=true;if(salesChart)salesChart.update();if(agentChart)agentChart.update();}});
-      document.addEventListener('keyup',e=>{if(e.key==='Control'){ctrlPressed=false;if(salesChart)salesChart.update();if(agentChart)agentChart.update();}});
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Control' || e.ctrlKey) {
+          ctrlPressed = true;
+          if (salesChart) salesChart.update();
+          if (agentChart) agentChart.update();
+        }
+      });
+      document.addEventListener('keyup', e => {
+        if (e.key === 'Control' || !e.ctrlKey) {
+          ctrlPressed = false;
+          if (salesChart) salesChart.update();
+          if (agentChart) agentChart.update();
+        }
+      });
       function buildAgentTable() {
         const tbody=document.querySelector('#sales-agentTable tbody');
         const tfoot=document.getElementById('sales-agentTableFoot');
