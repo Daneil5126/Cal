@@ -514,7 +514,7 @@
     const escHtml = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     window.escHtml = escHtml;
 
-    // ========== Inventory Core System (完整，包含 Ctrl 饼图百分比) ==========
+    // ========== Inventory Core System (包含修复后的饼图 Ctrl 百分比) ==========
     (function() {
       'use strict';
 
@@ -620,7 +620,7 @@
         }
       }
 
-      // ===== RUN RATE ANALYSIS =====
+      // ===== RUN RATE ANALYSIS (完整) =====
       const MONTH_IDX = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
       function parseSheetDate(name) {
         const m = String(name).trim().match(/^(\d{1,2})[- ]([A-Za-z]{3})[- ](\d{4})$/i);
@@ -1064,15 +1064,25 @@
         return labels.map(l => fixed[l] || fallback[idx++ % fallback.length]);
       }
 
-      // ===== Ctrl 控制饼图百分比 =====
+      // ===== 修复后的 renderPieChart：Ctrl 显示百分比（display 改为函数） =====
       function renderPieChart(sorted, colors) {
         const canvas = $('#pieChart'), fallback = $('#chartFallback');
-        if(state.pieChart) { state.pieChart.destroy(); state.pieChart = null; }
-        if(!sorted.length) { if(canvas) canvas.style.display = 'none'; if(fallback) fallback.style.display = 'none'; return; }
-        if(!window.Chart) { if(canvas) canvas.style.display = 'none'; if(fallback) fallback.style.display = 'block'; return; }
-        if(window.Chart && window.ChartDataLabels) { Chart.register(ChartDataLabels); }
-        if(canvas) canvas.style.display = 'block';
-        if(fallback) fallback.style.display = 'none';
+        if (state.pieChart) { state.pieChart.destroy(); state.pieChart = null; }
+        if (!sorted.length) {
+          if (canvas) canvas.style.display = 'none';
+          if (fallback) fallback.style.display = 'none';
+          return;
+        }
+        if (!window.Chart) {
+          if (canvas) canvas.style.display = 'none';
+          if (fallback) fallback.style.display = 'block';
+          return;
+        }
+        if (window.Chart && window.ChartDataLabels) {
+          Chart.register(ChartDataLabels);
+        }
+        if (canvas) canvas.style.display = 'block';
+        if (fallback) fallback.style.display = 'none';
 
         state.pieChart = new Chart(canvas.getContext('2d'), {
           type: 'pie',
@@ -1102,7 +1112,7 @@
                 }
               },
               datalabels: {
-                display: pieCtrlPressed,
+                display: () => pieCtrlPressed,   // ★ 修复：使用函数动态读取 Ctrl 状态
                 color: '#1e293b',
                 backgroundColor: 'rgba(255,255,255,0.7)',
                 borderRadius: 8,
