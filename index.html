@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Business Unit Suite | Unified Dashboard</title>
-  <!-- Inter font -->
+  <title>Business Unit Suite | Unified Dashboard v2.2.1+</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <!-- XLSX loader (v0.20.2) -->
   <script>
     (function () {
       var cdns = [
@@ -31,10 +29,8 @@
       tryLoad();
     })();
   </script>
-  <!-- Chart.js & datalabels plugin -->
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
     :root {
@@ -214,6 +210,7 @@
     .sales-dashboard .toolbar button { background: #f0f5fa; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 500; font-size: 13px; cursor: pointer; transition: 0.2s; color: #1e5f7a; display: inline-flex; align-items: center; gap: 8px; }
     .sales-dashboard .toolbar button:hover { background: #2c8eb0; color: white; }
     .sales-dashboard .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-bottom: 25px; }
+    @media (max-width: 600px) { .sales-dashboard .kpi-grid { grid-template-columns: 1fr; } }
     .sales-dashboard .kpi { background: white; border-radius: 22px; padding: 22px; border: 1px solid #e2e8f0; }
     .sales-dashboard .kpi-label { color: #64748b; font-size: 13px; margin-bottom: 8px; }
     .sales-dashboard .kpi-value { font-size: 30px; font-weight: 800; }
@@ -309,11 +306,11 @@
         <div id="dashboardSourceChip"></div>
       </div>
       <div class="grid-3col">
-        <div class="card"><h3>📊 By Group</h3><div class="summary-group-card"><div class="summary-table-wrap"><table class="group-table" id="groupSummaryTable"><thead><tr><th>Group</th><th class="numeric">Qty</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div><div class="chart-wrap"><canvas id="pieChart"></canvas><div class="chart-fallback" id="chartFallback">Chart unavailable</div></div></div></div>
+        <div class="card"><h3>📊 By Group <button id="togglePieLabelsBtn" style="margin-left:auto;background:var(--primary);color:white;border:none;padding:2px 10px;border-radius:16px;font-size:0.7rem;cursor:pointer;">👁 %</button></h3><div class="summary-group-card"><div class="summary-table-wrap"><table class="group-table" id="groupSummaryTable"><thead><tr><th>Group</th><th class="numeric">Qty</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div><div class="chart-wrap"><canvas id="pieChart"></canvas><div class="chart-fallback" id="chartFallback">Chart unavailable</div></div></div></div>
         <div class="card"><h3>⚠️ Low Stock</h3><table class="mini-table" id="lowStockTable"><thead><tr><th>Name</th><th class="numeric">Stock</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
         <div class="card"><h3>🏆 Top Items</h3><table class="mini-table" id="topItemsTable"><thead><tr><th>Name</th><th class="numeric">Qty</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
       </div>
-      <div class="app-credit">Created by DANEIL G.CS | Optimized Edition</div>
+      <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.2.1+</div>
     </section>
     <section class="page" id="page-calculator">
       <div class="calculator" id="app">
@@ -504,7 +501,7 @@
       <div class="header"><h2>📄 Reports</h2></div>
       <div class="change-report" id="changeReportContainer"></div>
       <div id="runRateContainer"></div>
-      <div class="app-credit">Created by DANEIL G.CS | Optimized Edition</div>
+      <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.2.1+</div>
     </section>
     <section class="page placeholder" id="page-documents"><h2>📁 Documents</h2><p>Coming soon...</p></section>
   </main>
@@ -514,11 +511,11 @@
     const escHtml = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     window.escHtml = escHtml;
 
-    // ========== Inventory Core System (包含修复后的饼图 Ctrl 百分比) ==========
+    // ========== Inventory Core System (完整，包含容错列头匹配及所有修复) ==========
     (function() {
       'use strict';
 
-      // Ctrl 控制饼图显示百分比
+      // Ctrl / 按钮控制饼图百分比
       let pieCtrlPressed = false;
       document.addEventListener('keydown', e => {
         if (e.key === 'Control' || e.ctrlKey) {
@@ -540,7 +537,7 @@
         const ok = document.getElementById('confirmOk');
         const cancel = document.getElementById('confirmCancel');
         const cleanup = () => { modal.style.display = 'none'; ok.onclick = null; cancel.onclick = null; };
-        ok.onclick = () => { cleanup(); onOk(); };
+        ok.onclick = () => { cleanup(); if (typeof onOk === 'function') onOk(); };
         cancel.onclick = cleanup;
       }
       window.showConfirm = showConfirm;
@@ -620,11 +617,20 @@
         }
       }
 
-      // ===== RUN RATE ANALYSIS (完整) =====
+      // ===== RUN RATE ANALYSIS (修复日期解析) =====
       const MONTH_IDX = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
       function parseSheetDate(name) {
-        const m = String(name).trim().match(/^(\d{1,2})[- ]([A-Za-z]{3})[- ](\d{4})$/i);
-        if(m){ const mo=MONTH_IDX[m[2].toLowerCase()]; if(mo!==undefined) return new Date(+m[3],mo,+m[1]); }
+        const m = String(name).trim().match(/^(\d{1,2})[-/ ]([A-Za-z]+)[-/ ](\d{2,4})$/i);
+        if (m) {
+          const day = parseInt(m[1], 10);
+          const monthStr = m[2].toLowerCase();
+          let monthNum = MONTH_IDX[monthStr] ?? MONTH_IDX[monthStr.substring(0,3)];
+          let year = parseInt(m[3], 10);
+          if (year < 100) year += 2000;
+          if (monthNum !== undefined && day >= 1 && day <= 31) {
+            return new Date(year, monthNum, day);
+          }
+        }
         return null;
       }
       function isoDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -1064,7 +1070,6 @@
         return labels.map(l => fixed[l] || fallback[idx++ % fallback.length]);
       }
 
-      // ===== 修复后的 renderPieChart：Ctrl 显示百分比（display 改为函数） =====
       function renderPieChart(sorted, colors) {
         const canvas = $('#pieChart'), fallback = $('#chartFallback');
         if (state.pieChart) { state.pieChart.destroy(); state.pieChart = null; }
@@ -1112,7 +1117,7 @@
                 }
               },
               datalabels: {
-                display: () => pieCtrlPressed,   // ★ 修复：使用函数动态读取 Ctrl 状态
+                display: () => pieCtrlPressed,
                 color: '#1e293b',
                 backgroundColor: 'rgba(255,255,255,0.7)',
                 borderRadius: 8,
@@ -1291,6 +1296,7 @@
         $('#sortDirectionSelect').value = state.sortDirection;
       }
       
+      // ===== handleFile 增强列头匹配（容错） =====
       async function handleFile(file) {
         if(!file) return;
         if(!window.XLSX) {
@@ -1321,7 +1327,7 @@
               if (!latestDateObj || d > latestDateObj) { latestDateObj = d; latestDateSheetName = sn; }
             }
           });
-          const MAX_SNAPSHOTS = 60;
+          const MAX_SNAPSHOTS = 90; // 调整上限
           const allKeys = Object.keys(allSheetsData).sort();
           if (allKeys.length > MAX_SNAPSHOTS) {
             allKeys.slice(0, allKeys.length - MAX_SNAPSHOTS)
@@ -1332,18 +1338,45 @@
           const sheet = wb.Sheets[sheetName];
           const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
           if(rows.length < 2) throw new Error('File is empty');
-          const headers = rows[0].map(h => String(h).trim().toLowerCase());
+          // 增强的列头匹配（统一小写、去多余空格、包含多种别名）
+          const headers = rows[0].map(h => String(h).trim().toLowerCase().replace(/\s+/g, ' '));
           const idx = {
-            id: headers.findIndex(h => h==='item code'||h==='itemcode'||h==='sku'),
-            name: headers.findIndex(h => h==='description'||h==='name'||h==='item description'),
-            qty: headers.findIndex(h => h==='qty'||h==='quantity'||h==='stock'),
-            cost: headers.findIndex(h => h==='average balance cost'||h==='avg cost'||h==='average cost'||h==='unit cost'),
-            group: headers.findIndex(h => h==='product group'||h==='group'),
-            onHand: headers.findIndex(h => h==='on hand cost'||h==='stock value'),
-            location: headers.findIndex(h => h==='location'||h==='warehouse'),
-            available: headers.findIndex(h => h==='available')
+            id: headers.findIndex(h => 
+              h.includes('item code') || h.includes('itemcode') || h.includes('sku') || h.includes('product code') || h.includes('part no')
+            ),
+            name: headers.findIndex(h => 
+              h.includes('description') || h.includes('name') || h.includes('item description') || h.includes('product name') || h.includes('item name')
+            ),
+            qty: headers.findIndex(h => 
+              h.includes('qty') || h.includes('quantity') || h.includes('stock') || h.includes('available') || h.includes('inventory') || h.includes('on hand')
+            ),
+            cost: headers.findIndex(h => 
+              h.includes('average balance cost') || h.includes('avg cost') || h.includes('average cost') || h.includes('unit cost') || h.includes('cost price') || h.includes('cost')
+            ),
+            group: headers.findIndex(h => 
+              h.includes('product group') || h.includes('group') || h.includes('category') || h.includes('brand')
+            ),
+            onHand: headers.findIndex(h => 
+              h.includes('on hand cost') || h.includes('stock value') || h.includes('inventory value') || h.includes('total cost')
+            ),
+            location: headers.findIndex(h => 
+              h.includes('location') || h.includes('warehouse') || h.includes('store') || h.includes('site')
+            ),
+            available: headers.findIndex(h => 
+              h.includes('available') || h.includes('avail')
+            )
           };
-          if(idx.id<0||idx.name<0||idx.qty<0||idx.cost<0) throw new Error('Missing required columns');
+
+          // 检查必填列
+          const missing = [];
+          if (idx.id < 0) missing.push('Item Code / SKU');
+          if (idx.name < 0) missing.push('Description / Name');
+          if (idx.qty < 0) missing.push('Qty / Stock');
+          if (idx.cost < 0) missing.push('Unit Cost');
+          if (missing.length) {
+            throw new Error(`Missing required columns: ${missing.join(', ')}. Found: ${headers.slice(0,10).join(', ')}...`);
+          }
+
           const itemsMap = new Map();
           for(let i=1; i<rows.length; i++) {
             const r = rows[i];
@@ -1464,6 +1497,11 @@
           state.currentPage=1; renderInventoryPage();
         });
         document.getElementById('autoSyncBtn').addEventListener('click', fetchFromCloud);
+        // 饼图按钮
+        document.getElementById('togglePieLabelsBtn').addEventListener('click', () => {
+          pieCtrlPressed = !pieCtrlPressed;
+          if (state.pieChart) state.pieChart.update();
+        });
         const lastSync = localStorage.getItem('lastCloudSync');
         if(lastSync) document.getElementById('syncStatus').textContent = `✅ Last sync: ${new Date(parseInt(lastSync)).toLocaleString()}`;
         state.clockTimer = setInterval(() => { const el = $('#liveDateTime'); if(el) el.textContent = formatTime12h(); }, 1000);
@@ -1580,7 +1618,7 @@
       (async function init(){ loadStoredRate(); updateUI(); await refreshRateAndUI(); compute(); updateFreightHint(); updateGpHint(); if(autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer=setInterval(async ()=>{ const calcPage=document.getElementById('page-calculator'); if(!calcPage||!calcPage.classList.contains('active')) return; const activeEl=document.activeElement; const isEditing=activeEl===els.fobInput||activeEl===els.sellingPrice||activeEl===els.markupInput||activeEl===els.freightInput||activeEl===els.gpInput; if(!isEditing&&!localStorage.getItem('manualBaseRate')) await refreshRateAndUI(); },10*60*1000); setInterval(()=>{ els.datetimeSpan.innerText=new Date().toLocaleString(curLang==='cn'?'zh-CN':'en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}); },1000); })();
     })();
 
-    // ========== Sales Dashboard Module (完整) ==========
+    // ========== Sales Dashboard Module (完整，含 parseAmount 与日期解析) ==========
     (function() {
       const DEFAULT_SYNC_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUlfv03e1X_g1MoUIrVKUfQtv8A0HjktG-XPD4L6w_3uXSq_pj3OnxfRT4c33JQ/pub?output=xlsx";
       const SALES_STORAGE = 'sales_rawData';
@@ -1607,6 +1645,7 @@
       const $s = (sel) => document.querySelector(sel);
       const $$s = (sel) => Array.from(document.querySelectorAll(sel));
       const formatRM = v => new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR',minimumFractionDigits:2}).format(v||0);
+      const parseAmount = (v) => parseFloat(String(v ?? '').replace(/,/g, '').trim()) || 0;
 
       function loadSalesData() {
         try {
@@ -1633,7 +1672,6 @@
         } catch (e) { /* ignore */ }
         return false;
       }
-
       function saveSalesData() {
         if (!rawData.length) return;
         let dataToSave = rawData;
@@ -1643,11 +1681,8 @@
         }
         try {
           localStorage.setItem(SALES_STORAGE, JSON.stringify(dataToSave));
-        } catch (e) {
-          console.warn('Sales data could not be saved (storage full)');
-        }
+        } catch (e) { console.warn('Sales data could not be saved (storage full)'); }
       }
-
       const hasSavedData = loadSalesData();
 
       const setSalesStatus = (msg) => {
@@ -1656,10 +1691,24 @@
       };
 
       function parseExcelDate(val) {
-        if(!val) return null;
-        if(typeof val==='number' && val>30000 && val<100000) { let d=XLSX.SSF.parse_date_code(val); if(d) return new Date(d.y,d.m-1,d.d); }
-        let s=val.toString().trim(); let d=new Date(s); if(!isNaN(d.getTime())) return d;
-        let parts=s.split(/[-/]/); if(parts.length===3) { let y=parseInt(parts[0]),m=parseInt(parts[1]),day=parseInt(parts[2]); if(!isNaN(y)&&!isNaN(m)&&!isNaN(day)) { if(y>2000) return new Date(y,m-1,day); if(y<100) return new Date(2000+y,m-1,day); } }
+        if (!val) return null;
+        if (typeof val === 'number' && val > 30000 && val < 100000) {
+          const d = XLSX.SSF.parse_date_code(val);
+          if (d) return new Date(d.y, d.m - 1, d.d);
+        }
+        let s = val.toString().trim();
+        let d = new Date(s);
+        if (!isNaN(d.getTime())) return d;
+        let parts = s.split(/[-/]/);
+        if (parts.length === 3) {
+          let day = parseInt(parts[0], 10);
+          let month = parseInt(parts[1], 10);
+          let year = parseInt(parts[2], 10);
+          if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+            if (year < 100) year += 2000;
+            return new Date(year, month - 1, day);
+          }
+        }
         return null;
       }
 
@@ -1681,7 +1730,32 @@
         const idxAgent=findCol(['sales agent','agent']), idxSalesman=findCol(['salesman','saleman','staff','name']), idxCompany=findCol(['company name','company','dealer']), idxDate=findCol(['date','invoice date']), idxQty=findCol(['qty','quantity']), idxSubtotal=findCol(['sub total','subtotal','amount','sales amount','total sales','sale total','total','销售额']), idxMargin=findCol(['profit margin (%)','profit margin','margin','利润率']), idxProfit=findCol(['local profit','profit']);
         if(idxCompany===-1||idxSubtotal===-1) throw new Error("Missing Company or Sub Total column");
         let lastAgent="",lastCompany="",lastSalesman="", transactions=[];
-        for(let i=headerRowIdx+1;i<rows.length;i++){ let row=rows[i]; if(!row||row.length===0) continue; let companyRaw=row[idxCompany]?row[idxCompany].toString().trim():""; let company=companyRaw; if(company==""&&lastCompany!="") company=lastCompany; if(company!="") lastCompany=company; if(company=="") continue; let subtotal=parseFloat(row[idxSubtotal])||0; if(subtotal===0) continue; let rawItem=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():""; if(companyRaw==""&&rawItem==""&&row[idxSubtotal]!==undefined) continue; let qty=parseFloat(row[idxQty])||0, margin=(idxMargin>=0)?parseFloat(row[idxMargin]):0, profit=(idxProfit>=0)?parseFloat(row[idxProfit]):0; if(isNaN(margin)) margin=0; if(isNaN(profit)) profit=0; let agent=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():""; let salesman=(idxSalesman>=0&&row[idxSalesman])?row[idxSalesman].toString().trim():""; if(agent==""&&lastAgent!="") agent=lastAgent; if(salesman==""&&lastSalesman!="") salesman=lastSalesman; if(agent!="") lastAgent=agent; if(salesman!="") lastSalesman=salesman; let finalAgent=agent||salesman||"Unknown"; let rawDate=(idxDate>=0&&row[idxDate])?row[idxDate]:null; let date=parseExcelDate(rawDate); if(!date) continue; transactions.push({agent:finalAgent,agentCode:agent,salesman:salesman,company:company,subtotal,qty,margin,profit,date}); }
+        for(let i=headerRowIdx+1;i<rows.length;i++){
+          let row=rows[i]; if(!row||row.length===0) continue;
+          let companyRaw=row[idxCompany]?row[idxCompany].toString().trim():"";
+          let company=companyRaw;
+          if(company==""&&lastCompany!="") company=lastCompany;
+          if(company!="") lastCompany=company;
+          if(company=="") continue;
+          let subtotal = parseAmount(row[idxSubtotal]);
+          if (subtotal === 0) continue;
+          let rawItem=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():"";
+          if(companyRaw==""&&rawItem==""&&row[idxSubtotal]!==undefined) continue;
+          let qty = parseAmount(row[idxQty]);
+          let margin = idxMargin >= 0 ? parseAmount(row[idxMargin]) : 0;
+          let profit = idxProfit >= 0 ? parseAmount(row[idxProfit]) : 0;
+          let agent=(idxAgent>=0&&row[idxAgent])?row[idxAgent].toString().trim():"";
+          let salesman=(idxSalesman>=0&&row[idxSalesman])?row[idxSalesman].toString().trim():"";
+          if(agent==""&&lastAgent!="") agent=lastAgent;
+          if(salesman==""&&lastSalesman!="") salesman=lastSalesman;
+          if(agent!="") lastAgent=agent;
+          if(salesman!="") lastSalesman=salesman;
+          let finalAgent=agent||salesman||"Unknown";
+          let rawDate=(idxDate>=0&&row[idxDate])?row[idxDate]:null;
+          let date=parseExcelDate(rawDate);
+          if(!date) continue;
+          transactions.push({agent:finalAgent,agentCode:agent,salesman:salesman,company:company,subtotal,qty,margin,profit,date});
+        }
         if(transactions.length===0) throw new Error("No valid transactions found");
         rawData=transactions; let maxDate=new Date(0); rawData.forEach(t=>{if(t.date>maxDate) maxDate=t.date;}); lastUpdateDate=maxDate;
         saveSalesData();
@@ -1720,7 +1794,6 @@
           });
         }
       }
-
       function updateDailyRequired(balanceToGo) {
         const remainingInput = document.getElementById('remainingDaysInput');
         const dailySpan = document.getElementById('dailyRequiredSale');
@@ -1728,7 +1801,6 @@
         let days = parseInt(remainingInput.value, 10);
         dailySpan.innerText = (isNaN(days)||days<=0) ? formatRM(0) : formatRM(balanceToGo/days);
       }
-
       window.editSalesTarget = function() {
         let newTarget = prompt("Enter Monthly Target (RM):", monthlyTarget.toFixed(2));
         if(newTarget !== null && !isNaN(parseFloat(newTarget))) {
@@ -1737,7 +1809,6 @@
           refreshSalesUI();
         }
       };
-
       function getAgentMonthlyData() {
         if(rawData.length===0) return {labels:[],data:[],codes:[]};
         let maxDate=new Date(0); rawData.forEach(r=>{if(r.date>maxDate) maxDate=r.date;});
@@ -1747,7 +1818,6 @@
         let arr=Array.from(map.entries()).map(([code,rev])=>({code,rev})); arr.sort((a,b)=>b.rev-a.rev);
         return { labels: arr.map(a=>agentNameMap[a.code]||a.code), data: arr.map(a=>a.rev), codes: arr.map(a=>a.code) };
       }
-
       function createChartConfig(type, label, chartData, bgColor) {
         return {
           type,
@@ -1770,7 +1840,6 @@
           }
         };
       }
-
       function buildCharts() {
         if (window.Chart && window.ChartDataLabels) {
           Chart.register(ChartDataLabels);
@@ -1785,7 +1854,6 @@
         const agentColors = agentData.codes.map((code, i) => code === 'B003' ? '#FF69B4' : colors[i % colors.length]);
         agentChart = new Chart(document.getElementById('agentPerfChart'), createChartConfig('bar', 'Agent Sales', { labels: agentData.labels, data: agentData.data }, agentColors));
       }
-
       document.addEventListener('keydown', e => { if (e.key === 'Control' || e.ctrlKey) { ctrlPressed = true; if(salesChart) salesChart.update(); if(agentChart) agentChart.update(); } });
       document.addEventListener('keyup', e => { if (e.key === 'Control' || !e.ctrlKey) { ctrlPressed = false; if(salesChart) salesChart.update(); if(agentChart) agentChart.update(); } });
 
