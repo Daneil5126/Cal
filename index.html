@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Unit Suite | Unified Dashboard v2.3.0</title>
+<title>Business Unit Suite | Unified Dashboard v2.5.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -104,6 +104,46 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
 .margin-bar input { width: 84px; }
 .last-updated, .status-msg { color: var(--muted); font-size: 0.72rem; }
 .status-msg { min-height: 22px; margin-bottom: 10px; color: #a16207; }
+/* ★ 新增：显眼化元数据徽章 */
+.inv-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.inv-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  white-space: nowrap;
+  transition: transform 0.15s ease;
+}
+.inv-meta-badge:hover { transform: translateY(-1px); }
+.inv-meta-badge.time {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+  color: #92400e;
+}
+.inv-meta-badge.file {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 1px solid #3b82f6;
+  color: #1e40af;
+}
+.inv-meta-badge.empty {
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  color: #94a3b8;
+  font-weight: 500;
+}
+@media (max-width: 550px) {
+  .inv-meta-badge { font-size: 0.72rem; padding: 6px 12px; white-space: normal; }
+}
 .pagination { display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 16px; }
 .pagination button { min-width: 36px; border: 1px solid #d8e0ea; border-radius: 4px; padding: 6px 10px; background: white; color: var(--text); cursor: pointer; font-size: 0.8rem; }
 .pagination button.active { border-color: var(--primary); background: var(--primary); color: white; }
@@ -179,17 +219,13 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
 .loading-spinner { width: 48px; height: 48px; border: 4px solid white; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .source-chip { background: #eef2ff; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 500; color: #1e40af; display: inline-flex; align-items: center; gap: 6px; }
-/* Column visibility */
 .column-toggles {
   display: flex; flex-wrap: wrap; gap: 12px;
   padding: 8px 16px; margin-bottom: 10px;
   background: #f1f5f9; border-radius: 20px;
   font-size: 0.75rem; align-items: center;
 }
-.column-toggles label {
-  display: inline-flex; align-items: center; gap: 4px;
-  cursor: pointer; user-select: none;
-}
+.column-toggles label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; user-select: none; }
 .column-toggles .ct-title { font-weight: 700; color: #475569; margin-right: 4px; }
 .inv-col-hidden { display: none !important; }
 .inline-edit-cell {
@@ -203,19 +239,9 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
   background: #eef2ff; padding: 4px 12px; border-radius: 40px;
   font-size: 0.72rem; color: #1e40af;
 }
-.auto-sync-bar select {
-  border: 1px solid #c7d2fe; border-radius: 20px;
-  padding: 2px 8px; font-size: 0.72rem; background: white;
-}
-.sync-pulse-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #22c55e; display: inline-block;
-  animation: syncPulse 2s ease-in-out infinite;
-}
-@keyframes syncPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
+.auto-sync-bar select { border: 1px solid #c7d2fe; border-radius: 20px; padding: 2px 8px; font-size: 0.72rem; background: white; }
+.sync-pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; animation: syncPulse 2s ease-in-out infinite; }
+@keyframes syncPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 @media (min-width: 1100px) {
   .menu-toggle { display: block !important; }
   body.sidebar-expanded .menu-toggle { display: none; }
@@ -241,7 +267,6 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
   .plus-input, .manual-rate-input { width: 100%; }
   .final-cost, .gp-card, .result-line { align-items: flex-start; flex-direction: column; }
 }
-/* Sales Dashboard Styles */
 .sales-dashboard * { margin: 0; padding: 0; box-sizing: border-box; }
 .sales-dashboard { font-family: 'Inter', sans-serif; background: #f3f6fb; color: #1e293b; min-height: 100%; border-radius: 12px; }
 .sales-dashboard .sales-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
@@ -371,7 +396,7 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
       <div class="card"><h3>⚠️ Low Stock</h3><table class="mini-table" id="lowStockTable"><thead><tr><th>Name</th><th class="numeric">Stock</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
       <div class="card"><h3>🏆 Top Items</h3><table class="mini-table" id="topItemsTable"><thead><tr><th>Name</th><th class="numeric">Qty</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.3.0</div>
+    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.5.0</div>
   </section>
   <section class="page" id="page-calculator">
     <div class="calculator" id="app">
@@ -447,20 +472,20 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
           <option value="4">Unit Cost</option>
           <option value="5">Landing Cost</option>
           <option value="6">Min Sell Price</option>
-          <option value="7">Sales Qty</option>
-          <option value="8">Restock Qty</option>
-          <option value="9">No Move Days</option>
-          <option value="10">MSRP</option>
-          <option value="11">MSDP</option>
+          <option value="7">MSRP</option>
+          <option value="8">MSDP</option>
         </select>
         <select id="sortDirectionSelect"><option value="asc">Ascending</option><option value="desc">Descending</option></select>
-        <span class="last-updated" id="invLastUpdated">Last updated: N/A</span>
-        <span class="last-updated" id="invFileName" style="margin-left:8px;"></span>
       </div>
       <div class="margin-bar">
         <label>Margin % <input type="number" id="invMarginInput" value="0" step="0.01" min="0"></label>
         <label>SST/VAT Divisor <input type="number" id="sstInputInv" value="0.95" step="0.01" min="0.5" max="1.0" style="width:80px;"></label>
         <span class="last-updated" id="inventoryCountLabel">0 items</span>
+      </div>
+      <!-- ★ 显眼化元数据 -->
+      <div class="inv-meta-row">
+        <span class="inv-meta-badge empty" id="invLastUpdated">🕒 Last updated: N/A</span>
+        <span class="inv-meta-badge empty" id="invFileName"></span>
       </div>
       <div class="column-toggles" id="invColumnToggles">
         <span class="ct-title">Show:</span>
@@ -471,11 +496,8 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
         <label><input type="checkbox" data-col="4" checked> Unit Cost</label>
         <label><input type="checkbox" data-col="5" checked> Landing Cost</label>
         <label><input type="checkbox" data-col="6" checked> Min Sell Price</label>
-        <label><input type="checkbox" data-col="7" checked> Sales Qty</label>
-        <label><input type="checkbox" data-col="8" checked> Restock Qty</label>
-        <label><input type="checkbox" data-col="9" checked> No Move Days</label>
-        <label><input type="checkbox" data-col="10" checked> MSRP</label>
-        <label><input type="checkbox" data-col="11" checked> MSDP</label>
+        <label><input type="checkbox" data-col="7" checked> MSRP</label>
+        <label><input type="checkbox" data-col="8" checked> MSDP</label>
       </div>
       <div style="overflow-x:auto;">
         <table class="full-table" id="invTable">
@@ -488,11 +510,8 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
               <th data-col="4" class="amount">Unit Cost (RM) <span class="sort-arrow"></span></th>
               <th data-col="5" class="amount">Landing Cost (RM) <span class="sort-arrow"></span></th>
               <th data-col="6" class="amount">Min Sell Price (RM) <span class="sort-arrow"></span></th>
-              <th data-col="7" class="numeric">Sales Qty <span class="sort-arrow"></span></th>
-              <th data-col="8" class="numeric">Restock Qty <span class="sort-arrow"></span></th>
-              <th data-col="9" class="numeric">No Move Days <span class="sort-arrow"></span></th>
-              <th data-col="10" class="amount">MSRP (RM) <span class="sort-arrow"></span></th>
-              <th data-col="11" class="amount">MSDP (RM) <span class="sort-arrow"></span></th>
+              <th data-col="7" class="amount">MSRP (RM) <span class="sort-arrow"></span></th>
+              <th data-col="8" class="amount">MSDP (RM) <span class="sort-arrow"></span></th>
             </tr>
           </thead>
           <tbody id="invTableBody"></tbody>
@@ -600,7 +619,7 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
     <div class="header"><h2>📄 Reports</h2></div>
     <div class="change-report" id="changeReportContainer"></div>
     <div id="runRateContainer"></div>
-    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.3.0</div>
+    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.5.0</div>
   </section>
 </main>
 <script>
@@ -619,13 +638,13 @@ window.toLocalISO = toLocalISO;
 
   let pieCtrlPressed = false;
   document.addEventListener('keydown', e => {
-    if (e.key === 'Control' || e.ctrlKey) {
+    if (e.key === 'Control' || e.ctrlKey || e.metaKey) {
       pieCtrlPressed = true;
       if (state.pieChart) state.pieChart.update();
     }
   });
   document.addEventListener('keyup', e => {
-    if (e.key === 'Control' || !e.ctrlKey) {
+    if (e.key === 'Control' || (!e.ctrlKey && !e.metaKey)) {
       pieCtrlPressed = false;
       if (state.pieChart) state.pieChart.update();
     }
@@ -657,6 +676,7 @@ window.toLocalISO = toLocalISO;
   const DEFAULT_AGING = 30;
   const LANDING_FREIGHT = CONFIG.defaultFreight;
   const INITIAL_PAGE_SIZE = 20;
+  const TOTAL_COLUMNS = 9;  // ★ 从 12 改为 9
 
   const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
   const getLandingSST = () => {
@@ -721,37 +741,49 @@ window.toLocalISO = toLocalISO;
   const miniSortState = { lowStock: { col: null, asc: true }, topItems: { col: null, asc: true } };
   const PUBLISH_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRY9d-kqGQBqmcjTzUKSHA_9oIjAQSJ_lYLD8YCK1-KqvlqMFo_iuJ6pb4gS2inqQ/pub?output=xlsx';
 
-  // ===== Auto sync management =====
   let invAutoSyncTimer = null;
   let lastInvCloudHash = null;
+  let invSyncInFlight = false;
+
+  function computeHash(buffer) {
+    return (async () => {
+      try {
+        if (window.crypto && window.crypto.subtle && window.isSecureContext) {
+          const hashBuf = await window.crypto.subtle.digest('SHA-1', buffer);
+          return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+        }
+      } catch(e) {}
+      const bytes = new Uint8Array(buffer);
+      let sig = bytes.length.toString();
+      const step = Math.max(1, Math.floor(bytes.length / 64));
+      for (let i = 0; i < bytes.length; i += step) sig += '-' + bytes[i];
+      return sig;
+    })();
+  }
 
   async function fetchFromCloud(silent = false) {
+    if (invSyncInFlight) return;
+    invSyncInFlight = true;
     if (!silent) setStatus('⏳ Fetching latest inventory from Google Sheets...');
     try {
       const response = await fetch(PUBLISH_URL, { cache: 'no-store' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const blob = await response.blob();
       const buffer = await blob.arrayBuffer();
-
-      // Content hash to skip unchanged
-      let hash = null;
-      try {
-        const hashBuf = await crypto.subtle.digest('SHA-1', buffer);
-        hash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
-      } catch(e) { /* crypto.subtle may not be available over http */ }
-
+      const hash = await computeHash(buffer);
       if (hash && hash === lastInvCloudHash) {
         if (!silent) setStatus('✅ No changes detected');
         return;
       }
       if (hash) lastInvCloudHash = hash;
-
       const file = new File([blob], 'Inventory.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       await handleFile(file, silent);
       document.getElementById('syncStatus').textContent = `✅ Last sync: ${new Date().toLocaleString()}`;
       localStorage.setItem('lastCloudSync', Date.now());
     } catch (err) {
       if (!silent) setStatus(`❌ Cloud sync failed: ${err.message}`);
+    } finally {
+      invSyncInFlight = false;
     }
   }
 
@@ -770,10 +802,8 @@ window.toLocalISO = toLocalISO;
     if (invAutoSyncTimer) { clearInterval(invAutoSyncTimer); invAutoSyncTimer = null; }
   }
 
-  // ===== Run Rate Analysis =====
   const MONTH_IDX = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
 
-  // FIX #1: removed stray \)
   function parseSheetDate(name) {
     const m = String(name).trim().match(/^(\d{1,2})[-/ ]([A-Za-z]+)[-/ ](\d{2,4})$/i);
     if (m) {
@@ -782,9 +812,7 @@ window.toLocalISO = toLocalISO;
       let monthNum = MONTH_IDX[monthStr] ?? MONTH_IDX[monthStr.substring(0,3)];
       let year = parseInt(m[3], 10);
       if (year < 100) year += 2000;
-      if (monthNum !== undefined && day >= 1 && day <= 31) {
-        return new Date(year, monthNum, day);
-      }
+      if (monthNum !== undefined && day >= 1 && day <= 31) return new Date(year, monthNum, day);
     }
     return null;
   }
@@ -796,7 +824,6 @@ window.toLocalISO = toLocalISO;
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
-  // FIX #7: unified column matching with handleFile
   function parseSheetSnapshot(wb, sn) {
     try {
       const sheet = wb.Sheets[sn];
@@ -975,7 +1002,6 @@ window.toLocalISO = toLocalISO;
     return report;
   }
 
-  // FIX #4: use local ISO
   function updateMissingItems() {
     const allSheets = getJson(STORAGE.allSheets, {});
     const dateKeys = Object.keys(allSheets).sort();
@@ -1002,12 +1028,7 @@ window.toLocalISO = toLocalISO;
       if (info.date < latestDate) {
         const diffTime = latestDate.getTime() - info.date.getTime();
         const missingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        missingList.push({
-          id,
-          name: info.name,
-          lastSeenDate: toLocalISO(info.date),  // FIX #4
-          missingDays
-        });
+        missingList.push({ id, name: info.name, lastSeenDate: toLocalISO(info.date), missingDays });
       }
     }
     missingList.sort((a, b) => b.missingDays - a.missingDays);
@@ -1114,39 +1135,43 @@ window.toLocalISO = toLocalISO;
         function renderSection(title, items, cols, sectionKey) {
           if (!items.length) return '';
           const id = `section-${sectionKey}`;
+          let sorted = items;
+          if (window.__changeSortState && window.__changeSortState.section === sectionKey) {
+            const st = window.__changeSortState;
+            const key = cols[st.col];
+            sorted = [...items].sort((a,b) => {
+              let va, vb;
+              if (key === 'Name') { va = (a.name||'').toLowerCase(); vb = (b.name||'').toLowerCase(); }
+              else if (key === 'ID') { va = (a.id||'').toLowerCase(); vb = (b.id||'').toLowerCase(); }
+              else if (key === 'Stock Level') { va = a.stockLevel||0; vb = b.stockLevel||0; }
+              else if (key === 'Change') { va = a.change||0; vb = b.change||0; }
+              else if (key === 'Old Stock') { va = a.oldStock||0; vb = b.oldStock||0; }
+              else { va = 0; vb = 0; }
+              if (va < vb) return st.asc ? -1 : 1;
+              if (va > vb) return st.asc ? 1 : -1;
+              return 0;
+            });
+          }
+          const tbody = sorted.map(item => `<tr>${cols.map(c => {
+            if(c==='Name') return `<td>${escHtml(item.name)}</td>`;
+            if(c==='ID') return `<td>${escHtml(item.id)}</td>`;
+            if(c==='Stock Level') return `<td>${item.stockLevel||0}</td>`;
+            if(c==='Change') return `<td>${item.change>0?'+':''}${item.change}</td>`;
+            if(c==='Old Stock') return `<td>${item.oldStock||0}</td>`;
+            return `<td>${item[c]||''}</td>`;
+          }).join('')}</tr>`).join('');
+          const ths = cols.map((col, idx) => {
+            const isActive = window.__changeSortState && window.__changeSortState.section===sectionKey && window.__changeSortState.col===idx;
+            const arrow = isActive ? (window.__changeSortState.asc ? ' ▲' : ' ▼') : '';
+            return `<th onclick="window.__sortChangeSection('${sectionKey}',${idx})">${col}${arrow}</th>`;
+          }).join('');
           return `<div class="change-section" id="${id}">
             <h4 onclick="window.__toggleChangeSection('${id}')"><span class="section-arrow">▼</span> ${title} (${items.length})</h4>
             <div class="change-table-wrap">
-              <table class="change-table" id="${id}-table"><thead><tr>${cols.map((col, idx) => `<th onclick="window.__sortChangeSection('${sectionKey}',${idx})">${col}${window.__changeSortState && window.__changeSortState.section===sectionKey && window.__changeSortState.col===idx ? (window.__changeSortState.asc ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${(function(){
-                let sorted = items;
-                if(window.__changeSortState && window.__changeSortState.section===sectionKey) {
-                  const st = window.__changeSortState;
-                  sorted = [...items].sort((a,b)=>{
-                    let va,vb;
-                    if(cols[0]==='Name') { va=(a.name||'').toLowerCase(); vb=(b.name||'').toLowerCase(); }
-                    else if(cols[0]==='ID') { va=(a.id||'').toLowerCase(); vb=(b.id||'').toLowerCase(); }
-                    else if(cols[0]==='Stock Level') { va=a.stockLevel||0; vb=b.stockLevel||0; }
-                    else if(cols[0]==='Change') { va=a.change||0; vb=b.change||0; }
-                    else if(cols[0]==='Old Stock') { va=a.oldStock||0; vb=b.oldStock||0; }
-                    else { va=(a.name||'').toLowerCase(); vb=(b.name||'').toLowerCase(); }
-                    if(va<vb) return st.asc?-1:1;
-                    if(va>vb) return st.asc?1:-1;
-                    return 0;
-                  });
-                }
-                return sorted.map(item => `<tr>${cols.map(c => {
-                  if(c==='Name') return `<td>${escHtml(item.name)}</td>`;
-                  if(c==='ID') return `<td>${escHtml(item.id)}</td>`;
-                  if(c==='Stock Level') return `<td>${item.stockLevel||0}</td>`;
-                  if(c==='Change') return `<td>${item.change>0?'+':''}${item.change}</td>`;
-                  if(c==='Old Stock') return `<td>${item.oldStock||0}</td>`;
-                  return `<td>${item[c]||''}</td>`;
-                }).join('')}</tr>`).join('');
-              })()}</tbody></table>
+              <table class="change-table" id="${id}-table"><thead><tr>${ths}</tr></thead><tbody>${tbody}</tbody></table>
             </div>
           </div>`;
         }
-        window.__changeSortState = null;
         window.__sortChangeSection = function(sectionKey, col) {
           if(!window.__changeReportData) return;
           const st = window.__changeSortState;
@@ -1206,8 +1231,8 @@ window.toLocalISO = toLocalISO;
 
   function renderPieChart(sorted, colors) {
     const canvas = $('#pieChart'), fallback = $('#chartFallback');
-    if (state.pieChart) { state.pieChart.destroy(); state.pieChart = null; }
     if (!sorted.length) {
+      if (state.pieChart) { state.pieChart.destroy(); state.pieChart = null; }
       if (canvas) canvas.style.display = 'none';
       if (fallback) fallback.style.display = 'none';
       return;
@@ -1220,14 +1245,23 @@ window.toLocalISO = toLocalISO;
     if (window.Chart && window.ChartDataLabels) Chart.register(ChartDataLabels);
     if (canvas) canvas.style.display = 'block';
     if (fallback) fallback.style.display = 'none';
+    const labels = sorted.map(([l]) => l);
+    const data = sorted.map(([, v]) => v);
+    if (state.pieChart) {
+      state.pieChart.data.labels = labels;
+      state.pieChart.data.datasets[0].data = data;
+      state.pieChart.data.datasets[0].backgroundColor = colors;
+      state.pieChart.update('none');
+      return;
+    }
     state.pieChart = new Chart(canvas.getContext('2d'), {
       type: 'pie',
       data: {
-        labels: sorted.map(([l]) => l),
-        datasets: [{ data: sorted.map(([, v]) => v), backgroundColor: colors, borderColor: '#fff', borderWidth: 2 }]
+        labels: labels,
+        datasets: [{ data: data, backgroundColor: colors, borderColor: '#fff', borderWidth: 2 }]
       },
       options: {
-        responsive: true, maintainAspectRatio: true,
+        responsive: true, maintainAspectRatio: true, animation: false,
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -1337,7 +1371,6 @@ window.toLocalISO = toLocalISO;
     }
   }
 
-  // ===== Column visibility (Feature 4) =====
   function getColumnVisibility() {
     try {
       const s = localStorage.getItem(STORAGE.columnVisibility);
@@ -1349,8 +1382,7 @@ window.toLocalISO = toLocalISO;
   }
   function applyColumnVisibility() {
     const vis = getColumnVisibility();
-    const allCols = 12;
-    for (let i = 0; i < allCols; i++) {
+    for (let i = 0; i < TOTAL_COLUMNS; i++) {
       const show = vis[i] !== false;
       const th = document.querySelector(`#invTableHead th[data-col="${i}"]`);
       if (th) th.classList.toggle('inv-col-hidden', !show);
@@ -1376,7 +1408,6 @@ window.toLocalISO = toLocalISO;
     });
   }
 
-  // ===== Inventory page render =====
   function renderInventoryPage() {
     const data = getInventory();
     const search = ($('#invSearchInput').value || '').trim().toLowerCase();
@@ -1386,7 +1417,8 @@ window.toLocalISO = toLocalISO;
     if (group !== 'all') filtered = filtered.filter(i => i.productGroup === group);
     if (search) filtered = filtered.filter(i => i.name.toLowerCase().includes(search) || i.id.toLowerCase().includes(search));
     if (state.sortColumn >= 0) {
-      const cols = ['name', 'id', 'location', 'available', 'unitCost', 'landingCost', 'minSellPrice', 'salesQty', 'restockQty', 'daysNoMovement', 'msrp', 'msdp'];
+      // ★ 索引 0-8 对应 9 列
+      const cols = ['name', 'id', 'location', 'available', 'unitCost', 'landingCost', 'minSellPrice', 'msrp', 'msdp'];
       const col = cols[state.sortColumn];
       filtered.sort((a, b) => {
         let va = col === 'landingCost' ? calculateLandingCost(a.unitCost) : col === 'minSellPrice' ? calculateMinSell(a.unitCost, marginPercent) : (a[col] ?? '');
@@ -1404,27 +1436,25 @@ window.toLocalISO = toLocalISO;
     const pageItems = filtered.slice(start, start + state.pageSize);
     const tbody = $('#invTableBody');
     const searchTerm = ($('#invSearchInput').value || '').trim();
+    const vis = getColumnVisibility();
+    const hide = i => vis[i] === false ? ' inv-col-hidden' : '';
 
     tbody.innerHTML = pageItems.length ? pageItems.map(item => {
       const landing = calculateLandingCost(item.unitCost);
       const minSell = calculateMinSell(item.unitCost, marginPercent);
       return `<tr>
-        <td>${highlightText(item.name, searchTerm)}</td>
-        <td>${highlightText(item.id, searchTerm)}</td>
-        <td>${escHtml(item.location)}</td>
-        <td class="numeric">${(item.available ?? item.stockLevel).toLocaleString()}</td>
-        <td class="amount">RM ${formatMoney(item.unitCost)}</td>
-        <td class="amount">RM ${formatMoney(landing)}</td>
-        <td class="amount">RM ${formatMoney(minSell)}</td>
-        <td class="numeric">${(item.salesQty || 0).toLocaleString()}</td>
-        <td class="numeric">${(item.restockQty || 0).toLocaleString()}</td>
-        <td class="numeric">${item.daysNoMovement == null ? '-' : item.daysNoMovement.toLocaleString()}</td>
-        <td class="amount"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msrp" value="${(item.msrp||0).toFixed(2)}"></td>
-        <td class="amount"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msdp" value="${(item.msdp||0).toFixed(2)}"></td>
+        <td class="${hide(0).trim()}">${highlightText(item.name, searchTerm)}</td>
+        <td class="${hide(1).trim()}">${highlightText(item.id, searchTerm)}</td>
+        <td class="${hide(2).trim()}">${escHtml(item.location)}</td>
+        <td class="numeric${hide(3)}">${(item.available ?? item.stockLevel).toLocaleString()}</td>
+        <td class="amount${hide(4)}">RM ${formatMoney(item.unitCost)}</td>
+        <td class="amount${hide(5)}">RM ${formatMoney(landing)}</td>
+        <td class="amount${hide(6)}">RM ${formatMoney(minSell)}</td>
+        <td class="amount${hide(7)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msrp" value="${(item.msrp||0).toFixed(2)}"></td>
+        <td class="amount${hide(8)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msdp" value="${(item.msdp||0).toFixed(2)}"></td>
       </tr>`;
-    }).join('') : '<tr><td colspan="12">No items found</td></tr>';
+    }).join('') : '<tr><td colspan="9">No items found</td></tr>';
 
-    // Bind inline MSRP/MSDP editing
     document.querySelectorAll('#invTableBody .inline-edit-cell').forEach(inp => {
       inp.addEventListener('change', () => {
         const id = inp.dataset.id;
@@ -1440,10 +1470,31 @@ window.toLocalISO = toLocalISO;
       });
     });
 
-    $('#invLastUpdated').textContent = `Last updated: ${localStorage.getItem(STORAGE.lastUpload) ? new Date(localStorage.getItem(STORAGE.lastUpload)).toLocaleString() : 'N/A'}`;
+    // ★ 显眼化元数据徽章
+    const lastUp = localStorage.getItem(STORAGE.lastUpload);
+    const elLastUpd = $('#invLastUpdated');
+    if (lastUp) {
+      elLastUpd.textContent = `🕒 Last updated: ${new Date(lastUp).toLocaleString()}`;
+      elLastUpd.classList.remove('empty');
+      elLastUpd.classList.add('time');
+    } else {
+      elLastUpd.textContent = '🕒 Last updated: N/A';
+      elLastUpd.classList.add('empty');
+      elLastUpd.classList.remove('time');
+    }
     const fileName = localStorage.getItem(STORAGE.lastFileName) || '';
     const sheetName = localStorage.getItem(STORAGE.lastSheetName) || '';
-    $('#invFileName').textContent = (fileName || sheetName) ? `📁 ${fileName}${sheetName ? ` → 📄 ${sheetName}` : ''}` : '';
+    const elFile = $('#invFileName');
+    if (fileName || sheetName) {
+      elFile.textContent = `📁 ${fileName}${sheetName ? ` → 📄 ${sheetName}` : ''}`;
+      elFile.classList.remove('empty');
+      elFile.classList.add('file');
+    } else {
+      elFile.textContent = '';
+      elFile.classList.add('empty');
+      elFile.classList.remove('file');
+    }
+
     $('#inventoryCountLabel').textContent = `${filtered.length.toLocaleString()} item${filtered.length === 1 ? '' : 's'}`;
     renderPagination(totalPages);
     updateSortIndicators();
@@ -1485,7 +1536,6 @@ window.toLocalISO = toLocalISO;
     $('#sortDirectionSelect').value = state.sortDirection;
   }
 
-  // ===== File handling =====
   async function handleFile(file, silent = false) {
     if(!file) return;
     if(!window.XLSX) {
@@ -1576,7 +1626,6 @@ window.toLocalISO = toLocalISO;
       const newItems = Array.from(itemsMap.values());
       if(newItems.length===0) throw new Error('No valid rows found');
 
-      // FIX #2: check save result, don't override warning
       const saved = saveInventory(newItems);
       generateChangeReport(oldData, newItems);
       updateMissingItems();
@@ -1613,6 +1662,7 @@ window.toLocalISO = toLocalISO;
     if(!data.length) return alert('No data to export.');
     if(!window.XLSX) return setStatus('❌ Excel library not loaded.');
     const mp = toNumber($('#invMarginInput').value);
+    // ★ 导出保留全部字段（即使不在表格显示，导出仍完整，方便备份）
     const sheet = [['Name','ID','Location','Available','Unit Cost (RM)','Landing Cost (RM)','Min Sell Price (RM)','Sales Qty','Restock Qty','No Move Days','MSRP (RM)','MSDP (RM)']];
     data.forEach(i => sheet.push([
       i.name, i.id, i.location, i.available??i.stockLevel,
@@ -1624,7 +1674,7 @@ window.toLocalISO = toLocalISO;
     const ws = XLSX.utils.aoa_to_sheet(sheet);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
-    XLSX.writeFile(wb, `inventory_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(wb, `inventory_${toLocalISO(new Date())}.xlsx`);
   }
 
   function initNavigation() {
@@ -1704,7 +1754,6 @@ window.toLocalISO = toLocalISO;
     });
     document.getElementById('autoSyncBtn').addEventListener('click', () => fetchFromCloud(false));
 
-    // Auto sync interval selector (Feature 1)
     const autoSel = document.getElementById('invAutoInterval');
     const savedInterval = localStorage.getItem(STORAGE.autoSyncInterval);
     if (savedInterval) autoSel.value = savedInterval;
@@ -1873,10 +1922,27 @@ window.toLocalISO = toLocalISO;
   let ctrlPressed = false;
   let salesAutoSyncTimer = null;
   let lastSalesCloudHash = null;
+  let salesSyncInFlight = false;
   const $s = (sel) => document.querySelector(sel);
   const $$s = (sel) => Array.from(document.querySelectorAll(sel));
   const formatRM = v => new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR',minimumFractionDigits:2}).format(v||0);
   const parseAmount = (v) => parseFloat(String(v ?? '').replace(/,/g, '').trim()) || 0;
+
+  function computeHash(buffer) {
+    return (async () => {
+      try {
+        if (window.crypto && window.crypto.subtle && window.isSecureContext) {
+          const hashBuf = await window.crypto.subtle.digest('SHA-1', buffer);
+          return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+        }
+      } catch(e) {}
+      const bytes = new Uint8Array(buffer);
+      let sig = bytes.length.toString();
+      const step = Math.max(1, Math.floor(bytes.length / 64));
+      for (let i = 0; i < bytes.length; i += step) sig += '-' + bytes[i];
+      return sig;
+    })();
+  }
 
   function loadSalesData() {
     try {
@@ -1890,12 +1956,16 @@ window.toLocalISO = toLocalISO;
             document.getElementById('sales-lastUpdateTimeDisplay').innerText = lastUpdateDate.toLocaleDateString();
           }
           const savedTarget = localStorage.getItem('sal_monthlyTarget');
-          monthlyTarget = savedTarget ? parseFloat(savedTarget) : 0;
-          if (!monthlyTarget && rawData.length) {
+          if (savedTarget !== null) {
+            const parsedTarget = parseFloat(savedTarget);
+            monthlyTarget = isFinite(parsedTarget) ? parsedTarget : 0;
+          } else if (rawData.length) {
             const maxDate = new Date(Math.max(...rawData.map(r => r.date.getTime())));
             const ly = maxDate.getFullYear(), lm = maxDate.getMonth();
-            const currentMonthSales = rawData.filter(t => t.date.getFullYear() === ly && t.date.getMonth() === lm).reduce((s,t) => s + t.subtotal, 0);
-            monthlyTarget = currentMonthSales * 1.2;
+            const cms = rawData.filter(t => t.date.getFullYear() === ly && t.date.getMonth() === lm)
+                               .reduce((s,t) => s + t.subtotal, 0);
+            monthlyTarget = cms * 1.2;
+            localStorage.setItem('sal_monthlyTarget', String(monthlyTarget));
           }
           return true;
         }
@@ -1916,7 +1986,6 @@ window.toLocalISO = toLocalISO;
   const hasSavedData = loadSalesData();
   const setSalesStatus = (msg) => { const el = document.getElementById('sales-syncStatusMsg'); if (el) el.textContent = msg; };
 
-  // FIX #5: DD/MM priority
   function parseExcelDate(val) {
     if (val === null || val === undefined || val === '') return null;
     if (typeof val === 'number' && val > 30000 && val < 100000) {
@@ -1998,8 +2067,6 @@ window.toLocalISO = toLocalISO;
     let maxDate=rawData.length>0?rawData.reduce((max,t)=>t.date>max?t.date:max,new Date(0)):new Date(0);
     let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
     let currentMonthSales=rawData.length>0?rawData.filter(t=>t.date.getFullYear()===ly&&t.date.getMonth()===lm).reduce((s,t)=>s+t.subtotal,0):0;
-    if(monthlyTarget===0) monthlyTarget=currentMonthSales*1.2;
-    localStorage.setItem('sal_monthlyTarget', monthlyTarget);
     let achievement=monthlyTarget?(currentMonthSales/monthlyTarget)*100:0;
     let balanceToGo=monthlyTarget-currentMonthSales;
     let last3MonthsRevenue=getLast3MonthsRevenue();
@@ -2029,14 +2096,13 @@ window.toLocalISO = toLocalISO;
     let days = parseInt(remainingInput.value, 10);
     dailySpan.innerText = (isNaN(days)||days<=0) ? formatRM(0) : formatRM(balanceToGo/days);
   }
-  // Feature 3: allow 0
   window.editSalesTarget = function() {
     let newTarget = prompt("Enter Monthly Target (RM):", monthlyTarget.toFixed(2));
     if(newTarget !== null) {
       const v = parseFloat(newTarget);
       if(!isNaN(v) && v >= 0) {
         monthlyTarget = v;
-        localStorage.setItem('sal_monthlyTarget', monthlyTarget);
+        localStorage.setItem('sal_monthlyTarget', String(monthlyTarget));
         refreshSalesUI();
       }
     }
@@ -2093,7 +2159,6 @@ window.toLocalISO = toLocalISO;
     if(agentChart) agentChart.update();
   });
 
-  // FIX #6: complete sort branches
   function buildAgentTable() {
     const tbody=document.querySelector('#sales-agentTable tbody');
     const tfoot=document.getElementById('sales-agentTableFoot');
@@ -2129,7 +2194,6 @@ window.toLocalISO = toLocalISO;
     let totalRev=agents.reduce((s,a)=>s+a.revenue,0), totalTarget=agents.reduce((s,a)=>s+a.target,0), totalBal=totalTarget-totalRev;
     tfoot.innerHTML=`<tr class="total-row"><td colspan="2">Total</td><td>${formatRM(totalRev)}</td><td>${totalTarget?(totalRev/totalTarget*100).toFixed(2):'0.00'}%</td><td>${formatRM(totalTarget)}</td><td>${formatRM(totalBal)}</td><td>${totalTarget?(totalBal/totalTarget*100).toFixed(2):'0.00'}%</td></tr>`;
     $$s('.agent-name-input').forEach(inp=>{ inp.onchange=()=>{ agentNameMap[inp.dataset.code]=inp.value; localStorage.setItem('sal_agentNameMap', JSON.stringify(agentNameMap)); buildAgentTable(); buildCharts(); }; });
-    // Feature 3: allow 0
     $$s('.agent-target').forEach(el=>{ el.onclick=()=>{
       let code = el.dataset.code;
       let currentVal = parseFloat(el.innerText.replace(/[^0-9.-]/g,'')) || 0;
@@ -2139,7 +2203,7 @@ window.toLocalISO = toLocalISO;
       el.innerHTML = ''; el.appendChild(input); input.focus(); input.select();
       const save = () => {
         let newVal = parseFloat(input.value);
-        if (!isNaN(newVal) && newVal >= 0) {   // ← allow 0
+        if (!isNaN(newVal) && newVal >= 0) {
           agentTargetOverride.set(code, newVal);
           localStorage.setItem('sal_agentTargetOverride', JSON.stringify([...agentTargetOverride]));
         }
@@ -2212,8 +2276,9 @@ window.toLocalISO = toLocalISO;
     timeSpan.innerText = `${success ? 'Last sync' : 'Failed'}: ${new Date().toLocaleString()}`;
   }
 
-  // Feature 2 + hash-based skip
   async function syncSalesFromCloud(silent = false) {
+    if (salesSyncInFlight) return;
+    salesSyncInFlight = true;
     const btn = document.getElementById('sales-syncCloudBtn');
     const originalHTML = btn ? btn.innerHTML : '';
     if (!silent && btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing…'; }
@@ -2221,6 +2286,7 @@ window.toLocalISO = toLocalISO;
     if (typeof XLSX === 'undefined') {
       setSalesStatus('Excel library not loaded.');
       if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
+      salesSyncInFlight = false;
       return;
     }
     try {
@@ -2228,20 +2294,12 @@ window.toLocalISO = toLocalISO;
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const blob = await response.blob();
       const buffer = await blob.arrayBuffer();
-
-      let hash = null;
-      try {
-        const hashBuf = await crypto.subtle.digest('SHA-1', buffer);
-        hash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
-      } catch(e) {}
-
+      const hash = await computeHash(buffer);
       if (hash && hash === lastSalesCloudHash) {
         if (!silent) { updateSyncStatus(true, 'No changes'); setSalesStatus('No changes detected'); }
-        if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
         return;
       }
       if (hash) lastSalesCloudHash = hash;
-
       const wb = XLSX.read(new Uint8Array(buffer), { type: 'array' });
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
@@ -2263,6 +2321,7 @@ window.toLocalISO = toLocalISO;
       updateSyncStatus(false, `Sync failed: ${err.message}`);
     } finally {
       if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
+      salesSyncInFlight = false;
     }
   }
 
@@ -2281,7 +2340,6 @@ window.toLocalISO = toLocalISO;
     if (salesAutoSyncTimer) { clearInterval(salesAutoSyncTimer); salesAutoSyncTimer = null; }
   }
 
-  // FIX #3: CSV escaping
   function exportCSV() {
     if(!rawData.length) { setSalesStatus('No data to export'); return; }
     const csv = 'Agent,AgentCode,Company,Date,Qty,Subtotal,Margin,Profit\n' +
@@ -2347,7 +2405,6 @@ window.toLocalISO = toLocalISO;
     document.getElementById('sales-clearDataBtn').addEventListener('click', clearSalesData);
     initSalesSorting();
 
-    // Auto sync interval selector (Feature 2)
     const autoSel = document.getElementById('salesAutoInterval');
     if (autoSel) {
       const saved = localStorage.getItem(SALES_AUTO_SYNC_KEY);
