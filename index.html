@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Unit Suite | Unified Dashboard v2.5.0</title>
+<title>Business Unit Suite | Unified Dashboard v2.7.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -104,43 +104,17 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
 .margin-bar input { width: 84px; }
 .last-updated, .status-msg { color: var(--muted); font-size: 0.72rem; }
 .status-msg { min-height: 22px; margin-bottom: 10px; color: #a16207; }
-/* ★ 新增：显眼化元数据徽章 */
-.inv-meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 14px;
-}
+.inv-meta-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
 .inv-meta-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 24px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 24px; font-size: 0.82rem; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08); white-space: nowrap;
   transition: transform 0.15s ease;
 }
 .inv-meta-badge:hover { transform: translateY(-1px); }
-.inv-meta-badge.time {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 1px solid #f59e0b;
-  color: #92400e;
-}
-.inv-meta-badge.file {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  border: 1px solid #3b82f6;
-  color: #1e40af;
-}
-.inv-meta-badge.empty {
-  background: #f1f5f9;
-  border: 1px dashed #cbd5e1;
-  color: #94a3b8;
-  font-weight: 500;
-}
+.inv-meta-badge.time { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; color: #92400e; }
+.inv-meta-badge.file { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 1px solid #3b82f6; color: #1e40af; }
+.inv-meta-badge.empty { background: #f1f5f9; border: 1px dashed #cbd5e1; color: #94a3b8; font-weight: 500; }
 @media (max-width: 550px) {
   .inv-meta-badge { font-size: 0.72rem; padding: 6px 12px; white-space: normal; }
 }
@@ -296,7 +270,7 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
 .sales-dashboard .daily-item .value { font-weight: 700; font-size: 20px; color: #1e293b; }
 .sales-dashboard .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
 .sales-dashboard .card { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 22px; }
-.sales-dashboard .card-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+.sales-dashboard .card-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .sales-dashboard .dual-chart-container { display: flex; flex-direction: column; gap: 30px; }
 .sales-dashboard .chart-item { width: 100%; position: relative; }
 .sales-dashboard .chart-item canvas { max-height: 280px; width: 100%; }
@@ -317,6 +291,36 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
 .sales-dashboard .highlight-date { background: #ffecb3; color: #c47c00; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-top: 8px; }
 .sales-dashboard .sync-status { font-size: 12px; margin-top: 8px; color: #2563eb; }
 .sales-dashboard .no-data-message { text-align: center; padding: 40px; color: #64748b; font-style: italic; }
+.sales-dashboard .dealer-search-input {
+  border: 1px solid #d8e0ea; border-radius: 10px; padding: 8px 12px;
+  min-width: 240px; font-size: 13px; background: white;
+}
+.sales-dashboard .dealer-search-input:focus { outline: 2px solid var(--primary); }
+.sales-dashboard .dealer-search-count { font-size: 12px; color: #64748b; }
+.sales-dashboard .top-dealer-row { display: flex; justify-content: space-between; align-items: center; transition: background 0.15s ease; }
+.sales-dashboard .top-dealer-row.top10 {
+  background: linear-gradient(90deg, #fef9c3 0%, #fde68a 100%);
+  border-radius: 10px; padding: 10px 12px; margin-bottom: 4px;
+  font-weight: 600; box-shadow: 0 1px 3px rgba(245,158,11,0.2);
+}
+.sales-dashboard .top-dealer-row.top10 .rank-badge {
+  background: #f59e0b; color: #fff; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 50%; font-size: 12px; margin-right: 8px;
+}
+.sales-dashboard .top-dealer-row.others {
+  padding: 10px 12px; margin-bottom: 4px;
+  border-bottom: 1px solid #f1f5f9; color: #64748b;
+}
+.sales-dashboard .top-dealer-row.others .rank-badge {
+  background: #e2e8f0; color: #475569;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 50%; font-size: 12px; margin-right: 8px;
+}
+.sales-dashboard .top-dealer-row .dealer-name { display: flex; align-items: center; flex: 1; min-width: 0; }
+.sales-dashboard .top-dealer-row .dealer-name span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sales-dashboard .top-dealer-row .dealer-value { font-weight: 700; color: #2563eb; white-space: nowrap; margin-left: 8px; }
+.sales-dashboard .top-dealer-row.top10 .dealer-value { color: #92400e; }
 @media (max-width: 1000px) {
   .sales-dashboard .kpi-grid { grid-template-columns: repeat(2,1fr); }
   .sales-dashboard .content-grid { grid-template-columns: 1fr; }
@@ -396,7 +400,7 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
       <div class="card"><h3>⚠️ Low Stock</h3><table class="mini-table" id="lowStockTable"><thead><tr><th>Name</th><th class="numeric">Stock</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
       <div class="card"><h3>🏆 Top Items</h3><table class="mini-table" id="topItemsTable"><thead><tr><th>Name</th><th class="numeric">Qty</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.5.0</div>
+    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.7.0</div>
   </section>
   <section class="page" id="page-calculator">
     <div class="calculator" id="app">
@@ -472,8 +476,10 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
           <option value="4">Unit Cost</option>
           <option value="5">Landing Cost</option>
           <option value="6">Min Sell Price</option>
-          <option value="7">MSRP</option>
-          <option value="8">MSDP</option>
+          <option value="7">MSDP</option>
+          <option value="8">MSRP</option>
+          <option value="9">Support (USD)</option>
+          <option value="10">Support (RM)</option>
         </select>
         <select id="sortDirectionSelect"><option value="asc">Ascending</option><option value="desc">Descending</option></select>
       </div>
@@ -482,7 +488,6 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
         <label>SST/VAT Divisor <input type="number" id="sstInputInv" value="0.95" step="0.01" min="0.5" max="1.0" style="width:80px;"></label>
         <span class="last-updated" id="inventoryCountLabel">0 items</span>
       </div>
-      <!-- ★ 显眼化元数据 -->
       <div class="inv-meta-row">
         <span class="inv-meta-badge empty" id="invLastUpdated">🕒 Last updated: N/A</span>
         <span class="inv-meta-badge empty" id="invFileName"></span>
@@ -496,8 +501,10 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
         <label><input type="checkbox" data-col="4" checked> Unit Cost</label>
         <label><input type="checkbox" data-col="5" checked> Landing Cost</label>
         <label><input type="checkbox" data-col="6" checked> Min Sell Price</label>
-        <label><input type="checkbox" data-col="7" checked> MSRP</label>
-        <label><input type="checkbox" data-col="8" checked> MSDP</label>
+        <label><input type="checkbox" data-col="7" checked> MSDP</label>
+        <label><input type="checkbox" data-col="8" checked> MSRP</label>
+        <label><input type="checkbox" data-col="9" checked> Support (USD)</label>
+        <label><input type="checkbox" data-col="10" checked> Support (RM)</label>
       </div>
       <div style="overflow-x:auto;">
         <table class="full-table" id="invTable">
@@ -510,8 +517,10 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
               <th data-col="4" class="amount">Unit Cost (RM) <span class="sort-arrow"></span></th>
               <th data-col="5" class="amount">Landing Cost (RM) <span class="sort-arrow"></span></th>
               <th data-col="6" class="amount">Min Sell Price (RM) <span class="sort-arrow"></span></th>
-              <th data-col="7" class="amount">MSRP (RM) <span class="sort-arrow"></span></th>
-              <th data-col="8" class="amount">MSDP (RM) <span class="sort-arrow"></span></th>
+              <th data-col="7" class="amount">MSDP (RM) <span class="sort-arrow"></span></th>
+              <th data-col="8" class="amount">MSRP (RM) <span class="sort-arrow"></span></th>
+              <th data-col="9" class="amount">Support (USD) <span class="sort-arrow"></span></th>
+              <th data-col="10" class="amount">Support (RM) <span class="sort-arrow"></span></th>
             </tr>
           </thead>
           <tbody id="invTableBody"></tbody>
@@ -568,7 +577,14 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
           </div>
         </div>
         <div class="card">
-          <div class="card-title">Top 10 Dealers (Latest Month)</div>
+          <div class="card-title">
+            <span>Top Dealers (Latest Month)</span>
+            <select id="topDealerCountSelect" style="border:1px solid #e2e8f0;border-radius:8px;padding:4px 10px;font-size:13px;background:#f8fafc;cursor:pointer;">
+              <option value="10" selected>Top 10</option>
+              <option value="20">Top 20</option>
+              <option value="30">Top 30</option>
+            </select>
+          </div>
           <div id="salesTopDealerList"></div>
         </div>
       </div>
@@ -594,6 +610,10 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
       </div>
       <div class="table-card">
         <div class="card-title">3 Months Dealer Analysis</div>
+        <div style="margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="dealerSearchInput" class="dealer-search-input" placeholder="🔍 Search dealer / agent code...">
+          <span id="dealerSearchCount" class="dealer-search-count"></span>
+        </div>
         <div class="table-wrapper">
           <table id="sales-dealerTable">
             <thead>
@@ -619,7 +639,7 @@ th { background: var(--surface-muted); color: #475569; font-weight: 700; user-se
     <div class="header"><h2>📄 Reports</h2></div>
     <div class="change-report" id="changeReportContainer"></div>
     <div id="runRateContainer"></div>
-    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.5.0</div>
+    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.7.0</div>
   </section>
 </main>
 <script>
@@ -676,7 +696,21 @@ window.toLocalISO = toLocalISO;
   const DEFAULT_AGING = 30;
   const LANDING_FREIGHT = CONFIG.defaultFreight;
   const INITIAL_PAGE_SIZE = 20;
-  const TOTAL_COLUMNS = 9;  // ★ 从 12 改为 9
+  const TOTAL_COLUMNS = 11;
+  const DEFAULT_LIVE_RATE = 3.97;
+
+  // ★ v2.7.0：本地缓存 Product Calculator 的实时汇率
+  let liveFxRate = (window.__pcLiveRate && isFinite(window.__pcLiveRate) && window.__pcLiveRate > 0)
+    ? window.__pcLiveRate
+    : DEFAULT_LIVE_RATE;
+
+  window.addEventListener('pcRateChanged', (e) => {
+    if (e.detail && typeof e.detail.rate === 'number' && isFinite(e.detail.rate) && e.detail.rate > 0) {
+      liveFxRate = e.detail.rate;
+      const inv = document.getElementById('page-inventory');
+      if (inv && inv.classList.contains('active')) renderInventoryPage();
+    }
+  });
 
   const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
   const getLandingSST = () => {
@@ -708,7 +742,8 @@ window.toLocalISO = toLocalISO;
     restockQty: toInteger(item?.restockQty),
     daysNoMovement: item?.daysNoMovement === null || item?.daysNoMovement === undefined ? null : toInteger(item.daysNoMovement),
     msrp: toNumber(item?.msrp),
-    msdp: toNumber(item?.msdp)
+    msdp: toNumber(item?.msdp),
+    supportUSD: toNumber(item?.supportUSD)   // ★ v2.7.0
   });
 
   const getInventory = () => { const d = getJson(STORAGE.inventory, []); return Array.isArray(d) ? d.map(normalizeItem) : []; };
@@ -1417,8 +1452,8 @@ window.toLocalISO = toLocalISO;
     if (group !== 'all') filtered = filtered.filter(i => i.productGroup === group);
     if (search) filtered = filtered.filter(i => i.name.toLowerCase().includes(search) || i.id.toLowerCase().includes(search));
     if (state.sortColumn >= 0) {
-      // ★ 索引 0-8 对应 9 列
-      const cols = ['name', 'id', 'location', 'available', 'unitCost', 'landingCost', 'minSellPrice', 'msrp', 'msdp'];
+      // 索引 9 和 10 都映射到 supportUSD（因为 RM = USD × 常数，排序顺序相同）
+      const cols = ['name', 'id', 'location', 'available', 'unitCost', 'landingCost', 'minSellPrice', 'msdp', 'msrp', 'supportUSD', 'supportUSD'];
       const col = cols[state.sortColumn];
       filtered.sort((a, b) => {
         let va = col === 'landingCost' ? calculateLandingCost(a.unitCost) : col === 'minSellPrice' ? calculateMinSell(a.unitCost, marginPercent) : (a[col] ?? '');
@@ -1442,6 +1477,8 @@ window.toLocalISO = toLocalISO;
     tbody.innerHTML = pageItems.length ? pageItems.map(item => {
       const landing = calculateLandingCost(item.unitCost);
       const minSell = calculateMinSell(item.unitCost, marginPercent);
+      const supportUSD = item.supportUSD || 0;
+      const supportRM = supportUSD * liveFxRate;
       return `<tr>
         <td class="${hide(0).trim()}">${highlightText(item.name, searchTerm)}</td>
         <td class="${hide(1).trim()}">${highlightText(item.id, searchTerm)}</td>
@@ -1450,10 +1487,12 @@ window.toLocalISO = toLocalISO;
         <td class="amount${hide(4)}">RM ${formatMoney(item.unitCost)}</td>
         <td class="amount${hide(5)}">RM ${formatMoney(landing)}</td>
         <td class="amount${hide(6)}">RM ${formatMoney(minSell)}</td>
-        <td class="amount${hide(7)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msrp" value="${(item.msrp||0).toFixed(2)}"></td>
-        <td class="amount${hide(8)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msdp" value="${(item.msdp||0).toFixed(2)}"></td>
+        <td class="amount${hide(7)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msdp" value="${(item.msdp||0).toFixed(2)}"></td>
+        <td class="amount${hide(8)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msrp" value="${(item.msrp||0).toFixed(2)}"></td>
+        <td class="amount${hide(9)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="supportUSD" value="${supportUSD.toFixed(2)}"></td>
+        <td class="amount${hide(10)}" style="color:#1f6f4a;font-weight:600;">RM ${formatMoney(supportRM)}</td>
       </tr>`;
-    }).join('') : '<tr><td colspan="9">No items found</td></tr>';
+    }).join('') : '<tr><td colspan="11">No items found</td></tr>';
 
     document.querySelectorAll('#invTableBody .inline-edit-cell').forEach(inp => {
       inp.addEventListener('change', () => {
@@ -1466,11 +1505,12 @@ window.toLocalISO = toLocalISO;
           all[idx][field] = val;
           saveInventory(all);
           setStatus(`✅ Updated ${field.toUpperCase()} for ${id}: ${val.toFixed(2)}`);
+          // ★ Support (USD) 改变时立即重算 Support (RM)
+          if (field === 'supportUSD') renderInventoryPage();
         }
       });
     });
 
-    // ★ 显眼化元数据徽章
     const lastUp = localStorage.getItem(STORAGE.lastUpload);
     const elLastUpd = $('#invLastUpdated');
     if (lastUp) {
@@ -1579,6 +1619,7 @@ window.toLocalISO = toLocalISO;
 
       const headers = rows[0].map(h => String(h).trim().toLowerCase().replace(/\s+/g, ' '));
       const find = (...keywords) => headers.findIndex(cell => keywords.some(k => cell.includes(k)));
+
       const idx = {
         id: find('item code', 'itemcode', 'sku', 'product code', 'part no'),
         name: find('description', 'name', 'item description', 'product name', 'item name'),
@@ -1591,8 +1632,10 @@ window.toLocalISO = toLocalISO;
         salesQty: find('sales qty', 'sales quantity', 'qty sold', 'sold qty'),
         restockQty: find('restock', 'reorder', 'incoming', 'on order'),
         daysNoMovement: find('no move', 'no movement', 'days no', 'days since'),
-        msrp: find('msrp', 'retail price'),
-        msdp: find('msdp', 'dealer price', 'min sell')
+        msrp: find('msrp', 'suggested retail', 'retail price', 'rrp', 'list price', 'srp'),
+        msdp: find('msdp', 'dealer price', 'wholesale price', 'trade price', 'min sell price'),
+        // ★ v2.7.0：Support 列
+        supportUSD: find('support usd', 'support (usd)', 'support price', 'support')
       };
 
       const missing = [];
@@ -1620,7 +1663,8 @@ window.toLocalISO = toLocalISO;
           restockQty: idx.restockQty >= 0 ? toInteger(r[idx.restockQty]) : 0,
           daysNoMovement: idx.daysNoMovement >= 0 ? toInteger(r[idx.daysNoMovement]) : null,
           msrp: idx.msrp >= 0 ? toNumber(r[idx.msrp]) : 0,
-          msdp: idx.msdp >= 0 ? toNumber(r[idx.msdp]) : 0
+          msdp: idx.msdp >= 0 ? toNumber(r[idx.msdp]) : 0,
+          supportUSD: idx.supportUSD >= 0 ? toNumber(r[idx.supportUSD]) : 0
         }));
       }
       const newItems = Array.from(itemsMap.values());
@@ -1633,8 +1677,11 @@ window.toLocalISO = toLocalISO;
       localStorage.setItem(STORAGE.lastFileName, file.name);
       localStorage.setItem(STORAGE.lastSheetName, sheetName);
 
+      const msrpTag = idx.msrp >= 0 ? 'MSRP ✓' : 'MSRP ✗';
+      const msdpTag = idx.msdp >= 0 ? 'MSDP ✓' : 'MSDP ✗';
+      const supTag = idx.supportUSD >= 0 ? 'Support ✓' : 'Support ✗';
       if (saved) {
-        if (!silent) setStatus(`✅ Loaded ${newItems.length} items from "${file.name}"`);
+        if (!silent) setStatus(`✅ Loaded ${newItems.length} items from "${file.name}"  [${msrpTag}] [${msdpTag}] [${supTag}]`);
       } else {
         setTimeout(() => setStatus('⚠️ Data NOT saved (storage full). Please Export now to keep your work.'), 100);
       }
@@ -1662,15 +1709,18 @@ window.toLocalISO = toLocalISO;
     if(!data.length) return alert('No data to export.');
     if(!window.XLSX) return setStatus('❌ Excel library not loaded.');
     const mp = toNumber($('#invMarginInput').value);
-    // ★ 导出保留全部字段（即使不在表格显示，导出仍完整，方便备份）
-    const sheet = [['Name','ID','Location','Available','Unit Cost (RM)','Landing Cost (RM)','Min Sell Price (RM)','Sales Qty','Restock Qty','No Move Days','MSRP (RM)','MSDP (RM)']];
-    data.forEach(i => sheet.push([
-      i.name, i.id, i.location, i.available??i.stockLevel,
-      i.unitCost.toFixed(2), calculateLandingCost(i.unitCost).toFixed(2),
-      calculateMinSell(i.unitCost, mp).toFixed(2),
-      i.salesQty||0, i.restockQty||0, i.daysNoMovement??'',
-      (i.msrp||0).toFixed(2), (i.msdp||0).toFixed(2)
-    ]));
+    const sheet = [['Name','ID','Location','Available','Unit Cost (RM)','Landing Cost (RM)','Min Sell Price (RM)','MSDP (RM)','MSRP (RM)','Support (USD)','Support (RM)','Sales Qty','Restock Qty','No Move Days']];
+    data.forEach(i => {
+      const supRM = (i.supportUSD || 0) * liveFxRate;
+      sheet.push([
+        i.name, i.id, i.location, i.available??i.stockLevel,
+        i.unitCost.toFixed(2), calculateLandingCost(i.unitCost).toFixed(2),
+        calculateMinSell(i.unitCost, mp).toFixed(2),
+        (i.msdp||0).toFixed(2), (i.msrp||0).toFixed(2),
+        (i.supportUSD||0).toFixed(2), supRM.toFixed(2),
+        i.salesQty||0, i.restockQty||0, i.daysNoMovement??''
+      ]);
+    });
     const ws = XLSX.utils.aoa_to_sheet(sheet);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
@@ -1808,6 +1858,17 @@ window.toLocalISO = toLocalISO;
     freightHintSpan: document.getElementById('freightHint'), gpHintSpan: document.getElementById('gpHint')
   };
   let currentBaseRate = 3.97, lastSystemError = '', autoRefreshTimer = null;
+
+  // ★ v2.7.0：把实时汇率广播给其他模块（Inventory 的 Support RM）
+  function broadcastLiveRate() {
+    window.__pcLiveRate = currentBaseRate;
+    try {
+      window.dispatchEvent(new CustomEvent('pcRateChanged', { detail: { rate: currentBaseRate } }));
+    } catch(e) { /* ignore */ }
+  }
+  // 初始广播
+  broadcastLiveRate();
+
   function smartNumberFormat(n) { if(isNaN(n)) return "0"; if(n===0||Number.isInteger(n)) return n.toString(); let s=n.toFixed(6); return s.replace(/\.?0+$/,''); }
   function parseMoney(s) { let num=Number(String(s).replace(/,/g,'')); return isFinite(num)?num:0; }
   function setupSmartNumberInput(el) {
@@ -1817,17 +1878,33 @@ window.toLocalISO = toLocalISO;
   }
   function loadStoredRate() {
     const manual = localStorage.getItem('manualBaseRate');
-    if(manual && !isNaN(parseFloat(manual))) { currentBaseRate = parseFloat(manual); els.sourceHintSpan.innerText = t('sourceManual'); return true; }
+    if(manual && !isNaN(parseFloat(manual))) { currentBaseRate = parseFloat(manual); els.sourceHintSpan.innerText = t('sourceManual'); broadcastLiveRate(); return true; }
     const cached = localStorage.getItem('cachedBaseRate');
-    if(cached && !isNaN(parseFloat(cached))) { currentBaseRate = parseFloat(cached); els.sourceHintSpan.innerText = t('cacheMsg'); return true; }
+    if(cached && !isNaN(parseFloat(cached))) { currentBaseRate = parseFloat(cached); els.sourceHintSpan.innerText = t('cacheMsg'); broadcastLiveRate(); return true; }
     return false;
   }
   function saveCachedRate(rate, isManual=false) {
     if(isManual) { localStorage.setItem('manualBaseRate', rate.toFixed(4)); localStorage.removeItem('cachedBaseRate'); }
     else if(!localStorage.getItem('manualBaseRate')) { localStorage.setItem('cachedBaseRate', rate.toFixed(4)); }
   }
-  function setManualRate(rate) { if(isNaN(rate)||rate<=0) return false; currentBaseRate=parseFloat(rate.toFixed(4)); saveCachedRate(currentBaseRate, true); els.liveRateSpan.innerText=currentBaseRate.toFixed(4); els.liveDateSpan.innerText=t('datePrefix')+new Date().toLocaleString(); els.sourceHintSpan.innerText=t('sourceManual'); updateAppliedRateDisplay(); compute(); return true; }
-  async function resetToAuto() { localStorage.removeItem('manualBaseRate'); if(!loadStoredRate()) { currentBaseRate=3.97; els.liveRateSpan.innerText=currentBaseRate.toFixed(4); els.sourceHintSpan.innerText=t('cacheMsg'); } await refreshRateAndUI(); els.manualRateInput.value=''; }
+  function setManualRate(rate) {
+    if(isNaN(rate)||rate<=0) return false;
+    currentBaseRate=parseFloat(rate.toFixed(4));
+    saveCachedRate(currentBaseRate, true);
+    els.liveRateSpan.innerText=currentBaseRate.toFixed(4);
+    els.liveDateSpan.innerText=t('datePrefix')+new Date().toLocaleString();
+    els.sourceHintSpan.innerText=t('sourceManual');
+    broadcastLiveRate();
+    updateAppliedRateDisplay();
+    compute();
+    return true;
+  }
+  async function resetToAuto() {
+    localStorage.removeItem('manualBaseRate');
+    if(!loadStoredRate()) { currentBaseRate=3.97; els.liveRateSpan.innerText=currentBaseRate.toFixed(4); els.sourceHintSpan.innerText=t('cacheMsg'); broadcastLiveRate(); }
+    await refreshRateAndUI();
+    els.manualRateInput.value='';
+  }
   function updateFreightHint() { let freight=parseFloat(els.freightInput.value); if(isNaN(freight)||freight<=0) { els.freightHintSpan.innerText = 'invalid'; return; } let increase=(1/freight-1)*100; els.freightHintSpan.innerText = t('freightHintPrefix')+increase.toFixed(2)+t('percent'); }
   function updateGpHint() { let gp=parseFloat(els.gpInput.value); if(isNaN(gp)||gp<=0) { els.gpHintSpan.innerText = 'invalid'; return; } let margin=(1/gp-1)*100; els.gpHintSpan.innerText = t('gpHintPrefix')+margin.toFixed(2)+t('percent'); }
   function updateUI() {
@@ -1849,8 +1926,17 @@ window.toLocalISO = toLocalISO;
       if(!res.ok) throw new Error(`HTTP ${res.status}`);
       const data=await res.json();
       if(data.success && typeof data.rate==='number' && data.rate>0) {
-        if(!localStorage.getItem('manualBaseRate')) { currentBaseRate=data.rate; saveCachedRate(currentBaseRate,false); els.liveRateSpan.innerText=currentBaseRate.toFixed(4); els.liveDateSpan.innerText=t('datePrefix')+(data.lastUpdated?new Date(data.lastUpdated).toLocaleString():new Date().toLocaleString()); els.sourceHintSpan.innerText=t('marketRate'); }
-        else { els.liveDateSpan.innerText=t('datePrefix')+new Date().toLocaleString(); els.sourceHintSpan.innerText=t('sourceManual'); }
+        if(!localStorage.getItem('manualBaseRate')) {
+          currentBaseRate=data.rate;
+          saveCachedRate(currentBaseRate,false);
+          els.liveRateSpan.innerText=currentBaseRate.toFixed(4);
+          els.liveDateSpan.innerText=t('datePrefix')+(data.lastUpdated?new Date(data.lastUpdated).toLocaleString():new Date().toLocaleString());
+          els.sourceHintSpan.innerText=t('marketRate');
+          broadcastLiveRate();  // ★ 广播
+        } else {
+          els.liveDateSpan.innerText=t('datePrefix')+new Date().toLocaleString();
+          els.sourceHintSpan.innerText=t('sourceManual');
+        }
         lastSystemError=''; return true;
       } else throw new Error(data.error||'Invalid data');
     } catch(err) {
@@ -1918,6 +2004,8 @@ window.toLocalISO = toLocalISO;
   } catch(e) { agentTargetOverride = new Map(); }
   let agentSortColumn = 'revenue', agentSortDirection = 'desc';
   let dealerSortColumn = 'qtd', dealerSortDirection = 'desc';
+  let dealerFilterQuery = '';    // ★ v2.7.0
+  let topDealerCount = 10;        // ★ v2.7.0
   let salesChart = null, agentChart = null;
   let ctrlPressed = false;
   let salesAutoSyncTimer = null;
@@ -1927,6 +2015,7 @@ window.toLocalISO = toLocalISO;
   const $$s = (sel) => Array.from(document.querySelectorAll(sel));
   const formatRM = v => new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR',minimumFractionDigits:2}).format(v||0);
   const parseAmount = (v) => parseFloat(String(v ?? '').replace(/,/g, '').trim()) || 0;
+  const debounceS = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
   function computeHash(buffer) {
     return (async () => {
@@ -2216,7 +2305,12 @@ window.toLocalISO = toLocalISO;
 
   function buildDealerTable() {
     const tbody=document.querySelector('#sales-dealerTable tbody');
-    if(rawData.length===0){tbody.innerHTML='<tr><td colspan="7" class="no-data-message">No dealer data.</td></tr>';return;}
+    const countEl = document.getElementById('dealerSearchCount');
+    if(rawData.length===0){
+      tbody.innerHTML='<tr><td colspan="7" class="no-data-message">No dealer data.</td></tr>';
+      if (countEl) countEl.textContent = '';
+      return;
+    }
     let maxDate=new Date(0); rawData.forEach(r=>{if(r.date>maxDate) maxDate=r.date;});
     let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
     let map=new Map();
@@ -2229,7 +2323,22 @@ window.toLocalISO = toLocalISO;
       else if(diff===2) o.m2+=r.subtotal;
       if(r.agentCode) o.agentCode = r.agentCode;
     });
-    let list=Array.from(map.entries()).map(([n,v])=>({dealer:n, agentCode:v.agentCode, thisMonth:v.m0, lastMonth:v.m1, twoMonthsAgo:v.m2, qtd:v.m0+v.m1+v.m2, mom:v.m1?((v.m0-v.m1)/v.m1)*100:0}));
+    let fullList=Array.from(map.entries()).map(([n,v])=>({dealer:n, agentCode:v.agentCode, thisMonth:v.m0, lastMonth:v.m1, twoMonthsAgo:v.m2, qtd:v.m0+v.m1+v.m2, mom:v.m1?((v.m0-v.m1)/v.m1)*100:0}));
+
+    // ★ v2.7.0：搜索过滤
+    let list = fullList;
+    if (dealerFilterQuery) {
+      list = fullList.filter(d =>
+        d.dealer.toLowerCase().includes(dealerFilterQuery) ||
+        (d.agentCode || '').toLowerCase().includes(dealerFilterQuery)
+      );
+    }
+    if (countEl) {
+      countEl.textContent = dealerFilterQuery
+        ? `Showing ${list.length} of ${fullList.length} dealers`
+        : `${fullList.length} dealers`;
+    }
+
     list.sort((a,b)=>{
       let va,vb;
       switch(dealerSortColumn){
@@ -2245,20 +2354,56 @@ window.toLocalISO = toLocalISO;
       if(typeof va==='string') return dealerSortDirection==='asc'?va.localeCompare(vb):vb.localeCompare(va);
       return dealerSortDirection==='asc'?va-vb:vb-va;
     });
+
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="no-data-message">No dealers match your search.</td></tr>';
+      return;
+    }
+
     tbody.innerHTML=list.map(d=>`<tr><td>${escHtml(d.dealer)}</td><td>${escHtml(d.agentCode||'')}</td><td class="highlight-month">${formatRM(d.thisMonth)}</td><td>${formatRM(d.lastMonth)}</td><td>${formatRM(d.twoMonthsAgo)}</td><td>${formatRM(d.qtd)}</td><td class="${d.mom>=0?'green':'red'}">${d.mom.toFixed(1)}%</td></tr>`).join('');
-    let total={m0:0,m1:0,m2:0}; for(let v of map.values()){total.m0+=v.m0;total.m1+=v.m1;total.m2+=v.m2;}
+
+    // ★ v2.7.0：总计基于筛选后的 list
+    let total={m0:0,m1:0,m2:0};
+    for (let d of list) { total.m0+=d.thisMonth; total.m1+=d.lastMonth; total.m2+=d.twoMonthsAgo; }
     let totalMom=total.m1?((total.m0-total.m1)/total.m1)*100:0;
-    tbody.innerHTML+=`<tr class="total-row"><td>📊 ALL DEALERS</td><td></td><td class="highlight-month">${formatRM(total.m0)}</td><td>${formatRM(total.m1)}</td><td>${formatRM(total.m2)}</td><td>${formatRM(total.m0+total.m1+total.m2)}</td><td class="${totalMom>=0?'green':'red'}">${totalMom.toFixed(1)}%</td></tr>`;
+    const totalLabel = dealerFilterQuery ? `📊 FILTERED TOTAL (${list.length})` : '📊 ALL DEALERS';
+    tbody.innerHTML+=`<tr class="total-row"><td>${totalLabel}</td><td></td><td class="highlight-month">${formatRM(total.m0)}</td><td>${formatRM(total.m1)}</td><td>${formatRM(total.m2)}</td><td>${formatRM(total.m0+total.m1+total.m2)}</td><td class="${totalMom>=0?'green':'red'}">${totalMom.toFixed(1)}%</td></tr>`;
   }
 
+  // ★ v2.7.0：Top Dealers 显示 N 个，只有前 10 高亮
   function buildTopDealer() {
     const div=document.getElementById('salesTopDealerList');
     if(rawData.length===0){div.innerHTML='<div class="no-data-message">No data</div>';return;}
     let maxDate=new Date(0); rawData.forEach(r=>{if(r.date>maxDate) maxDate=r.date;});
     let ly=maxDate.getFullYear(), lm=maxDate.getMonth();
-    let map=new Map(); rawData.forEach(r=>{ if(r.date.getFullYear()===ly&&r.date.getMonth()===lm) map.set(r.company,(map.get(r.company)||0)+r.subtotal); });
-    let arr=Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    div.innerHTML=arr.map(([n,rev],i)=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;"><div>${i+1}. ${escHtml(n)}</div><div style="font-weight:700;color:#2563eb;">${formatRM(rev)}</div></div>`).join('') || '<div>No data</div>';
+    let map=new Map();
+    rawData.forEach(r=>{ if(r.date.getFullYear()===ly&&r.date.getMonth()===lm) map.set(r.company,(map.get(r.company)||0)+r.subtotal); });
+    let arr=Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).slice(0, topDealerCount);
+
+    if (arr.length === 0) {
+      div.innerHTML = '<div class="no-data-message">No data</div>';
+      return;
+    }
+
+    div.innerHTML = arr.map(([n,rev],i) => {
+      const isTop10 = i < 10;
+      const cls = isTop10 ? 'top-dealer-row top10' : 'top-dealer-row others';
+      return `<div class="${cls}">
+        <div class="dealer-name">
+          <span class="rank-badge">${i+1}</span>
+          <span>${escHtml(n)}</span>
+        </div>
+        <div class="dealer-value">${formatRM(rev)}</div>
+      </div>`;
+    }).join('');
+
+    // 提示信息：如果显示 >10 个，说明前 10 已高亮
+    if (topDealerCount > 10 && arr.length > 10) {
+      const tip = document.createElement('div');
+      tip.style.cssText = 'font-size:11px; color:#94a3b8; margin-top:8px; text-align:center;';
+      tip.textContent = `Showing top ${arr.length} — Gold highlighted = Top 10`;
+      div.appendChild(tip);
+    }
   }
 
   function initSalesSorting() {
@@ -2404,6 +2549,24 @@ window.toLocalISO = toLocalISO;
     document.getElementById('sales-exportExcelBtn').addEventListener('click', exportExcel);
     document.getElementById('sales-clearDataBtn').addEventListener('click', clearSalesData);
     initSalesSorting();
+
+    // ★ v2.7.0：Dealer 搜索
+    const dealerSearch = document.getElementById('dealerSearchInput');
+    if (dealerSearch) {
+      dealerSearch.addEventListener('input', debounceS(() => {
+        dealerFilterQuery = (dealerSearch.value || '').trim().toLowerCase();
+        buildDealerTable();
+      }, 150));
+    }
+
+    // ★ v2.7.0：Top Dealers 数量选择
+    const topCountSel = document.getElementById('topDealerCountSelect');
+    if (topCountSel) {
+      topCountSel.addEventListener('change', () => {
+        topDealerCount = parseInt(topCountSel.value, 10) || 10;
+        buildTopDealer();
+      });
+    }
 
     const autoSel = document.getElementById('salesAutoInterval');
     if (autoSel) {
