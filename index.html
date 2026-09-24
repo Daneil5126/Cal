@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Unit Suite | Unified Dashboard v2.8.0</title>
+<title>Business Unit Suite | Unified Dashboard v2.9.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -66,7 +66,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .grid-3col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-bottom:20px}
 .card,.change-card{padding:16px}
 .card h3,.change-card h3{display:flex;align-items:center;gap:6px;margin-bottom:10px;color:#3f4b5b;font-size:.9rem;text-transform:uppercase}
-/* ★ v2.8.0: summary-group-card 改上下布局 + 图表变宽 */
 .summary-group-card{display:flex;flex-direction:column;gap:14px;min-width:0}
 .summary-table-wrap{width:100%;min-width:0}
 .chart-wrap{width:100%;height:240px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative}
@@ -79,6 +78,17 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
 .full-table tr:hover td{background:#f5fbff}
 .amount,.numeric{text-align:right;font-variant-numeric:tabular-nums}
 .sort-arrow{margin-left:4px;color:#94a3b8;font-size:.7rem}
+/* ★ v2.9.0: 高亮列样式 */
+.full-table th.hl-minsell{background:#dbeafe;color:#1e40af;border-left:3px solid #0ea5e9;position:relative}
+.full-table td.hl-minsell{background:linear-gradient(90deg,rgba(224,242,254,.5) 0%,rgba(186,230,253,.35) 100%);font-weight:700;color:#075985;border-left:3px solid #0ea5e9}
+.full-table tr:hover td.hl-minsell{background:linear-gradient(90deg,rgba(186,230,253,.7) 0%,rgba(147,197,253,.5) 100%)}
+.full-table th.hl-aftersupport{background:linear-gradient(90deg,#fef3c7 0%,#fde68a 100%);color:#92400e;border-left:3px solid #f59e0b;border-right:3px solid #f59e0b}
+.full-table td.hl-aftersupport{font-weight:700;border-left:3px solid}
+.full-table td.hl-aftersupport.positive{background:linear-gradient(90deg,rgba(220,252,231,.6) 0%,rgba(187,247,208,.4) 100%);color:#166534;border-color:#22c55e}
+.full-table td.hl-aftersupport.negative{background:linear-gradient(90deg,rgba(254,226,226,.6) 0%,rgba(252,165,165,.4) 100%);color:#991b1b;border-color:#ef4444}
+.full-table tr:hover td.hl-aftersupport.positive{background:linear-gradient(90deg,rgba(187,247,208,.8) 0%,rgba(134,239,172,.6) 100%)}
+.full-table tr:hover td.hl-aftersupport.negative{background:linear-gradient(90deg,rgba(252,165,165,.8) 0%,rgba(248,113,113,.6) 100%)}
+.full-table th.hl-minsell::after,.full-table th.hl-aftersupport::after{content:'★';font-size:.7rem;margin-left:4px;opacity:.6}
 .search-bar,.margin-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .search-bar input,.search-bar select,.margin-bar input{min-height:34px;border:1px solid #d8e0ea;border-radius:6px;padding:6px 10px;background:#fff;color:var(--text)}
 .search-bar input{min-width:min(100%,240px)}
@@ -131,7 +141,6 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
 .rate-number{font-size:1.5rem;font-weight:800;color:#1f4a6e;font-family:monospace}
 .rate-date{font-size:.6rem;color:#7c9bc0;margin-top:4px}
 .manual-rate-row{background:#fff3e0;border-radius:50px;padding:6px 18px;margin:8px 0 12px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;border:1px solid #ffd7a0}
-/* ★ v2.8.0: Fallback Rate 行 */
 .fallback-rate-row{background:linear-gradient(135deg,#eef2ff 0%,#e0e7ff 100%);border-radius:50px;padding:8px 18px;margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;border:1px solid #c7d2fe}
 .fallback-rate-row .fb-label{font-size:.75rem;font-weight:700;color:#3730a3;display:flex;align-items:center;gap:6px}
 .fallback-rate-row .fb-hint{font-size:.62rem;color:#6366f1;margin-left:6px;font-weight:500}
@@ -216,7 +225,6 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
 .sales-dashboard .daily-item{margin-top:12px;padding-top:8px;border-top:1px solid #e2e8f0}
 .sales-dashboard .daily-item .label{font-size:12px;color:#64748b;margin-bottom:4px}
 .sales-dashboard .daily-item .value{font-weight:700;font-size:20px;color:#1e293b}
-/* ★ v2.8.0: Sales content-grid 改 3:1 + Top Dealers 内部滚动 */
 .sales-dashboard .content-grid{display:grid;grid-template-columns:3fr 1fr;gap:24px;margin-bottom:24px;align-items:stretch}
 .sales-dashboard .content-grid > .card{display:flex;flex-direction:column;min-height:0}
 .sales-dashboard .content-grid > .card:last-child{max-height:720px}
@@ -339,7 +347,7 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
       <div class="card"><h3>⚠️ Low Stock</h3><table class="mini-table" id="lowStockTable"><thead><tr><th>Name</th><th class="numeric">Stock</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
       <div class="card"><h3>🏆 Top Items</h3><table class="mini-table" id="topItemsTable"><thead><tr><th>Name</th><th class="numeric">Qty</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.8.0</div>
+    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.9.0</div>
   </section>
   <section class="page" id="page-calculator">
     <div class="calculator" id="app">
@@ -371,7 +379,6 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
         <button id="resetAutoBtn" class="reset-auto-btn">🔄 Reset to Auto</button>
         <span class="manual-note" id="manualNote">Overrides auto-fetch, works offline</span>
       </div>
-      <!-- ★ v2.8.0: Fallback Rate 行 -->
       <div class="fallback-rate-row">
         <span class="fb-label">⚓ Fallback Rate (offline)<span class="fb-hint">Used when no live / cached / manual rate</span></span>
         <input type="number" id="fallbackRateInput" class="fallback-rate-input" value="4.0500" step="0.0001" min="0.0001" inputmode="decimal">
@@ -422,8 +429,9 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
           <option value="6">Min Sell Price</option>
           <option value="7">Support (USD)</option>
           <option value="8">Support (RM)</option>
-          <option value="9">MSDP</option>
-          <option value="10">MSRP</option>
+          <option value="9">After Support (RM)</option>
+          <option value="10">MSDP</option>
+          <option value="11">MSRP</option>
         </select>
         <select id="sortDirectionSelect"><option value="asc">Ascending</option><option value="desc">Descending</option></select>
       </div>
@@ -447,8 +455,9 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
         <label><input type="checkbox" data-col="6" checked> Min Sell Price</label>
         <label><input type="checkbox" data-col="7" checked> Support (USD)</label>
         <label><input type="checkbox" data-col="8" checked> Support (RM)</label>
-        <label><input type="checkbox" data-col="9" checked> MSDP</label>
-        <label><input type="checkbox" data-col="10" checked> MSRP</label>
+        <label><input type="checkbox" data-col="9" checked> After Support (RM)</label>
+        <label><input type="checkbox" data-col="10" checked> MSDP</label>
+        <label><input type="checkbox" data-col="11" checked> MSRP</label>
       </div>
       <div style="overflow-x:auto;">
         <table class="full-table" id="invTable">
@@ -460,11 +469,12 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
               <th data-col="3" class="numeric">Available <span class="sort-arrow"></span></th>
               <th data-col="4" class="amount">Unit Cost (RM) <span class="sort-arrow"></span></th>
               <th data-col="5" class="amount">Landing Cost (RM) <span class="sort-arrow"></span></th>
-              <th data-col="6" class="amount">Min Sell Price (RM) <span class="sort-arrow"></span></th>
+              <th data-col="6" class="amount hl-minsell">Min Sell Price (RM) <span class="sort-arrow"></span></th>
               <th data-col="7" class="amount">Support (USD) <span class="sort-arrow"></span></th>
               <th data-col="8" class="amount">Support (RM) <span class="sort-arrow"></span></th>
-              <th data-col="9" class="amount">MSDP (RM) <span class="sort-arrow"></span></th>
-              <th data-col="10" class="amount">MSRP (RM) <span class="sort-arrow"></span></th>
+              <th data-col="9" class="amount hl-aftersupport">After Support (RM) <span class="sort-arrow"></span></th>
+              <th data-col="10" class="amount">MSDP (RM) <span class="sort-arrow"></span></th>
+              <th data-col="11" class="amount">MSRP (RM) <span class="sort-arrow"></span></th>
             </tr>
           </thead>
           <tbody id="invTableBody"></tbody>
@@ -583,7 +593,7 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
     <div class="header"><h2>📄 Reports</h2></div>
     <div class="change-report" id="changeReportContainer"></div>
     <div id="runRateContainer"></div>
-    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.8.0</div>
+    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.9.0</div>
   </section>
 </main>
 <script>
@@ -596,7 +606,6 @@ const csvEscape = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
 window.escHtml = escHtml;
 window.toLocalISO = toLocalISO;
 
-// 从 localStorage 或默认值解析兜底汇率
 function getFallbackRate() {
   const v = parseFloat(localStorage.getItem('fallbackRate'));
   return (isFinite(v) && v > 0) ? v : 4.05;
@@ -640,9 +649,8 @@ function getFallbackRate() {
   const DEFAULT_AGING = 30;
   const LANDING_FREIGHT = CONFIG.defaultFreight;
   const INITIAL_PAGE_SIZE = 20;
-  const TOTAL_COLUMNS = 11;
+  const TOTAL_COLUMNS = 12;  // ★ v2.9.0: 11 → 12
 
-  // ★ v2.8.0: 初始化汇率优先级 manual > cached > fallback > 4.05
   function getInitialLiveRate() {
     const manual = parseFloat(localStorage.getItem('manualBaseRate'));
     if (isFinite(manual) && manual > 0) return manual;
@@ -660,7 +668,6 @@ function getFallbackRate() {
     }
   });
   window.addEventListener('pcFallbackChanged', (e) => {
-    // 仅当没有 manual / cached 时才用 fallback
     const hasManual = localStorage.getItem('manualBaseRate');
     const hasCached = localStorage.getItem('cachedBaseRate');
     if (!hasManual && !hasCached) {
@@ -714,6 +721,13 @@ function getFallbackRate() {
   const saveMargin = v => localStorage.setItem(STORAGE.margin, String(toNumber(v,0)));
   const calculateLandingCost = uc => (toNumber(uc) / getLandingSST()) / LANDING_FREIGHT;
   const calculateMinSell = (uc, mp) => calculateLandingCost(uc) * (1 + toNumber(mp)/100);
+  // ★ v2.9.0: After Support 计算
+  const calculateSupportRM = (supportUSD) => toNumber(supportUSD) * liveFxRate;
+  const calculateAfterSupport = (unitCost, marginPercent, supportUSD) => {
+    const minSell = calculateMinSell(unitCost, marginPercent);
+    const supportRM = calculateSupportRM(supportUSD);
+    return minSell - supportRM;
+  };
   const getInventoryValue = item => (item.onHandCost != null && item.onHandCost !== 0) ? item.onHandCost : (item.unitCost * item.stockLevel);
   const formatTime12h = () => {
     const now = new Date();
@@ -1189,7 +1203,6 @@ function getFallbackRate() {
     return labels.map(l => fixed[l] || fallback[idx++ % fallback.length]);
   }
 
-  // ★ v2.8.0: 饼图 → 横向条形图
   function renderPieChart(sorted, colors) {
     const canvas = $('#pieChart'), fallback = $('#chartFallback');
     if (!sorted.length) {
@@ -1206,11 +1219,8 @@ function getFallbackRate() {
     if (window.Chart && window.ChartDataLabels) Chart.register(ChartDataLabels);
     if (canvas) canvas.style.display = 'block';
     if (fallback) fallback.style.display = 'none';
-
     const labels = sorted.map(([l]) => l);
     const data = sorted.map(([, v]) => v);
-    const total = data.reduce((a,b)=>a+b,0);
-
     if (state.pieChart) {
       state.pieChart.data.labels = labels;
       state.pieChart.data.datasets[0].data = data;
@@ -1218,24 +1228,12 @@ function getFallbackRate() {
       state.pieChart.update('none');
       return;
     }
-
     state.pieChart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: colors,
-          borderRadius: 6,
-          barPercentage: 0.75,
-          categoryPercentage: 0.9
-        }]
-      },
+      data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderRadius: 6, barPercentage: 0.75, categoryPercentage: 0.9 }] },
       options: {
         indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
+        responsive: true, maintainAspectRatio: false, animation: false,
         layout: { padding: { right: 40 } },
         plugins: {
           legend: { display: false },
@@ -1250,30 +1248,19 @@ function getFallbackRate() {
           },
           datalabels: {
             display: () => pieCtrlPressed,
-            color: '#1e293b',
-            backgroundColor: 'rgba(255,255,255,.85)',
-            borderRadius: 6,
-            padding: 4,
+            color: '#1e293b', backgroundColor: 'rgba(255,255,255,.85)', borderRadius: 6, padding: 4,
             font: { weight: 'bold', size: 10 },
             formatter: (value, ctx) => {
               const t = ctx.dataset.data.reduce((a,b)=>a+b,0);
               const pct = t > 0 ? ((value / t) * 100).toFixed(1) : '0.0';
               return `${pct}%`;
             },
-            anchor: 'end',
-            align: 'end',
-            offset: 4
+            anchor: 'end', align: 'end', offset: 4
           }
         },
         scales: {
-          x: {
-            ticks: { callback: (val) => 'RM ' + moneyFormatter.format(val), font: { size: 9 } },
-            grid: { color: '#f1f5f9' }
-          },
-          y: {
-            grid: { display: false },
-            ticks: { font: { size: 10, weight: '600' } }
-          }
+          x: { ticks: { callback: (val) => 'RM ' + moneyFormatter.format(val), font: { size: 9 } }, grid: { color: '#f1f5f9' } },
+          y: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
         }
       }
     });
@@ -1396,12 +1383,15 @@ function getFallbackRate() {
     if (group !== 'all') filtered = filtered.filter(i => i.productGroup === group);
     if (search) filtered = filtered.filter(i => i.name.toLowerCase().includes(search) || i.id.toLowerCase().includes(search));
     if (state.sortColumn >= 0) {
-      // ★ v2.8.0: 新顺序 = name,id,location,available,unitCost,landingCost,minSell, supportUSD, supportUSD(RM), msdp, msrp
-      const cols = ['name', 'id', 'location', 'available', 'unitCost', 'landingCost', 'minSellPrice', 'supportUSD', 'supportUSD', 'msdp', 'msrp'];
+      // ★ v2.9.0 列索引映射（含 After Support）
+      const cols = ['name', 'id', 'location', 'available', 'unitCost', 'landingCost', 'minSellPrice', 'supportUSD', 'supportUSD', 'afterSupport', 'msdp', 'msrp'];
       const col = cols[state.sortColumn];
       filtered.sort((a, b) => {
-        let va = col === 'landingCost' ? calculateLandingCost(a.unitCost) : col === 'minSellPrice' ? calculateMinSell(a.unitCost, marginPercent) : (a[col] ?? '');
-        let vb = col === 'landingCost' ? calculateLandingCost(b.unitCost) : col === 'minSellPrice' ? calculateMinSell(b.unitCost, marginPercent) : (b[col] ?? '');
+        let va, vb;
+        if (col === 'landingCost') { va = calculateLandingCost(a.unitCost); vb = calculateLandingCost(b.unitCost); }
+        else if (col === 'minSellPrice') { va = calculateMinSell(a.unitCost, marginPercent); vb = calculateMinSell(b.unitCost, marginPercent); }
+        else if (col === 'afterSupport') { va = calculateAfterSupport(a.unitCost, marginPercent, a.supportUSD); vb = calculateAfterSupport(b.unitCost, marginPercent, b.supportUSD); }
+        else { va = a[col] ?? ''; vb = b[col] ?? ''; }
         if (typeof va === 'string') va = va.toLowerCase();
         if (typeof vb === 'string') vb = vb.toLowerCase();
         if (va < vb) return state.sortDirection === 'asc' ? -1 : 1;
@@ -1423,7 +1413,8 @@ function getFallbackRate() {
       const minSell = calculateMinSell(item.unitCost, marginPercent);
       const supportUSD = item.supportUSD || 0;
       const supportRM = supportUSD * liveFxRate;
-      // ★ v2.8.0 顺序：... Min Sell | Support USD | Support RM | MSDP | MSRP
+      const afterSupport = minSell - supportRM;
+      const afterCls = afterSupport < 0 ? 'negative' : 'positive';
       return `<tr>
         <td class="${hide(0).trim()}">${highlightText(item.name, searchTerm)}</td>
         <td class="${hide(1).trim()}">${highlightText(item.id, searchTerm)}</td>
@@ -1431,13 +1422,14 @@ function getFallbackRate() {
         <td class="numeric${hide(3)}">${(item.available ?? item.stockLevel).toLocaleString()}</td>
         <td class="amount${hide(4)}">RM ${formatMoney(item.unitCost)}</td>
         <td class="amount${hide(5)}">RM ${formatMoney(landing)}</td>
-        <td class="amount${hide(6)}">RM ${formatMoney(minSell)}</td>
+        <td class="amount hl-minsell${hide(6)}">RM ${formatMoney(minSell)}</td>
         <td class="amount${hide(7)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="supportUSD" value="${supportUSD.toFixed(2)}"></td>
         <td class="amount${hide(8)}" style="color:#1f6f4a;font-weight:600;">RM ${formatMoney(supportRM)}</td>
-        <td class="amount${hide(9)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msdp" value="${(item.msdp||0).toFixed(2)}"></td>
-        <td class="amount${hide(10)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msrp" value="${(item.msrp||0).toFixed(2)}"></td>
+        <td class="amount hl-aftersupport ${afterCls}${hide(9)}">RM ${formatMoney(afterSupport)}</td>
+        <td class="amount${hide(10)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msdp" value="${(item.msdp||0).toFixed(2)}"></td>
+        <td class="amount${hide(11)}"><input type="number" step="0.01" min="0" class="inline-edit-cell" data-id="${escHtml(item.id)}" data-field="msrp" value="${(item.msrp||0).toFixed(2)}"></td>
       </tr>`;
-    }).join('') : '<tr><td colspan="11">No items found</td></tr>';
+    }).join('') : '<tr><td colspan="12">No items found</td></tr>';
 
     document.querySelectorAll('#invTableBody .inline-edit-cell').forEach(inp => {
       inp.addEventListener('change', () => {
@@ -1638,15 +1630,17 @@ function getFallbackRate() {
     if(!data.length) return alert('No data to export.');
     if(!window.XLSX) return setStatus('❌ Excel library not loaded.');
     const mp = toNumber($('#invMarginInput').value);
-    // ★ v2.8.0 顺序（Support 在 MSDP 前）
-    const sheet = [['Name','ID','Location','Available','Unit Cost (RM)','Landing Cost (RM)','Min Sell Price (RM)','Support (USD)','Support (RM)','MSDP (RM)','MSRP (RM)','Sales Qty','Restock Qty','No Move Days']];
+    // ★ v2.9.0 导出含 After Support
+    const sheet = [['Name','ID','Location','Available','Unit Cost (RM)','Landing Cost (RM)','Min Sell Price (RM)','Support (USD)','Support (RM)','After Support (RM)','MSDP (RM)','MSRP (RM)','Sales Qty','Restock Qty','No Move Days']];
     data.forEach(i => {
       const supRM = (i.supportUSD || 0) * liveFxRate;
+      const minSell = calculateMinSell(i.unitCost, mp);
+      const afterSup = minSell - supRM;
       sheet.push([
         i.name, i.id, i.location, i.available??i.stockLevel,
         i.unitCost.toFixed(2), calculateLandingCost(i.unitCost).toFixed(2),
-        calculateMinSell(i.unitCost, mp).toFixed(2),
-        (i.supportUSD||0).toFixed(2), supRM.toFixed(2),
+        minSell.toFixed(2),
+        (i.supportUSD||0).toFixed(2), supRM.toFixed(2), afterSup.toFixed(2),
         (i.msdp||0).toFixed(2), (i.msrp||0).toFixed(2),
         i.salesQty||0, i.restockQty||0, i.daysNoMovement??''
       ]);
@@ -1780,7 +1774,6 @@ function getFallbackRate() {
   let lastSystemError = '';
   let autoRefreshTimer = null;
 
-  // ★ v2.8.0：初始化 Fallback 输入框
   if (els.fallbackRateInput) {
     els.fallbackRateInput.value = getFallbackRate().toFixed(4);
     els.fallbackRateInput.addEventListener('change', (e) => {
@@ -1788,7 +1781,6 @@ function getFallbackRate() {
       if (isFinite(v) && v > 0) {
         localStorage.setItem('fallbackRate', v.toFixed(4));
         try { window.dispatchEvent(new CustomEvent('pcFallbackChanged', { detail: { rate: v } })); } catch(err) {}
-        // 若当前没有任何 real rate，则立即用 fallback
         if (!localStorage.getItem('manualBaseRate') && !localStorage.getItem('cachedBaseRate')) {
           currentBaseRate = v;
           els.liveRateSpan.innerText = v.toFixed(4);
@@ -1817,7 +1809,6 @@ function getFallbackRate() {
     if(manual && !isNaN(parseFloat(manual))) { currentBaseRate = parseFloat(manual); els.sourceHintSpan.innerText = t('sourceManual'); broadcastLiveRate(); return true; }
     const cached = localStorage.getItem('cachedBaseRate');
     if(cached && !isNaN(parseFloat(cached))) { currentBaseRate = parseFloat(cached); els.sourceHintSpan.innerText = t('cacheMsg'); broadcastLiveRate(); return true; }
-    // 没有 manual / cached → 使用 fallback
     currentBaseRate = getFallbackRate();
     els.sourceHintSpan.innerText = '⚓ Fallback';
     broadcastLiveRate();
