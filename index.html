@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Unit Suite | Unified Dashboard v2.9.0</title>
+<title>Business Unit Suite | Unified Dashboard v2.9.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -76,9 +76,13 @@ th,td{padding:6px 8px;border-bottom:1px solid #edf2f7;text-align:left;vertical-a
 th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:none}
 .full-table th{cursor:pointer;white-space:nowrap}
 .full-table tr:hover td{background:#f5fbff}
+/* ★ v2.9.1: 少列时表格紧凑 */
+.full-table.table-compact { width: auto; }
+.full-table.table-compact th,
+.full-table.table-compact td { width: auto; }
 .amount,.numeric{text-align:right;font-variant-numeric:tabular-nums}
 .sort-arrow{margin-left:4px;color:#94a3b8;font-size:.7rem}
-/* ★ v2.9.0: 高亮列样式 */
+/* 高亮列样式 */
 .full-table th.hl-minsell{background:#dbeafe;color:#1e40af;border-left:3px solid #0ea5e9;position:relative}
 .full-table td.hl-minsell{background:linear-gradient(90deg,rgba(224,242,254,.5) 0%,rgba(186,230,253,.35) 100%);font-weight:700;color:#075985;border-left:3px solid #0ea5e9}
 .full-table tr:hover td.hl-minsell{background:linear-gradient(90deg,rgba(186,230,253,.7) 0%,rgba(147,197,253,.5) 100%)}
@@ -347,7 +351,7 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
       <div class="card"><h3>⚠️ Low Stock</h3><table class="mini-table" id="lowStockTable"><thead><tr><th>Name</th><th class="numeric">Stock</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
       <div class="card"><h3>🏆 Top Items</h3><table class="mini-table" id="topItemsTable"><thead><tr><th>Name</th><th class="numeric">Qty</th><th class="amount">Cost</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.9.0</div>
+    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.9.1</div>
   </section>
   <section class="page" id="page-calculator">
     <div class="calculator" id="app">
@@ -593,7 +597,7 @@ th{background:var(--surface-muted);color:#475569;font-weight:700;user-select:non
     <div class="header"><h2>📄 Reports</h2></div>
     <div class="change-report" id="changeReportContainer"></div>
     <div id="runRateContainer"></div>
-    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.9.0</div>
+    <div class="app-credit">Created by DANEIL G.CS | Optimized Edition v2.9.1</div>
   </section>
 </main>
 <script>
@@ -649,7 +653,8 @@ function getFallbackRate() {
   const DEFAULT_AGING = 30;
   const LANDING_FREIGHT = CONFIG.defaultFreight;
   const INITIAL_PAGE_SIZE = 20;
-  const TOTAL_COLUMNS = 12;  // ★ v2.9.0: 11 → 12
+  const TOTAL_COLUMNS = 12;
+  const COMPACT_THRESHOLD = 4;  // ★ v2.9.1: 可见列 ≤ 4 时表格紧凑
 
   function getInitialLiveRate() {
     const manual = parseFloat(localStorage.getItem('manualBaseRate'));
@@ -721,7 +726,6 @@ function getFallbackRate() {
   const saveMargin = v => localStorage.setItem(STORAGE.margin, String(toNumber(v,0)));
   const calculateLandingCost = uc => (toNumber(uc) / getLandingSST()) / LANDING_FREIGHT;
   const calculateMinSell = (uc, mp) => calculateLandingCost(uc) * (1 + toNumber(mp)/100);
-  // ★ v2.9.0: After Support 计算
   const calculateSupportRM = (supportUSD) => toNumber(supportUSD) * liveFxRate;
   const calculateAfterSupport = (unitCost, marginPercent, supportUSD) => {
     const minSell = calculateMinSell(unitCost, marginPercent);
@@ -1346,16 +1350,23 @@ function getFallbackRate() {
     try { const s = localStorage.getItem(STORAGE.columnVisibility); return s ? JSON.parse(s) : {}; } catch { return {}; }
   }
   function saveColumnVisibility(map) { localStorage.setItem(STORAGE.columnVisibility, JSON.stringify(map)); }
+  // ★ v2.9.1: 加 table-compact 逻辑
   function applyColumnVisibility() {
     const vis = getColumnVisibility();
+    let visibleCount = 0;
     for (let i = 0; i < TOTAL_COLUMNS; i++) {
       const show = vis[i] !== false;
+      if (show) visibleCount++;
       const th = document.querySelector(`#invTableHead th[data-col="${i}"]`);
       if (th) th.classList.toggle('inv-col-hidden', !show);
       document.querySelectorAll(`#invTableBody tr`).forEach(tr => {
         const td = tr.children[i];
         if (td) td.classList.toggle('inv-col-hidden', !show);
       });
+    }
+    const table = document.getElementById('invTable');
+    if (table) {
+      table.classList.toggle('table-compact', visibleCount <= COMPACT_THRESHOLD);
     }
   }
   function bindColumnToggles() {
@@ -1383,7 +1394,6 @@ function getFallbackRate() {
     if (group !== 'all') filtered = filtered.filter(i => i.productGroup === group);
     if (search) filtered = filtered.filter(i => i.name.toLowerCase().includes(search) || i.id.toLowerCase().includes(search));
     if (state.sortColumn >= 0) {
-      // ★ v2.9.0 列索引映射（含 After Support）
       const cols = ['name', 'id', 'location', 'available', 'unitCost', 'landingCost', 'minSellPrice', 'supportUSD', 'supportUSD', 'afterSupport', 'msdp', 'msrp'];
       const col = cols[state.sortColumn];
       filtered.sort((a, b) => {
@@ -1630,7 +1640,6 @@ function getFallbackRate() {
     if(!data.length) return alert('No data to export.');
     if(!window.XLSX) return setStatus('❌ Excel library not loaded.');
     const mp = toNumber($('#invMarginInput').value);
-    // ★ v2.9.0 导出含 After Support
     const sheet = [['Name','ID','Location','Available','Unit Cost (RM)','Landing Cost (RM)','Min Sell Price (RM)','Support (USD)','Support (RM)','After Support (RM)','MSDP (RM)','MSRP (RM)','Sales Qty','Restock Qty','No Move Days']];
     data.forEach(i => {
       const supRM = (i.supportUSD || 0) * liveFxRate;
