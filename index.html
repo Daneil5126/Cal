@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Suite | Accounts and Scroll PM23.3</title>
-<meta name="business-build" content="pm23.3-9cedde6cbed4">
+<title>Business Suite | Independent User Sync PM23.4</title>
+<meta name="business-build" content="pm23.4-43d1e8bf0ce8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1355,6 +1355,10 @@ function getFallbackRate() {
   const calculateLandingCost = uc => (toNumber(uc) / getLandingSST()) / LANDING_FREIGHT;
   const calculateMinSell = (uc, mp) => calculateLandingCost(uc) * (1 + toNumber(mp)/100);
   const calculateSupportRM = (supportUSD) => toNumber(supportUSD) * liveFxRate;
+  window.pm234GetSyncCalculation = () => {
+    if(!window.pm22MasterApi?.isOwner?.())throw Error('Master access is required.');
+    return {landingFactor:calculateLandingCost(1),minSellFactor:calculateMinSell(1,getMargin()),supportRate:calculateSupportRM(1)};
+  };
   window.pm22BuildPublicSource = () => {
     if(!window.pm22MasterApi?.isOwner?.())throw Error('Master access is required.');
     return getInventory().map(original=>{
@@ -3542,7 +3546,7 @@ function getFallbackRate() {
     try{
       let source=await window.pm232SyncSources?.get(kind);
       if(!source){try{source=await request('/rest/v1/rpc/master_get_sync_source',{method:'POST',body:JSON.stringify({p_kind:kind}),signal:controller.signal});}
-      catch(error){if(error.status===404){const setupError=new Error('Cloud sync setup is required. Import the Master setup JSON using Cloud sync setup, then retry. Existing data was kept.');setupError.code='SYNC_SETUP_REQUIRED';window.dispatchEvent(new CustomEvent('PM232SyncSetupRequired',{detail:{kind}}));throw setupError;}throw error;}}
+      catch(error){if(error.status===404){const setupError=new Error('Cloud sync setup is required. Install the supplied PM23.4 server setup SQL once, then reload cloud setup. Existing data was kept.');setupError.code='SYNC_SETUP_REQUIRED';window.dispatchEvent(new CustomEvent('PM232SyncSetupRequired',{detail:{kind}}));throw setupError;}throw error;}}
 
       assertCurrent();
       if(!source||source.version!==1||source.kind!==kind||!['published_google','private_edge'].includes(source.mode))throw new Error('Sync source is not configured. Import the supplied Master setup JSON.');
@@ -4327,7 +4331,7 @@ body.pm-global-dark #confirmMsg{color:#f1f5f9!important}
 body.pm-global-dark #confirmCancel{background:#28364b!important;color:#f1f5f9!important;border-color:#72849d!important}
 body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important}
 </style>
-<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23.3',id:"pm23.3-9cedde6cbed4",builtAt:"2026-11-27T20:50:00+08:00",environment:location.protocol==='file:'?'Local':'Online'};
+<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23.4',id:"pm23.4-43d1e8bf0ce8",builtAt:"2026-11-27T21:27:35+08:00",environment:location.protocol==='file:'?'Local':'Online'};
  info.checkForUpdates=async()=>{if(location.protocol==='file:')return{available:false,message:'Local HTML file. Download the latest verified release to update.'};if(checking)return checking;checking=(async()=>{try{const u=new URL(location.href);u.hash='';const response=await fetch(u.href,{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error('HTTP '+response.status);const text=await response.text();if(text.length>8*1024*1024)throw Error('Unexpected update response.');const next=text.match(/<meta name="business-build" content="([a-z0-9.-]+)">/)?.[1];if(!next)return{available:false,message:'This server has no verified build identifier. Current '+info.id};return{available:next!==info.id,message:next===info.id?'Current build is up to date: '+info.id:'New build available: '+next+'. Export your pending edits before reloading.'};}catch(error){return{available:false,message:'Update check failed. '+error.message};}finally{checking=null;}})();return checking;};window.businessBuildInfo=Object.freeze(info);})();</script>
 <script id="pm215-storage-bootstrap">/* Replaced by authenticated PM22 bootstrap. */</script>
 <script id="pm221-idle">/* Per-tab inactivity timeout. Network refresh is never user activity. */
@@ -4760,6 +4764,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     selectOptions(c.group, [['', policy.fields.includes('location') ? 'All locations' : 'All brands'], ...groups.map(group => [group, group])], c.group.value);
     c.group.hidden ||= !policy.fields.some(key => key === 'name' || key === 'location');
     c.meta.textContent = view.publishedAt ? 'Published: ' + new Date(view.publishedAt).toLocaleString('en-MY') + ' · Revision ' + view.revision : 'No User inventory has been published';
+    if (session.sourceReceipt?.syncedAt) c.meta.textContent += ' · Cloud checked: ' + new Date(session.sourceReceipt.syncedAt).toLocaleString('en-MY');
     session.accessNotice.hidden = policy.pages.inventory || policy.pages.calculator;
     session.nav.forEach(({ el }) => {
       if (!el.dataset.page || el.dataset.page === 'master-login') return;
@@ -4792,7 +4797,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     const header = node('div', null, { class: 'header pm22-public-header' });
     const title = node('div'), subtitle = node('p', 'User view · Read only', { class: 'pm22-public-subtitle' }); title.append(node('h2', '📦 Inventory'), subtitle);
     const actions = node('div', null, { class: 'button-row' });
-    const refresh = node('button', '↻ Refresh', { type: 'button', class: 'btn btn-primary', id: 'pm22PublicRefresh' });
+    const refresh = node('button', '↻ Sync from Cloud', { type: 'button', class: 'btn btn-primary', id: 'pm22PublicRefresh' });
     const exportButton = node('button', 'Export shared products', { type: 'button', class: 'btn btn-success', id: 'pm22PublicExport', hidden: '' });
     const theme = node('button', '', { type: 'button', class: 'btn btn-muted', id: 'pm22PublicTheme', 'aria-label': 'Toggle light or dark mode' });
     const paintTheme = () => {
@@ -4898,21 +4903,48 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     session.loading = true;
     const requestId = ++session.requestId;
     const controller = new AbortController(); session.abort = controller;
-    const timeout = global.setTimeout(() => controller.abort(), 30000);
+    const timeout = global.setTimeout(() => controller.abort(), typeof session.options.syncInventory === 'function' ? 75000 : 30000);
     session.requestTimeout = timeout;
     session.controls.refresh.disabled = true; session.controls.export.disabled = true;
-    session.controls.status.textContent = 'Loading published inventory…';
+    session.controls.status.textContent = typeof session.options.syncInventory === 'function' ? 'Checking access and syncing the latest inventory…' : 'Loading published inventory…';
     try {
-      const raw = await session.options.fetchView({ signal: controller.signal });
+      let raw = await session.options.fetchView({ signal: controller.signal });
+      if (active !== session || requestId !== session.requestId || controller.signal.aborted) return false;
+      const firstView = normalise(raw);
+      const firstChanged = session.view.revision !== firstView.revision || session.view.accessRevision !== firstView.accessRevision || JSON.stringify(session.view.policy) !== JSON.stringify(firstView.policy);
+      const firstDiscarded = firstChanged && !!(session.drafts.size || session.review);
+      if (firstChanged) invalidateChanges(session);
+      if (session.view.revision !== firstView.revision) session.page = 1;
+      session.view = firstView; session.error = false; renderPolicy(session);
+      let sourceWarning = '', currentReceipt = null;
+      if (!firstView.policy.pages.inventory) session.sourceReceipt = null;
+      if (firstView.policy.pages.inventory && typeof session.options.syncInventory === 'function') {
+        try {
+          const receipt = await session.options.syncInventory({ signal: controller.signal });
+          if (active !== session || requestId !== session.requestId || controller.signal.aborted) return false;
+          session.sourceReceipt = currentReceipt = receipt;
+          raw = await session.options.fetchView({ signal: controller.signal });
+          if (!receipt.syncedAt) sourceWarning = 'Another cloud sync is in progress. Showing the last server inventory; sync again shortly.';
+        } catch (error) {
+          if (active !== session || requestId !== session.requestId) return false;
+          if (controller.signal.aborted) { session.controls.status.textContent = 'Source sync timed out. Showing the last authorized server inventory. Retry Sync from Cloud.'; session.controls.status.dataset.kind = 'warning'; return false; }
+          if (error?.status === 401 || error?.status === 403) throw error;
+          sourceWarning = error?.status === 404 || error?.status === 503 ? 'Latest Google Sheet sync is not enabled on the server yet. Showing the last server inventory. No Master sign-in or file is needed on this device.' : 'The latest Google Sheet could not be confirmed. Showing the last server inventory. Retry Sync from Cloud.';
+          raw = await session.options.fetchView({ signal: controller.signal });
+        }
+      }
       if (active !== session || requestId !== session.requestId || controller.signal.aborted) return false;
       const view = normalise(raw);
       const changed = session.view.revision !== view.revision || session.view.accessRevision !== view.accessRevision || JSON.stringify(session.view.policy) !== JSON.stringify(view.policy);
-      const discarded = changed && !!(session.drafts.size || session.review);
+      const discarded = firstDiscarded || changed && !!(session.drafts.size || session.review);
       if (changed) invalidateChanges(session);
       session.commitUnconfirmed = false;
       if (session.view.revision !== view.revision) session.page = 1;
       session.view = view; session.error = false;
       session.controls.status.textContent = discarded ? 'Your access or inventory changed. Unsaved drafts and import review were discarded. Check the latest values before editing.' : view.publishedAt ? 'Published inventory loaded. ' + (view.policy.operations.priceEdit || view.policy.operations.priceImport ? 'Only Master-authorized price actions are available.' : 'Read only.') : 'The Master has not published a User inventory yet.';
+      if (sourceWarning) session.controls.status.textContent = sourceWarning;
+      else if (currentReceipt?.syncedAt && !discarded) session.controls.status.textContent = currentReceipt.updated ? 'Cloud inventory synced. Only the pages and columns allowed for this account are available.' : 'Cloud inventory loaded. Last source check: ' + new Date(currentReceipt.syncedAt).toLocaleString('en-MY') + '. A recent sync may still be completing.';
+      session.controls.status.dataset.kind = sourceWarning ? 'warning' : 'success';
       renderPolicy(session);
       return true;
     } catch (_) {
@@ -5146,9 +5178,16 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
      if (!Array.isArray(products) || products.length > 19999) throw new Error('The Inventory publication source is invalid.');
      if (!products.length && !win.confirm('Current Inventory is empty. Publish an empty User catalog and remove the previously published products?')) { say('Cancelled. The previous User catalog remains active.'); return; }
      if (!current(api, epoch)) return;
-     body.p_products = products; rpc = 'master_publish_business_view'; say('Publishing Inventory and User access settings. Waiting for the server…');
+     body.p_products = products; body.p_calculation = win.pm234GetSyncCalculation(); rpc = 'master_publish_business_view_with_sync'; say('Publishing Inventory and User access settings. Waiting for the server…');
     }
-    const result = await api.request('/rest/v1/rpc/' + rpc, body);
+    let result;
+    try{ result = await api.request('/rest/v1/rpc/' + rpc, body); }
+    catch(error){
+      if(rpc !== 'master_publish_business_view_with_sync' || error?.status !== 404) throw error;
+      if(!current(api, epoch)) return;
+      delete body.p_calculation;
+      result = await api.request('/rest/v1/rpc/master_publish_business_view', body);
+    }
     if (!current(api, epoch)) return;
     const committed = serverState(result);
     if (committed.revision <= expectedRevision) throw new Error('The server did not acknowledge a new revision.');
@@ -5477,9 +5516,9 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   function openDialog(){try{ownerId();mount();if(!dialog.open)dialog.showModal();}catch(e){status(e.message,true);}}
   function mount(){
    const target=doc.getElementById('page-settings');if(!target)return;
-   if(!card){card=element('section');card.id='pm232SyncSettings';card.className='settings-card pm22-master-settings pm232-sync-settings';card.append(element('h3','Cloud sync setup'),element('p','Import the original Master setup once. After cloud saving is confirmed, other devices retrieve it when the same Master signs in; losing the file will not remove the saved setup.'));const btn=element('button','Import Master setup JSON');btn.type='button';btn.dataset.pm232Import='';btn.onclick=choose;const retry=element('button','Reload cloud setup');retry.type='button';retry.dataset.pm232Import='';retry.onclick=()=>void reload().catch(e=>status(e.message,true));card.append(btn,retry,element('p','Setup belongs to this Master account. Browser storage is a backup; User accounts cannot use these controls.'));const note=element('div','Checking this Master account for saved source setup…');note.dataset.pm232Status='';card.append(note);target.prepend(card);
+   if(!card){card=element('section');card.id='pm232SyncSettings';card.className='settings-card pm22-master-settings pm232-sync-settings';card.append(element('h3','Cloud sync setup'),element('p','Sources are configured once on the server. Sign in and sync on any device; no setup file is required for normal use.'));const btn=element('button','Import Master setup JSON');btn.type='button';btn.hidden=true;btn.dataset.pm232Import='';btn.onclick=choose;const retry=element('button','Reload cloud setup');retry.type='button';retry.dataset.pm232Import='';retry.onclick=()=>void reload().catch(e=>status(e.message,true));card.append(btn,retry,element('p','Setup belongs to this Master account. Browser storage is a backup; User accounts cannot use these controls.'));const note=element('div','Checking this Master account for saved source setup…');note.dataset.pm232Status='';card.append(note);target.prepend(card);
     input=element('input');input.type='file';input.accept='.json,application/json';input.hidden=true;input.id='pm232SourceFile';input.addEventListener('change',async()=>{const file=input.files?.[0];input.value='';if(!file)return;try{if(file.size>8192)throw Error('Sync setup file exceeds the 8 KB limit.');await importText(await file.text());}catch(e){status(e.message||'Sync setup was not saved.',true);}});doc.body.append(input);
-    dialog=element('dialog');dialog.id='pm232SyncDialog';dialog.append(element('h3','Restore cloud sync'),element('p','For first setup, select PM23.2-Master专用-原云同步来源.json from the extracted MASTER-PRIVATE folder. After cloud saving is confirmed, this account restores setup on other devices without that file. No inventory has been cleared.'));const ds=element('p','Cloud saving has not been confirmed yet. Keep the setup file until Saved to this Master account appears.');ds.dataset.pm232Status='';dialog.append(ds);const actions=element('div');actions.className='pm232-sync-actions';const pick=element('button','Import Master setup JSON');pick.type='button';pick.dataset.pm232Import='';pick.onclick=choose;const close=element('button','Close');close.type='button';close.onclick=()=>dialog.close();actions.append(pick,close);dialog.append(actions);doc.body.append(dialog);
+    dialog=element('dialog');dialog.id='pm232SyncDialog';dialog.append(element('h3','Restore cloud sync'),element('p','Install the supplied PM23.4 server setup SQL once in Supabase. Then reload cloud setup. User devices only sign in and sync; no files or Master sign-in are needed there. Existing Inventory was kept.'));const ds=element('p','The server source has not been confirmed yet. Finish the one-time server setup, then reload cloud setup.');ds.dataset.pm232Status='';dialog.append(ds);const actions=element('div');actions.className='pm232-sync-actions';const pick=element('button','Import Master setup JSON');pick.type='button';pick.hidden=true;pick.dataset.pm232Import='';pick.onclick=choose;const close=element('button','Close');close.type='button';close.onclick=()=>dialog.close();const reload234=element('button','Reload cloud setup');reload234.type='button';reload234.onclick=()=>void reload().catch(e=>status(e.message,true));actions.append(reload234,pick,close);dialog.append(actions);doc.body.append(dialog);
    }
    const sync=doc.getElementById('autoSyncBtn');if(sync&&!doc.getElementById('pm232SetupQuick')){const button=element('button','Cloud sync setup');button.type='button';button.id='pm232SetupQuick';button.onclick=openDialog;sync.after(button);}
   }
@@ -5494,7 +5533,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
 });
 </script>
 <script id="pm233-sync-help" type="application/x-pm215-deferred">/* Put the first-time source restore action beside both actual sync errors. */
-(()=>{'use strict';const doc=document,ids=['statusMsg','syncStatusText'];let scheduled=false;function update(){scheduled=false;const master=window.pm22MasterApi?.isOwner?.()===true;for(const id of ids){const target=doc.getElementById(id);if(!target)continue;let box=doc.getElementById('pm233-help-'+id);if(!box){box=doc.createElement('div');box.id='pm233-help-'+id;box.className='pm233-sync-help';const button=doc.createElement('button');button.type='button';button.textContent='Set up cloud sync';button.onclick=()=>doc.getElementById('pm232SetupQuick')?.click();const note=doc.createElement('span');note.textContent='First setup: import the Master JSON from MASTER-PRIVATE. After account cloud saving is confirmed, other devices restore it automatically.';box.append(button,note);const anchor=id==='syncStatusText'?doc.getElementById('syncStatusIcon')||target:target;anchor.after(box);}box.hidden=!master||!/Cloud sync setup is required|Import the Master setup JSON/.test(target.textContent||'');}}function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(update);}}for(const id of ids){const node=doc.getElementById(id);if(node)new MutationObserver(schedule).observe(node,{childList:true,subtree:true,characterData:true});}window.addEventListener('BusinessAuthChanged',schedule);window.addEventListener('PM22RoleChanged',schedule);doc.addEventListener('DOMContentLoaded',schedule);update();})();
+(()=>{'use strict';const doc=document,ids=['statusMsg','syncStatusText'];let scheduled=false;function update(){scheduled=false;const master=window.pm22MasterApi?.isOwner?.()===true;for(const id of ids){const target=doc.getElementById(id);if(!target)continue;let box=doc.getElementById('pm233-help-'+id);if(!box){box=doc.createElement('div');box.id='pm233-help-'+id;box.className='pm233-sync-help';const button=doc.createElement('button');button.type='button';button.textContent='Set up cloud sync';button.onclick=()=>doc.getElementById('pm232SetupQuick')?.click();const note=doc.createElement('span');note.textContent='Install the supplied PM23.4 server setup SQL once in Supabase. Devices then restore sources automatically; no setup-file upload is needed.';box.append(button,note);const anchor=id==='syncStatusText'?doc.getElementById('syncStatusIcon')||target:target;anchor.after(box);}box.hidden=!master||!/Cloud sync setup is required|Import the Master setup JSON/.test(target.textContent||'');}}function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(update);}}for(const id of ids){const node=doc.getElementById(id);if(node)new MutationObserver(schedule).observe(node,{childList:true,subtree:true,characterData:true});}window.addEventListener('BusinessAuthChanged',schedule);window.addEventListener('PM22RoleChanged',schedule);doc.addEventListener('DOMContentLoaded',schedule);update();})();
 </script>
 <script id="pm233-user-create" type="application/x-pm215-deferred">(function(root,factory){'use strict';const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root?.document)api.install(root);})(typeof window==='object'?window:null,function(){
  'use strict';
@@ -5597,6 +5636,17 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   window.pm22Public?.stop();mode('login');form.hidden=false;signout.hidden=true;document.getElementById('pmCloudSync').hidden=true;say('Sign in to view Business Suite.');emit();
   if(token)void request('/auth/v1/logout?scope=local',{}, {token}).catch(()=>{});
  }
+ async function syncUserInventory({signal}={}){
+  if(!valid()||role==='owner')throw Error('A signed-in User account is required.');
+  const born=epoch,account=session.user.id;
+  const result=await request('/functions/v1/business-suite-user-sync',{action:'sync_inventory'},{signal});
+  if(born!==epoch||!valid()||role==='owner'||session?.user?.id!==account)throw Error('The signed-in account changed.');
+  const keys=result&&typeof result==='object'&&!Array.isArray(result)?Object.keys(result):[];
+  const date=value=>value===null||typeof value==='string'&&value.length<=40&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)$/.test(value)&&Number.isFinite(Date.parse(value));
+  if(!result||result.version!==1||typeof result.updated!=='boolean'||!Number.isSafeInteger(result.revision)||result.revision<0||!date(result.syncedAt)||keys.some(key=>!['version','updated','revision','syncedAt','sourceUpdatedAt'].includes(key))||!['version','updated','revision','syncedAt'].every(key=>keys.includes(key))||'sourceUpdatedAt' in result&&!date(result.sourceUpdatedAt))throw Error('The server returned an invalid inventory sync confirmation.');
+  return result;
+ }
+
  async function fetchView({signal}={}){
   if(!valid()||role==='owner')throw Error('A signed-in User account is required.');
   const born=epoch;
@@ -5656,7 +5706,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   session={...candidate,user};expiry=until;role=found;
   if(found==='owner'){await startMaster(session);return;}
   mode('user');form.hidden=true;signout.hidden=false;say('User · account permissions set by Master');emit();
-  if(window.pm22Public.inspect().active)void window.pm22Public.refresh();else window.pm22Public.startPublic({fetchView,commitChanges:commitUserChanges,onLogin:()=>void logout()});
+  if(window.pm22Public.inspect().active)void window.pm22Public.refresh();else window.pm22Public.startPublic({fetchView,syncInventory:syncUserInventory,commitChanges:commitUserChanges,onLogin:()=>void logout()});
   clearTimers();const renewalEpoch=epoch;renewTimer=setTimeout(async()=>{
    if(renewalEpoch!==epoch||starting||started)return;
    if(!session?.refresh_token){await logout();return;}
@@ -5672,8 +5722,8 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
  }
  const userSignout=()=>void logout();
  window.pm22MasterApi=Object.freeze({isOwner,getRole:()=>isOwner()?'owner':valid()?'user':null,
-  async request(path,body){if(!isOwner()||!started)throw Error('Master access is required.');if(!/^\/rest\/v1\/rpc\/master_(?:get_business_view|set_business_policy|publish_business_view|list_business_accounts|get_account_access|set_account_access|reset_account_access)$/.test(path))throw Error('Unsupported Master operation.');
-   if(path.endsWith('/master_publish_business_view')&&(window.priceMasterCloud.authState().pendingCount||window.businessStorage?.isBusy?.()))throw Error('Wait for pending price edits to sync before publishing Inventory.');
+  async request(path,body){if(!isOwner()||!started)throw Error('Master access is required.');if(!/^\/rest\/v1\/rpc\/master_(?:get_business_view|set_business_policy|publish_business_view|publish_business_view_with_sync|list_business_accounts|get_account_access|set_account_access|reset_account_access)$/.test(path))throw Error('Unsupported Master operation.');
+   if((path.endsWith('/master_publish_business_view')||path.endsWith('/master_publish_business_view_with_sync'))&&(window.priceMasterCloud.authState().pendingCount||window.businessStorage?.isBusy?.()))throw Error('Wait for pending price edits to sync before publishing Inventory.');
    return window.priceMasterCloud.masterRequest(path,body);},
   async fetchFeed(kind){if(!isOwner()||!started)throw Error('Master access is required.');return window.priceMasterCloud.masterFeed(kind);},
   state:()=>({role:isOwner()?'master':valid()?'user':null,signedIn:isOwner()||valid(),privateStarted:started})
