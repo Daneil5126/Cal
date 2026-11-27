@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Suite | Master & User PM22.1</title>
-<meta name="business-build" content="pm22.1-1c978b6ec17b">
+<title>Business Suite | Account Permissions PM23</title>
+<meta name="business-build" content="pm23-5b913c6ff681">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -734,6 +734,129 @@ body.pm-global-dark .pm22-master-settings .pm22-public-status[data-kind=error]{b
 @media(max-width:780px){.pm22-master-settings .pm22-options{grid-template-columns:repeat(2,minmax(0,1fr))}.pm22-master-settings .pm22-public-actions button{flex:1 1 210px}}
 @media(max-width:480px){.pm22-master-settings .pm22-options{grid-template-columns:1fr}.pm22-master-settings fieldset{padding:10px}.pm22-master-settings .pm22-public-actions{flex-direction:column}.pm22-master-settings .pm22-public-actions button{flex:initial;width:100%}.pm22-master-settings .pm22-option{min-height:48px}}
 </style>
+<style id="pm23-permission-css">.pm23-account-settings{margin:0 0 20px;max-width:1050px;color:var(--text,#21354f);background:var(--surface,#fff)}
+.pm23-account-settings h3{font-size:21px;margin:0 0 8px}.pm23-account-settings>p{line-height:1.6}
+.pm23-account-settings .pm23-account-finder{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:12px;margin:18px 0 10px}
+.pm23-account-settings .pm23-account-finder label{display:flex;flex-direction:column;gap:7px;font-weight:600;min-width:0}
+.pm23-account-settings .pm23-account-finder input,.pm23-account-settings .pm23-account-finder select{box-sizing:border-box;max-width:100%;width:100%;min-width:0;min-height:46px;padding:10px 12px;font:inherit;color:var(--text,#21354f);background:var(--surface,#fff);border:1px solid var(--border,#a4b6cc);border-radius:8px}
+.pm23-account-settings .pm23-account-pager{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.pm23-account-settings .pm23-account-pager span{font-size:12px;color:var(--muted,#51657c)}
+.pm23-account-settings .pm23-account-pager button{min-height:40px;padding:7px 12px;border:1px solid var(--border,#a4b6cc);border-radius:7px;color:var(--text,#21354f);background:var(--surface,#fff);font:inherit;cursor:pointer}
+.pm23-account-settings .pm23-account-summary{font-size:16px;font-weight:700;padding:12px 14px;border:1px solid #9fbade;border-radius:8px;background:#edf5ff;color:#173b63;overflow-wrap:anywhere}
+.pm23-account-settings .pm23-custom-mode{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;min-height:48px;margin:12px 0 2px}
+.pm23-account-settings .pm23-custom-mode input{width:22px;height:22px;flex:none;accent-color:#2563eb}
+.pm23-account-settings fieldset{min-width:0;margin:20px 0 12px;padding:14px;border:1px solid var(--border,#cbd5e1);border-radius:10px}.pm23-account-settings legend{padding:0 7px;font-weight:700;font-size:15px}
+.pm23-account-settings .pm23-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pm23-account-settings .pm23-option{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:46px;border:1px solid var(--border,#dce4ef);padding:9px 10px;border-radius:8px;cursor:pointer;font-size:14px;line-height:1.4}
+.pm23-account-settings input[type=checkbox]{flex:none;width:20px;height:20px;margin:0;accent-color:#2563eb}.pm23-account-settings input:disabled{cursor:not-allowed}
+.pm23-account-settings input:focus-visible,.pm23-account-settings select:focus-visible,.pm23-account-settings button:focus-visible{outline:3px solid #38bdf8;outline-offset:3px}
+.pm23-account-settings .pm23-sensitive-tag{font-size:11px;padding:2px 5px;background:#fff0cb;color:#6c3900;border:1px solid #e7ba54;border-radius:5px}
+.pm23-account-settings .pm23-help,.pm23-account-settings .pm23-server-meta{font-size:13px;color:var(--muted,#51657c);line-height:1.6;margin:0 0 12px}.pm23-account-settings .pm23-server-meta{margin:16px 0 12px;font-variant-numeric:tabular-nums}
+.pm23-account-settings .pm23-disclosure-warning{border:1px solid #c17910;border-left:4px solid #d97706;border-radius:8px;background:#fff3cf;color:#6d3500;padding:12px 14px;font-weight:600}
+.pm23-account-settings .pm23-security-note{padding:12px 14px;border:1px solid #a5bfdc;border-left:4px solid #2563eb;background:#edf5ff;color:#153b66;border-radius:8px}
+.pm23-account-settings [hidden]{display:none!important}
+.pm23-account-settings .pm23-account-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.pm23-account-settings .pm23-account-actions button{min-height:46px;padding:10px 16px;border:1px solid #2563eb;border-radius:8px;background:#2563eb;color:#fff;font:600 14px/1.4 Arial,sans-serif;cursor:pointer}
+.pm23-account-settings .pm23-account-actions button:not([data-pm23-action=save]){background:var(--surface,#fff);color:var(--text,#21354f);border-color:#8ba3c1}.pm23-account-settings button:disabled{opacity:.55;cursor:not-allowed}
+.pm23-account-settings .pm23-status{min-height:24px;padding:10px 12px;border:1px solid #9eb7d2;border-radius:8px;background:#f1f6fd;color:#1e416c;font-size:13px;line-height:1.5}.pm23-account-settings .pm23-status[data-kind=success]{background:#e5f8ed;color:#0b4a30;border-color:#67ac86}.pm23-account-settings .pm23-status[data-kind=error]{background:#fff0ed;color:#811e12;border-color:#d97e70;font-weight:600}
+body.pm-global-dark .pm23-account-settings .pm23-account-summary,body.pm-global-dark .pm23-account-settings .pm23-security-note,body.pm-global-dark .pm23-account-settings .pm23-status{background:#132941;color:#dbeaff;border-color:#476e98}
+body.pm-global-dark .pm23-account-settings .pm23-help,body.pm-global-dark .pm23-account-settings .pm23-server-meta,body.pm-global-dark .pm23-account-settings .pm23-account-pager span{color:#b6c6d8}
+body.pm-global-dark .pm23-account-settings .pm23-disclosure-warning,body.pm-global-dark .pm23-account-settings .pm23-sensitive-tag{background:#493411;color:#ffe4a0;border-color:#b78b3e}
+body.pm-global-dark .pm23-account-settings .pm23-status[data-kind=success]{background:#113c2a;color:#bbf7d0;border-color:#418a65}body.pm-global-dark .pm23-account-settings .pm23-status[data-kind=error]{background:#491e19;color:#ffd6cd;border-color:#c07565}
+@media(max-width:780px){.pm23-account-settings .pm23-options{grid-template-columns:repeat(2,minmax(0,1fr))}.pm23-account-settings .pm23-account-actions button{flex:1 1 210px}}
+@media(max-width:480px){.pm23-account-settings .pm23-account-finder{grid-template-columns:1fr}.pm23-account-settings .pm23-options{grid-template-columns:1fr}.pm23-account-settings fieldset{padding:10px}.pm23-account-settings .pm23-account-actions{flex-direction:column}.pm23-account-settings .pm23-account-actions button{flex:initial;width:100%}.pm23-account-settings .pm23-option{min-height:48px}}
+
+/* Public UI reuses the existing Inventory location and theme variables. */
+body.pm22-public-dark{--bg:#090c10;--surface:#151a22;--surface-muted:#202735;--text:#e6edf5;--muted:#a8b6c9;--border:#354155;--sidebar:#101722;--sidebar-soft:#243248;--shadow:0 1px 3px rgba(0,0,0,.25);color-scheme:dark}
+body.pm22-public .page[hidden],body.pm22-public .sidebar nav a[hidden],body.pm22-public [hidden]{display:none!important}
+body.pm22-public .loading-overlay,body.pm22-public .pm-agent-launch{display:none!important}
+body.pm22-public.sidebar-expanded #menuToggle{visibility:hidden}
+body.pm22-public .main-content{min-width:0}
+body.pm22-public #page-inventory>.card{min-width:0}
+body.pm22-public .pm22-public-header{align-items:center;gap:12px}
+body.pm22-public .pm22-public-header h2{margin:0}
+body.pm22-public .pm22-public-subtitle{margin:6px 0 0;color:var(--muted,#66758b);line-height:1.5;font-size:.85rem}
+body.pm22-public #pm22PublicStatus{padding:10px 14px;border:1px solid var(--border,#dce4ee);border-radius:9px;color:var(--text,#27364a);background:var(--surface,#fff);line-height:1.5}
+body.pm22-public .search-bar{display:flex;gap:9px;flex-wrap:wrap}
+body.pm22-public #invSearchInput{flex:1 1 260px;min-width:160px}
+body.pm22-public .search-bar select{max-width:100%;min-height:40px}
+body.pm22-public .search-bar input{min-height:40px}
+body.pm22-public .search-bar input,body.pm22-public .search-bar select{background:var(--surface,#fff);color:var(--text,#27364a);border-color:var(--border,#dce4ee)}
+body.pm22-public .inv-meta-row{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:12px 0}
+body.pm22-public .pm22-public-count{font-size:.8rem;color:var(--muted,#66758b)}
+body.pm22-public .pm22-public-table-wrap{overflow-x:auto;max-width:100%;border-radius:9px;border:1px solid var(--border,#dce4ee)}
+body.pm22-public #invTable{width:100%;table-layout:auto}
+body.pm22-public #invTable th,body.pm22-public #invTable td{padding:14px 12px;font-size:.9rem;line-height:1.45;vertical-align:middle;white-space:normal}
+body.pm22-public #invTable th{color:var(--text,#27364a);background:var(--surface-muted,#f8fafc);cursor:default}
+body.pm22-public #invTable tr:hover td{background:var(--surface-muted,#f8fafc)}
+body.pm22-public #invTable td.pm22-public-text{overflow-wrap:anywhere;min-width:140px}
+body.pm22-public #invTable td.pm22-public-price{font-weight:750;color:var(--text,#193e5a);background:rgba(39,147,217,.1);white-space:nowrap;font-size:1rem}
+body.pm22-public #invTable td.pm22-public-empty{padding:40px 16px;text-align:center;white-space:normal;color:var(--muted,#66758b)}
+body.pm22-public #invPagination{display:flex;gap:12px;justify-content:center;align-items:center;margin-top:16px}
+body.pm22-public #invPagination button{min-height:40px;padding:8px 13px;cursor:pointer;background:var(--surface,#fff);color:var(--text,#27364a);border:1px solid var(--border,#dce4ee);border-radius:7px}
+body.pm22-public #invPagination button:disabled{opacity:.45;cursor:default}
+body.pm22-public .pm22-public-calculator{max-width:720px;margin:auto}
+body.pm22-public .pm22-public-calculator label{display:grid;grid-template-columns:1fr minmax(100px,1fr);gap:12px;align-items:center;margin:14px 0}
+body.pm22-public .pm22-public-calculator input{min-width:0;width:100%;min-height:44px;background:var(--surface,#fff);color:var(--text,#27364a);border:1px solid var(--border,#dce4ee);border-radius:8px;padding:10px;font:inherit}
+body.pm22-public .pm22-public-calc-results{margin:20px 0}
+body.pm22-public .pm22-public-calc-results>div{display:flex;gap:14px;justify-content:space-between;padding:13px;border-bottom:1px solid var(--border,#dce4ee)}
+body.pm22-public .pm22-public-calc-final{background:rgba(39,147,217,.15);font-size:1.15rem;border-radius:8px}
+body.pm22-public .pm22-public-warning{background:#fff1cf;color:#624000;padding:12px;border-radius:8px;line-height:1.5}
+body.pm22-public .pm23-edit-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:12px;border:1px solid var(--border,#dce4ee);border-radius:10px;background:var(--surface,#fff);margin:12px 0}
+body.pm22-public .pm23-edit-notice{flex:1 0 100%;margin:0;font-size:13px;line-height:1.5;color:var(--text,#27364a)}
+body.pm22-public .pm23-edit-bar button{min-height:44px;border-radius:7px;padding:9px 13px}
+body.pm22-public .pm23-edit-bar button:disabled{opacity:.5;cursor:default}
+body.pm22-public #invTable td.pm23-editable-price{background:rgba(37,99,235,.12)}
+body.pm22-public .pm23-currency{font-size:12px;color:var(--muted,#66758b);margin-right:6px}
+body.pm22-public [data-pm23-edit]{width:110px;max-width:100%;min-width:70px;box-sizing:border-box;min-height:44px;border:2px solid #2580e7;border-radius:7px;padding:8px;font:600 16px/1.3 inherit;color:var(--text,#27364a);background:var(--surface,#fff);text-align:right}
+body.pm22-public [data-pm23-edit]:disabled{border-color:var(--border,#dce4ee);opacity:.65}
+body.pm22-public .pm23-no-pages{padding:24px;border:1px solid var(--border,#dce4ee);border-radius:12px;background:var(--surface,#fff);color:var(--text,#27364a);font-size:16px;line-height:1.6}
+body.pm22-public .pm23-price-review{box-sizing:border-box;width:min(1050px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:20px;border:1px solid var(--border,#dce4ee);border-radius:12px;background:var(--surface,#fff);color:var(--text,#27364a);overflow:auto}
+body.pm22-public .pm23-price-review::backdrop{background:rgba(0,0,0,.6)}
+body.pm22-public .pm23-price-review p{line-height:1.6;color:var(--muted,#66758b)}
+body.pm22-public .pm23-review-table{max-height:55dvh;overflow:auto;border:1px solid var(--border,#dce4ee);border-radius:8px}
+body.pm22-public .pm23-review-table table{width:100%;border-collapse:collapse;min-width:620px}
+body.pm22-public .pm23-review-table th,body.pm22-public .pm23-review-table td{padding:10px;text-align:left;border-bottom:1px solid var(--border,#dce4ee);font-size:13px;overflow-wrap:anywhere}
+body.pm22-public .pm23-review-table th{position:sticky;top:0;background:var(--surface-muted,#f8fafc)}
+body.pm22-public .pm23-review-table input[type=checkbox]{width:24px;height:24px;accent-color:#2563eb}
+body.pm22-public .pm23-price-warning td{background:rgba(245,158,11,.15)}
+body.pm22-public .pm23-review-pager,body.pm22-public .pm23-review-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-top:14px}
+body.pm22-public .pm23-price-review button{min-height:44px;border:1px solid var(--border,#dce4ee);border-radius:7px;padding:9px 14px;background:var(--surface-muted,#f8fafc);color:var(--text,#27364a);font:600 14px/1.3 inherit}
+body.pm22-public #pm23ApplyPriceImport{background:#1d4ed8;color:#fff}
+body.pm22-public [data-pm23-edit]{font-family:inherit;font-size:16px;font-weight:600;line-height:1.3}
+body.pm22-public .pm23-price-review button{font-family:inherit;font-size:14px;font-weight:600;line-height:1.3}
+@media(max-width:650px){
+ body.pm22-public .main-content{padding:64px 12px 24px}
+ body.pm22-public .pm22-public-header{display:flex;align-items:flex-start;flex-direction:column}
+ body.pm22-public .pm22-public-header .button-row{width:100%;display:flex;flex-wrap:wrap}
+ body.pm22-public .pm22-public-header button{min-height:44px;flex:1 1 auto}
+ body.pm22-public .search-bar>*{flex:1 1 42%;min-width:0}
+ body.pm22-public #invSearchInput{flex-basis:100%;min-width:0}
+ body.pm22-public #invTable th,body.pm22-public #invTable td{padding:12px 8px;font-size:.8rem}
+ body.pm22-public #invTable td.pm22-public-text{min-width:150px}
+ body.pm22-public #invTable td.pm22-public-price{font-size:.9rem}
+ body.pm22-public .inv-meta-badge{max-width:100%;white-space:normal;line-height:1.5}
+ body.pm22-public #invPagination{gap:8px;font-size:.8rem}
+ body.pm22-public .pm22-public-header .button-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ body.pm22-public .pm22-public-header button{width:auto}
+ body.pm22-public .search-bar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:12px}
+ body.pm22-public #invSearchInput{grid-column:1/-1}
+ body.pm22-public .search-bar select{width:100%;min-width:0;font-size:14px}
+ body.pm22-public .pm22-public-table-wrap{overflow:visible;border:0;border-radius:0}
+ body.pm22-public #invTable{display:block;background:transparent}
+ body.pm22-public #invTable thead{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+ body.pm22-public #invTable tbody{display:grid;gap:12px}
+ body.pm22-public #invTable tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border:1px solid var(--border,#dce4ee);border-radius:12px;overflow:hidden;background:var(--surface,#fff);padding:6px}
+ body.pm22-public #invTable tbody td{display:flex;flex-direction:column;align-items:flex-start;gap:4px;border:0!important;min-width:0!important;padding:9px 10px;text-align:left;font-size:14px}
+ body.pm22-public #invTable tbody td:before{content:attr(data-label);font-size:11px;line-height:1.4;color:var(--muted,#66758b);font-weight:500}
+ body.pm22-public #invTable tbody td.pm22-public-text,body.pm22-public #invTable tbody td[data-field=available],body.pm22-public #invTable tbody td.pm22-public-empty{grid-column:1/-1}
+ body.pm22-public #invTable tbody td[data-field=name]{font-size:16px;font-weight:700;line-height:1.45}
+ body.pm22-public #invTable tbody td[data-field=available]{flex-direction:row;align-items:center;justify-content:space-between}
+ body.pm22-public #invTable tbody td.pm22-public-price{font-size:18px;border-radius:8px;background:rgba(39,147,217,.12)}
+ body.pm22-public .pm23-edit-bar button{flex:1 1 42%;font-size:13px}
+ body.pm22-public [data-pm23-edit]{width:100%;min-width:0}
+ body.pm22-public .pm23-price-review{padding:12px}
+ body.pm22-public .pm23-review-actions button{flex:1 1 42%}
+}
+</style>
 </head>
 <body>
 <div id="confirmModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(15,23,42,.5);align-items:center;justify-content:center;">
@@ -1224,7 +1347,7 @@ function getFallbackRate() {
       const i=window.sharedPriceFields?window.sharedPriceFields.overlay(original):original;
       return {name:i.name,id:i.id,location:i.location,available:i.available,unitCost:i.unitCost,
        landingCost:calculateLandingCost(i.unitCost),minSellPrice:calculateMinSell(i.unitCost,getMargin()),
-       supportUSD:i.supportUSD,supportRM:calculateSupportRM(i.supportUSD),afterSupport:calculateMinSell(i.unitCost,getMargin())-calculateSupportRM(i.supportUSD),msdp:i.msdp,msrp:i.msrp};
+       _supportRate:calculateSupportRM(1),supportUSD:i.supportUSD,supportRM:calculateSupportRM(i.supportUSD),afterSupport:calculateMinSell(i.unitCost,getMargin())-calculateSupportRM(i.supportUSD),msdp:i.msdp,msrp:i.msrp};
     });
   };
   const calculateAfterSupport = (unitCost, marginPercent, supportUSD) => {
@@ -4067,7 +4190,7 @@ body.pm-global-dark #confirmMsg{color:#f1f5f9!important}
 body.pm-global-dark #confirmCancel{background:#28364b!important;color:#f1f5f9!important;border-color:#72849d!important}
 body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important}
 </style>
-<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM22.1',id:"pm22.1-1c978b6ec17b",builtAt:"2026-11-26T21:40:00+08:00",environment:location.protocol==='file:'?'Local':'Online'};
+<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23',id:"pm23-5b913c6ff681",builtAt:"2026-11-27T09:59:40+08:00",environment:location.protocol==='file:'?'Local':'Online'};
  info.checkForUpdates=async()=>{if(location.protocol==='file:')return{available:false,message:'Local HTML file. Download the latest verified release to update.'};if(checking)return checking;checking=(async()=>{try{const u=new URL(location.href);u.hash='';const response=await fetch(u.href,{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error('HTTP '+response.status);const text=await response.text();if(text.length>8*1024*1024)throw Error('Unexpected update response.');const next=text.match(/<meta name="business-build" content="([a-z0-9.-]+)">/)?.[1];if(!next)return{available:false,message:'This server has no verified build identifier. Current '+info.id};return{available:next!==info.id,message:next===info.id?'Current build is up to date: '+info.id:'New build available: '+next+'. Export your pending edits before reloading.'};}catch(error){return{available:false,message:'Update check failed. '+error.message};}finally{checking=null;}})();return checking;};window.businessBuildInfo=Object.freeze(info);})();</script>
 <script id="pm215-storage-bootstrap">/* Replaced by authenticated PM22 bootstrap. */</script>
 <script id="pm221-idle">/* Per-tab inactivity timeout. Network refresh is never user activity. */
@@ -4127,7 +4250,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
  });
 })();
 </script>
-<script id="pm22-public">/* PM22 public, read-only view. No private storage, feed, session or role code. */
+<script id="pm22-public">/* PM23 projected User view. Price mutations require an acknowledged, authenticated server transaction. */
 (function (global) {
   'use strict';
   const FIELDS = Object.freeze({
@@ -4144,6 +4267,8 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   });
   const DEFAULT_FIELDS = ['name', 'available', 'msdp', 'msrp'];
   const MAX_PRODUCTS = 20000;
+  const EDITABLE = new Set(['supportUSD', 'msdp', 'msrp']);
+  const MAX_CHANGES = 5000, MAX_CSV_BYTES = 1024 * 1024;
   const numberFormat = new Intl.NumberFormat('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const qtyFormat = new Intl.NumberFormat('en-MY', { maximumFractionDigits: 3 });
   let active = null;
@@ -4170,28 +4295,36 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   function normalise(raw) {
     if (!raw || raw.version !== 1 || !raw.policy || !Array.isArray(raw.products)) throw new Error('Invalid public view');
     if (raw.products.length > MAX_PRODUCTS) throw new Error('Public view is too large');
-    const p = raw.policy, f = p.features || {};
+    const p = raw.policy, f = p.features || {}, ops = p.operations || {};
     const fields = (Array.isArray(p.fields) ? p.fields : []).filter((key, index, all) =>
       typeof key === 'string' && Object.prototype.hasOwnProperty.call(FIELDS, key) && all.indexOf(key) === index);
     const publishedAt = typeof raw.publishedAt === 'string' && Number.isFinite(Date.parse(raw.publishedAt)) ? raw.publishedAt : null;
     const policy = {
       pages: { inventory: p.pages?.inventory === true, calculator: p.pages?.calculator === true },
       fields,
-      features: { search: f.search === true, filter: f.filter === true, sort: f.sort === true, publicExport: f.publicExport === true }
+      features: { search: f.search === true, filter: f.filter === true, sort: f.sort === true, publicExport: f.publicExport === true },
+      operations: { priceEdit: ops.priceEdit === true, priceImport: ops.priceImport === true },
+      editableFields: (Array.isArray(p.editableFields) ? p.editableFields : []).filter((key, index, all) => EDITABLE.has(key) && fields.includes(key) && all.indexOf(key) === index)
     };
+    if ((policy.operations.priceEdit || policy.operations.priceImport) && (!Number.isSafeInteger(raw.revision) || raw.revision < 0 || !Number.isSafeInteger(raw.accessRevision) || raw.accessRevision < 0)) throw new Error('Invalid price-access revision');
+    const ids = new Set();
     // Copy only explicitly published fields. The raw response never becomes app state.
     const products = publishedAt && policy.pages.inventory ? raw.products.map((source) => {
       const row = Object.create(null);
       fields.forEach(key => { row[key] = FIELDS[key].text ? textValue(source?.[key]) : numericValue(source?.[key]); });
+      const id = typeof source?.publicRowId === 'string' && /^[a-zA-Z0-9-]{1,128}$/.test(source.publicRowId) ? source.publicRowId : null;
+      if ((policy.operations.priceEdit || policy.operations.priceImport) && (!id || ids.has(id))) throw new Error('Invalid editable product identity');
+      if (id) ids.add(id);
+      Object.defineProperty(row, 'publicRowId', { value: id, enumerable: false });
       return row;
     }) : [];
-    return { version: 1, revision: Number.isSafeInteger(raw.revision) && raw.revision >= 0 ? raw.revision : 0, publishedAt, policy, products };
+    return { version: 1, revision: Number.isSafeInteger(raw.revision) && raw.revision >= 0 ? raw.revision : 0, accessRevision: Number.isSafeInteger(raw.accessRevision) && raw.accessRevision >= 0 ? raw.accessRevision : 0, publishedAt, policy, products, byId: new Map(products.filter(row => row.publicRowId).map(row => [row.publicRowId, row])) };
   }
   function emptyView() {
-    return { version: 1, revision: 0, publishedAt: null, policy: {
+    return { version: 1, revision: 0, accessRevision: 0, publishedAt: null, policy: {
       pages: { inventory: true, calculator: false }, fields: DEFAULT_FIELDS.slice(),
-      features: { search: true, filter: true, sort: true, publicExport: false }
-    }, products: [] };
+      features: { search: true, filter: true, sort: true, publicExport: false }, operations: { priceEdit: false, priceImport: false }, editableFields: []
+    }, products: [], byId: new Map() };
   }
   function amount(value, key) {
     if (value === null || value === undefined) return '—';
@@ -4205,6 +4338,190 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     // CSV is text: prevent spreadsheet software interpreting untrusted names as formulas.
     if (/^[\s\u0000-\u001f]*[=+\-@]/u.test(text) || /^[\t\r\n]/u.test(text)) text = "'" + text;
     return '"' + text.replace(/"/g, '""') + '"';
+  }
+  function priceNumber(raw) {
+    const text = String(raw).trim();
+    if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(text)) return null;
+    const value = Number(text);
+    return Number.isFinite(value) && value >= 0 && value <= 1e12 ? value : null;
+  }
+  function allowedField(session, key) {
+    const p = session.view.policy;
+    return p.fields.includes(key) && p.editableFields.includes(key) && typeof session.options.commitChanges === 'function';
+  }
+  function canEdit(session, key) { return session.view.policy.operations.priceEdit && allowedField(session, key); }
+  function canImport(session) { return session.view.policy.operations.priceImport && session.view.policy.editableFields.some(key => allowedField(session, key)); }
+  function keyFor(id, field) { return JSON.stringify([id, field]); }
+  function rowFor(session, id) { return session.view.byId.get(id); }
+  function editingState(session) {
+    if (active !== session) return;
+    const c = session.controls, draft = [...session.drafts.values()][0];
+    c.editBar.hidden = !session.view.policy.operations.priceEdit && !session.view.policy.operations.priceImport;
+    c.save.hidden = c.discard.hidden = !session.view.policy.operations.priceEdit;
+    c.subtitle.textContent = session.view.policy.operations.priceEdit ? 'User view · Editing only the prices allowed by Master' : 'User view · Read only';
+    c.editNotice.textContent = draft ? draft.value === null ? 'Enter a valid non-negative price. Blank does not clear a saved price.' : 'One unsaved price. Save or discard before editing another field.' : 'Only highlighted price inputs can be edited. Changes are saved after server confirmation.';
+    c.save.disabled = session.loading || session.writing || session.commitUnconfirmed || !draft || draft.value === null;
+    c.discard.disabled = session.loading || session.writing || !draft;
+    c.template.hidden = c.importButton.hidden = !canImport(session);
+    c.template.disabled = c.importButton.disabled = session.loading || session.writing || !!draft;
+    c.refresh.disabled = session.loading || session.writing;
+    c.export.disabled = session.loading || session.writing || !session.visibleCount;
+    c.body.querySelectorAll('[data-pm23-edit]').forEach(input => {
+      input.disabled = session.loading || session.writing || session.commitUnconfirmed || !!draft && keyFor(input.dataset.rowId, input.dataset.field) !== keyFor(draft.publicRowId, draft.field);
+    });
+  }
+  function priceWarnings(session, change, resultingPrices) {
+    const warnings = [], row = rowFor(session, change.publicRowId);
+    if (change.value === 0) warnings.push('Zero price');
+    if (change.expected > 0 && Math.abs(change.value - change.expected) / change.expected >= .5) warnings.push('Change is at least 50%');
+    if (row && ['msdp', 'msrp'].includes(change.field)) {
+      const resulting = field => resultingPrices?.get(keyFor(change.publicRowId, field)) ?? (change.field === field ? change.value : row[field]);
+      if (typeof resulting('msdp') === 'number' && typeof resulting('msrp') === 'number' && resulting('msrp') < resulting('msdp')) warnings.push('MSRP is below MSDP');
+    }
+    return warnings;
+  }
+  function discardDrafts(session, message) {
+    session.drafts.clear(); session.commitUnconfirmed = false;
+    if (message) session.controls.status.textContent = message;
+    renderTable(session);
+  }
+  function closeReview(session) {
+    if (!session.review) return;
+    const old = session.review; session.review = null;
+    try { old.dialog.close(); } catch (_) {}
+    old.dialog.remove();
+  }
+  function invalidateChanges(session, message) {
+    const hadChanges = session.drafts.size || session.review;
+    session.drafts.clear(); session.commitUnconfirmed = false; closeReview(session);
+    if (hadChanges && message) session.controls.status.textContent = message;
+  }
+  async function commit(session, changes, source) {
+    if (active !== session || session.loading || session.writing || !changes.length || changes.length > (source === 'manual' ? 1 : MAX_CHANGES)) return false;
+    if (source === 'import' && !canImport(session) || source === 'manual' && !session.view.policy.operations.priceEdit || changes.some(change => !allowedField(session, change.field) || !rowFor(session, change.publicRowId) || typeof change.expected !== 'number' || priceNumber(change.value) === null)) return false;
+    const expectedRevision = session.view.revision, expectedAccessRevision = session.view.accessRevision, writeId = ++session.writeId;
+    const resultingPrices = new Map(changes.map(change => [keyFor(change.publicRowId, change.field), change.value]));
+    const warnings = changes.flatMap(change => priceWarnings(session, change, resultingPrices));
+    if (warnings.length && !global.confirm('These selected changes have ' + warnings.length + ' price warning(s), including zero / large changes or MSRP below MSDP. Apply the selected values?')) return false;
+    session.writing = true; editingState(session);
+    if (session.review) session.review.dialog.querySelectorAll('button,input').forEach(input => input.disabled = true);
+    session.controls.status.textContent = 'Saving prices. Waiting for the server…';
+    try {
+      const result = await session.options.commitChanges({ changes, expectedRevision, expectedAccessRevision, source });
+      if (active !== session || writeId !== session.writeId) return false;
+      if (!result || result.version !== 1 || !Number.isSafeInteger(result.revision) || result.revision < expectedRevision || !Number.isSafeInteger(result.accessRevision) || result.accessRevision < expectedAccessRevision || !Number.isInteger(result.applied) || result.applied < 0 || !Number.isInteger(result.unchanged) || result.unchanged < 0 || result.applied + result.unchanged !== changes.length) throw new Error('The server did not acknowledge the whole price batch.');
+      session.drafts.clear(); session.commitUnconfirmed = false; closeReview(session); session.writing = false;
+      const refreshed = await refreshPublic();
+      if (active !== session || writeId !== session.writeId) return false;
+      session.controls.status.textContent = refreshed ? 'Saved ' + result.applied + ' price(s); ' + result.unchanged + ' already unchanged. Server confirmation received.' : 'The server confirmed the prices, but the refreshed inventory is unavailable. Refresh before editing again.';
+      return true;
+    } catch (error) {
+      if (active !== session || writeId !== session.writeId) return false;
+      session.commitUnconfirmed = true;
+      closeReview(session);
+      session.controls.status.textContent = 'Save was not confirmed. No automatic retry was made. Refresh to check the latest prices and permissions before trying again. ' + String(error?.message || '').slice(0, 180);
+      return false;
+    } finally {
+      if (active === session && writeId === session.writeId) { session.writing = false; editingState(session); }
+    }
+  }
+  function downloadCsv(session, csv, filename) {
+    const url = global.URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+    session.downloadUrls.add(url);
+    const anchor = node('a', null, { href: url, download: filename }); document.body.append(anchor); anchor.click(); anchor.remove();
+    const timer = global.setTimeout(() => { global.URL.revokeObjectURL(url); session.downloadUrls.delete(url); session.downloadTimers.delete(timer); }, 1000);
+    session.downloadTimers.add(timer); return true;
+  }
+  async function exportTemplate(session) {
+    if (active !== session || session.loading || session.writing || session.drafts.size || !canImport(session)) return false;
+    if (!await refreshPublic() || active !== session || !canImport(session)) return false;
+    const fields = session.view.policy.editableFields.filter(key => allowedField(session, key)), rows = visibleProducts(session);
+    if (!fields.length || !rows.length) return false;
+    if (rows.length > MAX_CHANGES) { session.controls.status.textContent = 'A price-edit template can contain at most 5,000 products. Filter the inventory before downloading.'; return false; }
+    const csv = [['publicRowId', ...fields.flatMap(field => [field, '_original_' + field])].map(csvCell).join(','), ...rows.map(row => [row.publicRowId, ...fields.flatMap(field => [row[field], row[field]])].map(csvCell).join(','))].join('\r\n');
+    if (new TextEncoder().encode('\ufeff' + csv).byteLength > MAX_CSV_BYTES) { session.controls.status.textContent = 'The price-edit template would exceed 1 MiB. Filter the inventory before downloading.'; return false; }
+    session.controls.status.textContent = 'Price template ready. Keep every price column with its _original_ column. Blank cells are skipped; unchanged exported prices do not overwrite later updates. Each import accepts at most 5,000 changed price cells.';
+    return downloadCsv(session, csv, 'User-price-edit-template-' + new Date().toISOString().slice(0, 10) + '.csv');
+  }
+  function parseCsv(text) {
+    if (new TextEncoder().encode(text).byteLength > MAX_CSV_BYTES) throw new Error('CSV is larger than 1 MiB.');
+    const rows = []; let row = [], value = '', quoted = false, closed = false;
+    text = text.replace(/^\ufeff/, '');
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (quoted) { if (ch === '"') { if (text[i + 1] === '"') { value += '"'; i++; } else { quoted = false; closed = true; } } else value += ch; }
+      else if (ch === '"') { if (value || closed) throw new Error('Invalid CSV quoting.'); quoted = true; }
+      else if (ch === ',' || ch === '\r' || ch === '\n') {
+        row.push(value); value = ''; closed = false;
+        if (ch !== ',') { if (ch === '\r' && text[i + 1] === '\n') i++; rows.push(row); row = []; if (rows.length > MAX_CHANGES + 1) throw new Error('CSV contains more than 5,000 product rows.'); }
+      } else { if (closed) throw new Error('Unexpected text after a CSV quote.'); value += ch; }
+      if (value.length > 4096) throw new Error('CSV cell is too long.');
+    }
+    if (quoted) throw new Error('Unclosed CSV quote.');
+    if (row.length || value || closed) { row.push(value); rows.push(row); }
+    while (rows.length && rows[rows.length - 1].every(cell => cell === '')) rows.pop();
+    if (rows.length > MAX_CHANGES + 1) throw new Error('CSV contains more than 5,000 product rows.');
+    return rows;
+  }
+  async function reviewCsv(session, text, filename = 'Price edits.csv') {
+    if (active !== session || session.loading || session.writing || !canImport(session)) throw new Error('Price import is not allowed for this account.');
+    if (session.drafts.size) throw new Error('Save or discard the current price before importing.');
+    if (!await refreshPublic() || active !== session || !canImport(session)) throw new Error('Price-import permission could not be verified.');
+    const rows = parseCsv(text), header = rows.shift();
+    const priceFields = header ? header.slice(1).filter(field => allowedField(session, field)) : [];
+    if (!header || header.length < 3 || header[0] !== 'publicRowId' || new Set(header).size !== header.length || !priceFields.length || header.slice(1).some(field => !allowedField(session, field) && !(field.startsWith('_original_') && allowedField(session, field.slice(10)) && header.includes(field.slice(10)))) || priceFields.some(field => !header.includes('_original_' + field))) throw new Error('Use a price-edit template with publicRowId and each allowed price paired with its _original_ column. Shared-product exports are not edit templates.');
+    const seen = new Set(), changes = [], conflicts = new Map(); let blankCount = 0, skippedCount = 0;
+    for (const [index, cells] of rows.entries()) {
+      if (cells.length !== header.length) throw new Error('Row ' + (index + 2) + ' has an unexpected number of columns.');
+      const id = cells[0], row = rowFor(session, id);
+      if (!row || !id || seen.has(id)) throw new Error('Row ' + (index + 2) + ' contains an unknown or duplicate product identity. No new products can be created.');
+      seen.add(id);
+      for (const field of priceFields) {
+        const raw = cells[header.indexOf(field)].trim();
+        if (!raw) { blankCount++; continue; }
+        const value = priceNumber(raw), original = priceNumber(cells[header.indexOf('_original_' + field)].trim());
+        if (value === null || original === null || typeof row[field] !== 'number') throw new Error('Row ' + (index + 2) + ' / ' + field + ' and its original must be plain non-negative numbers up to 1e12. Formulas and currency text are not accepted.');
+        if (value === original || value === row[field]) { skippedCount++; continue; }
+        changes.push({ publicRowId: id, field, expected: original, value });
+        if (row[field] !== original) conflicts.set(keyFor(id, field), 'Conflict: this price changed after export. Download a new template to edit it.');
+        if (changes.length > MAX_CHANGES) throw new Error('CSV contains more than 5,000 changed price cells.');
+      }
+    }
+    if (!changes.length) { session.controls.status.textContent = 'No price changes found. Blank cells were skipped; saved values were kept.'; return false; }
+    closeReview(session);
+    const dialog = node('dialog', null, { id: 'pm23PriceImportReview', class: 'pm23-price-review', 'aria-labelledby': 'pm23PriceReviewTitle' });
+    const title = node('h3', 'Review price changes', { id: 'pm23PriceReviewTitle' });
+    const summary = node('p', filename.slice(0, 200) + ' · ' + changes.length + ' changed price cells · ' + conflicts.size + ' blocked conflicts · ' + blankCount + ' blank and ' + skippedCount + ' unchanged / already-current cells skipped. Warnings are not selected automatically.');
+    const wrap = node('div', null, { class: 'pm23-review-table' }), table = node('table'), head = node('thead'), tr = node('tr');
+    for (const label of ['Apply', 'Product', 'Field', 'Exported original', 'Current', 'New value', 'Warning']) tr.append(node('th', label)); head.append(tr);
+    const body = node('tbody'); table.append(head, body); wrap.append(table);
+    const pager = node('div', null, { class: 'pm23-review-pager' }), actions = node('div', null, { class: 'pm23-review-actions' });
+    const normal = node('button', 'Select normal changes', { type: 'button' }), all = node('button', 'Select all, including warnings', { type: 'button' });
+    const cancel = node('button', 'Cancel', { type: 'button' }), apply = node('button', 'Apply selected prices', { type: 'button', id: 'pm23ApplyPriceImport' });
+    actions.append(normal, all, cancel, apply); dialog.append(title, summary, wrap, pager, actions); document.body.append(dialog);
+    const resultingPrices = new Map(changes.map(change => [keyFor(change.publicRowId, change.field), change.value]));
+    const review = session.review = { dialog, changes: changes.map(change => { const conflict = conflicts.get(keyFor(change.publicRowId, change.field)), warnings = priceWarnings(session, change, resultingPrices); if (conflict) warnings.unshift(conflict); return { change, conflict: !!conflict, warnings, current: rowFor(session, change.publicRowId)[change.field], selected: !conflict && warnings.length === 0 }; }), page: 0, revision: session.view.revision, accessRevision: session.view.accessRevision };
+    function render() {
+      if (session.review !== review) return;
+      body.replaceChildren();
+      review.changes.slice(review.page * 100, review.page * 100 + 100).forEach((item, offset) => {
+        const row = node('tr'), checkCell = node('td'), checkbox = node('input', null, { type: 'checkbox', 'data-change-index': review.page * 100 + offset, 'aria-label': 'Apply ' + item.change.field + ' for ' + (rowFor(session, item.change.publicRowId)?.name || 'product') }); checkbox.checked = item.selected; checkbox.disabled = item.conflict; checkCell.append(checkbox); row.append(checkCell);
+        for (const value of [rowFor(session, item.change.publicRowId)?.name || 'Shared product', FIELDS[item.change.field].label, amount(item.change.expected, item.change.field), amount(item.current, item.change.field), amount(item.change.value, item.change.field), item.warnings.join(' · ')]) row.append(node('td', value));
+        if (item.warnings.length) row.className = 'pm23-price-warning'; body.append(row);
+      });
+      pager.replaceChildren();
+      const previous = node('button', '‹ Previous', { type: 'button' }), next = node('button', 'Next ›', { type: 'button' }); previous.disabled = review.page === 0; next.disabled = (review.page + 1) * 100 >= review.changes.length;
+      previous.onclick = () => { review.page--; render(); }; next.onclick = () => { review.page++; render(); };
+      pager.append(previous, node('span', 'Page ' + (review.page + 1) + ' / ' + Math.ceil(review.changes.length / 100) + ' · Selected ' + review.changes.filter(item => item.selected).length), next);
+      apply.disabled = !review.changes.some(item => item.selected);
+    }
+    dialog.addEventListener('change', event => { if (session.writing) return; const index = Number(event.target.dataset.changeIndex); if (Number.isInteger(index) && review.changes[index] && !review.changes[index].conflict) { review.changes[index].selected = event.target.checked; render(); } });
+    normal.onclick = () => { review.changes.forEach(item => item.selected = !item.conflict && !item.warnings.length); render(); };
+    all.onclick = () => { review.changes.forEach(item => item.selected = !item.conflict); render(); };
+    cancel.onclick = () => { if (!session.writing) closeReview(session); };
+    dialog.addEventListener('cancel', event => { event.preventDefault(); if (!session.writing) closeReview(session); });
+    apply.onclick = () => { if (session.review !== review || session.writing || review.revision !== session.view.revision || review.accessRevision !== session.view.accessRevision) return; void commit(session, review.changes.filter(item => item.selected && !item.conflict).map(item => item.change), 'import'); };
+    render(); dialog.showModal(); return true;
   }
   function setMenu(session, open) {
     const desktop = global.matchMedia('(min-width: 1100px)').matches;
@@ -4249,8 +4566,10 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   }
   function renderTable(session) {
     if (active !== session) return;
+    const focused = document.activeElement?.matches?.('[data-pm23-edit]') ? { id: document.activeElement.dataset.rowId, field: document.activeElement.dataset.field, start: document.activeElement.selectionStart, end: document.activeElement.selectionEnd } : null;
     const c = session.controls, view = session.view, fields = view.policy.fields;
     const rows = visibleProducts(session), size = Number(c.size.value) || 20;
+    session.visibleCount = rows.length;
     const pages = Math.max(1, Math.ceil(rows.length / size));
     session.page = Math.max(1, Math.min(session.page, pages));
     c.count.textContent = rows.length.toLocaleString('en-MY') + ' products' + (rows.length !== view.products.length ? ' / ' + view.products.length.toLocaleString('en-MY') + ' published' : '');
@@ -4267,10 +4586,15 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
       const fragment = document.createDocumentFragment();
       visible.forEach(row => {
         const tr = node('tr');
-        fields.forEach(key => tr.append(node('td', amount(row[key], key), {
-          'data-field': key, 'data-label': FIELDS[key].label,
-          class: FIELDS[key].text ? 'pm22-public-text' : key === 'msdp' || key === 'msrp' ? 'pm22-public-price amount' : 'amount'
-        })));
+        fields.forEach(key => {
+          const cell = node('td', null, { 'data-field': key, 'data-label': FIELDS[key].label, class: FIELDS[key].text ? 'pm22-public-text' : key === 'msdp' || key === 'msrp' ? 'pm22-public-price amount' : 'amount' });
+          if (canEdit(session, key) && row.publicRowId && typeof row[key] === 'number') {
+            const draft = session.drafts.get(keyFor(row.publicRowId, key));
+            const input = node('input', null, { type: 'text', inputmode: 'decimal', maxlength: 32, 'data-pm23-edit': '', 'data-row-id': row.publicRowId, 'data-field': key, 'aria-label': FIELDS[key].label + ' for ' + (row.name || 'shared product') }); input.value = draft ? draft.raw : String(row[key]);
+            const label = node('span', FIELDS[key].currency, { class: 'pm23-currency' }); cell.classList.add('pm23-editable-price'); cell.append(label, input);
+          } else cell.textContent = amount(row[key], key);
+          tr.append(cell);
+        });
         fragment.append(tr);
       });
       c.body.append(fragment);
@@ -4285,6 +4609,8 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     }
     c.export.hidden = !view.policy.features.publicExport || !view.publishedAt || !fields.length;
     c.export.disabled = session.loading || !rows.length;
+    editingState(session);
+    if (focused) for (const input of c.body.querySelectorAll('[data-pm23-edit]')) if (input.dataset.rowId === focused.id && input.dataset.field === focused.field && !input.disabled) { input.focus({ preventScroll: true }); input.setSelectionRange(focused.start, focused.end); break; }
   }
   function renderPolicy(session) {
     const c = session.controls, view = session.view, policy = view.policy;
@@ -4297,6 +4623,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     selectOptions(c.group, [['', policy.fields.includes('location') ? 'All locations' : 'All brands'], ...groups.map(group => [group, group])], c.group.value);
     c.group.hidden ||= !policy.fields.some(key => key === 'name' || key === 'location');
     c.meta.textContent = view.publishedAt ? 'Published: ' + new Date(view.publishedAt).toLocaleString('en-MY') + ' · Revision ' + view.revision : 'No User inventory has been published';
+    session.accessNotice.hidden = policy.pages.inventory || policy.pages.calculator;
     session.nav.forEach(({ el }) => {
       if (!el.dataset.page || el.dataset.page === 'master-login') return;
       el.hidden = !((el.dataset.page === 'inventory' && policy.pages.inventory) || (el.dataset.page === 'calculator' && policy.pages.calculator));
@@ -4306,7 +4633,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   }
   function navigate(session, requested, replaceHash) {
     if (active !== session) return;
-    let page = requested === 'calculator' && session.view.policy.pages.calculator ? 'calculator' : 'inventory';
+    let page = requested === 'calculator' && session.view.policy.pages.calculator ? 'calculator' : session.view.policy.pages.inventory ? 'inventory' : session.view.policy.pages.calculator ? 'calculator' : 'inventory';
     document.querySelectorAll('.page').forEach(el => {
       const show = el.id === 'page-' + page && (page !== 'inventory' || session.view.policy.pages.inventory);
       el.hidden = !show; el.classList.toggle('active', show);
@@ -4315,23 +4642,18 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     if (replaceHash || global.location.hash !== '#' + page) global.history.replaceState(null, '', '#' + page);
     if (!global.matchMedia('(min-width: 1100px)').matches) setMenu(session, false);
   }
-  function exportVisible(session) {
+  async function exportVisible(session) {
     if (active !== session || session.loading || !session.view.publishedAt || !session.view.policy.features.publicExport) return false;
+    if (!await refreshPublic() || active !== session || !session.view.policy.features.publicExport) return false;
     const fields = session.view.policy.fields.slice(), rows = visibleProducts(session);
     if (!fields.length || !rows.length) return false;
     const csv = '\ufeff' + [fields.map(key => csvCell(FIELDS[key].label)).join(','), ...rows.map(row => fields.map(key => csvCell(row[key])).join(','))].join('\r\n');
-    const url = global.URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    session.downloadUrls.add(url);
-    const anchor = node('a', null, { href: url, download: 'Shared-inventory-' + new Date().toISOString().slice(0, 10) + '.csv' });
-    document.body.append(anchor); anchor.click(); anchor.remove();
-    const timer = global.setTimeout(() => { global.URL.revokeObjectURL(url); session.downloadUrls.delete(url); session.downloadTimers.delete(timer); }, 1000);
-    session.downloadTimers.add(timer);
-    return true;
+    return downloadCsv(session, csv.replace(/^\ufeff/, ''), 'Shared-inventory-' + new Date().toISOString().slice(0, 10) + '.csv');
   }
   function buildInventory(session, inventory) {
     inventory.replaceChildren();
     const header = node('div', null, { class: 'header pm22-public-header' });
-    const title = node('div'); title.append(node('h2', '📦 Inventory'), node('p', 'User view · Read only', { class: 'pm22-public-subtitle' }));
+    const title = node('div'), subtitle = node('p', 'User view · Read only', { class: 'pm22-public-subtitle' }); title.append(node('h2', '📦 Inventory'), subtitle);
     const actions = node('div', null, { class: 'button-row' });
     const refresh = node('button', '↻ Refresh', { type: 'button', class: 'btn btn-primary', id: 'pm22PublicRefresh' });
     const exportButton = node('button', 'Export shared products', { type: 'button', class: 'btn btn-success', id: 'pm22PublicExport', hidden: '' });
@@ -4345,6 +4667,10 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     paintTheme();
     actions.append(refresh, exportButton, theme); header.append(title, actions);
     const status = node('p', 'Loading published inventory…', { role: 'status', 'aria-live': 'polite', id: 'pm22PublicStatus' });
+    const editBar = node('div', null, { class: 'pm23-edit-bar', hidden: '' }), editNotice = node('p', '', { class: 'pm23-edit-notice' });
+    const save = node('button', 'Save price', { type: 'button', class: 'btn btn-primary', id: 'pm23SavePrice' }), discard = node('button', 'Discard draft', { type: 'button', class: 'btn btn-muted', id: 'pm23DiscardPrice' });
+    const template = node('button', 'Download price-edit template', { type: 'button', class: 'btn btn-muted', id: 'pm23PriceTemplate', hidden: '' }), importButton = node('button', 'Import price CSV', { type: 'button', class: 'btn btn-primary', id: 'pm23ImportPrices', hidden: '' });
+    const fileInput = node('input', null, { type: 'file', accept: '.csv,text/csv', id: 'pm23PriceCsvFile', hidden: '' }); editBar.append(editNotice, save, discard, template, importButton, fileInput);
     const card = node('div', null, { class: 'card' });
     const bar = node('div', null, { class: 'search-bar' });
     const search = node('input', null, { id: 'invSearchInput', type: 'search', placeholder: 'Search shared products…', 'aria-label': 'Search shared products', maxlength: 256 });
@@ -4363,11 +4689,31 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     const head = node('thead', null, { id: 'invTableHead' }), body = node('tbody', null, { id: 'invTableBody' });
     table.append(head, body); wrapper.append(table);
     const pagination = node('div', null, { id: 'invPagination', class: 'pagination', 'aria-label': 'Inventory pages' });
-    card.append(bar, metaRow, wrapper, pagination); inventory.append(header, status, card);
-    session.controls = { refresh, export: exportButton, status, search, group, size, sort, direction, meta, count, head, body, pagination };
+    card.append(bar, metaRow, wrapper, pagination); inventory.append(header, status, editBar, card);
+    session.controls = { refresh, export: exportButton, status, search, group, size, sort, direction, meta, count, head, body, pagination, subtitle, editBar, editNotice, save, discard, template, importButton, fileInput };
     listen(session, refresh, 'click', () => refreshPublic());
     listen(session, exportButton, 'click', () => exportVisible(session));
     listen(session, theme, 'click', () => { publicThemeChoice = session.dark = !session.dark; paintTheme(); });
+    listen(session, body, 'input', event => {
+      const input = event.target.closest('[data-pm23-edit]'); if (!input || session.loading || session.writing || session.commitUnconfirmed) return;
+      const id = input.dataset.rowId, field = input.dataset.field, row = rowFor(session, id), key = keyFor(id, field);
+      if (!row || !canEdit(session, field) || session.drafts.size && !session.drafts.has(key) || typeof row[field] !== 'number') { renderTable(session); return; }
+      const raw = input.value, value = priceNumber(raw);
+      if (value === row[field]) session.drafts.delete(key); else session.drafts.set(key, { publicRowId: id, field, expected: row[field], value, raw });
+      editingState(session);
+    });
+    listen(session, save, 'click', () => { const changes = [...session.drafts.values()].map(({ raw, ...change }) => change); if (changes.length === 1) void commit(session, changes, 'manual'); });
+    listen(session, discard, 'click', () => discardDrafts(session, 'Unsaved price discarded. Saved prices were kept.'));
+    listen(session, template, 'click', () => { void exportTemplate(session); });
+    listen(session, importButton, 'click', () => { if (canImport(session) && !session.writing) fileInput.click(); });
+    listen(session, fileInput, 'change', async () => {
+      const file = fileInput.files?.[0]; fileInput.value = ''; if (!file || active !== session) return;
+      try {
+        if (file.size > MAX_CSV_BYTES || !/\.csv$/i.test(file.name)) throw new Error('Choose a CSV price template smaller than 1 MiB.');
+        const text = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer());
+        if (active === session) await reviewCsv(session, text, file.name);
+      } catch (error) { if (active === session) status.textContent = 'Import was not applied. ' + String(error?.message || error).slice(0, 300); }
+    });
     [['input', search], ['change', group], ['change', size], ['change', sort], ['change', direction]].forEach(([event, el]) => {
       listen(session, el, event, () => { session.page = 1; renderTable(session); });
     });
@@ -4411,7 +4757,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   }
   async function refreshPublic() {
     const session = active;
-    if (!session || session.loading) return false;
+    if (!session || session.loading || session.writing) return false;
     session.loading = true;
     const requestId = ++session.requestId;
     const controller = new AbortController(); session.abort = controller;
@@ -4423,14 +4769,19 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
       const raw = await session.options.fetchView({ signal: controller.signal });
       if (active !== session || requestId !== session.requestId || controller.signal.aborted) return false;
       const view = normalise(raw);
+      const changed = session.view.revision !== view.revision || session.view.accessRevision !== view.accessRevision || JSON.stringify(session.view.policy) !== JSON.stringify(view.policy);
+      const discarded = changed && !!(session.drafts.size || session.review);
+      if (changed) invalidateChanges(session);
+      session.commitUnconfirmed = false;
       if (session.view.revision !== view.revision) session.page = 1;
       session.view = view; session.error = false;
-      session.controls.status.textContent = view.publishedAt ? 'Published inventory loaded. Read only.' : 'The Master has not published a User inventory yet.';
+      session.controls.status.textContent = discarded ? 'Your access or inventory changed. Unsaved drafts and import review were discarded. Check the latest values before editing.' : view.publishedAt ? 'Published inventory loaded. ' + (view.policy.operations.priceEdit || view.policy.operations.priceImport ? 'Only Master-authorized price actions are available.' : 'Read only.') : 'The Master has not published a User inventory yet.';
       renderPolicy(session);
       return true;
     } catch (_) {
       if (active !== session || requestId !== session.requestId) return false;
       // Fail closed: never fall back to a private feed or browser copy after a network error.
+      invalidateChanges(session);
       session.view = emptyView(); session.error = true;
       session.controls.status.textContent = 'Unable to load the published User inventory. Please try Refresh again.';
       renderPolicy(session);
@@ -4450,7 +4801,8 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     if (!inventory) throw new Error('Inventory section is required');
     const pages = [...document.querySelectorAll('.page')].map(el => ({ el, html: el.innerHTML, hidden: el.hidden, className: el.className }));
     const nav = [...document.querySelectorAll('.sidebar nav a')].map(el => ({ el, hidden: el.hidden, className: el.className, href: el.getAttribute('href') }));
-    const session = active = { options, pages, nav, cleanup: [], view: emptyView(), page: 1, requestId: 0, loading: false, error: false, abort: null, downloadUrls: new Set(), downloadTimers: new Set(), originalHash: global.location.hash, originalBodyClass: document.body.className };
+    const session = active = { options, pages, nav, cleanup: [], view: emptyView(), page: 1, requestId: 0, writeId: 0, writing: false, drafts: new Map(), review: null, commitUnconfirmed: false, loading: false, error: false, abort: null, downloadUrls: new Set(), downloadTimers: new Set(), originalHash: global.location.hash, originalBodyClass: document.body.className };
+    session.accessNotice = node('p', 'No pages are enabled for this account. Contact your Master to request access.', { class: 'pm23-no-pages', role: 'status', hidden: '' }); inventory.before(session.accessNotice);
     document.body.classList.add('pm22-public');
     buildInventory(session, inventory);
     buildCalculator(session, document.getElementById('page-calculator'));
@@ -4473,6 +4825,10 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
       if (desktop !== session.desktop) { session.desktop = desktop; setMenu(session, desktop); }
     });
     listen(session, global, 'hashchange', () => navigate(session, global.location.hash.slice(1), false));
+    listen(session, global, 'beforeunload', event => {
+      if (global.pm221Idle?.forcingReload || !session.drafts.size && !session.writing) return;
+      event.preventDefault(); event.returnValue = '';
+    });
     listen(session, document, 'visibilitychange', () => { if (!document.hidden) refreshPublic(); });
     listen(session, global, 'online', () => refreshPublic());
     const interval = Math.max(10000, Math.min(Number(options.pollIntervalMs) || 60000, 300000));
@@ -4485,11 +4841,12 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   function stop() {
     const session = active;
     if (!session) return;
-    active = null; session.requestId++;
+    active = null; session.requestId++; session.writeId++; closeReview(session); session.drafts.clear();
     session.abort?.abort(); global.clearInterval(session.timer); global.clearTimeout(session.requestTimeout);
     session.cleanup.forEach(fn => fn()); session.downloadTimers.forEach(timer => global.clearTimeout(timer));
     session.downloadUrls.forEach(url => global.URL.revokeObjectURL(url));
     session.login?.remove();
+    session.accessNotice.remove();
     session.pages.forEach(({ el, html, hidden, className }) => { el.innerHTML = html; el.hidden = hidden; el.className = className; });
     session.nav.forEach(({ el, hidden, className, href }) => { el.hidden = hidden; el.className = className; if (href === null) el.removeAttribute('href'); else el.setAttribute('href', href); });
     document.body.className = session.originalBodyClass;
@@ -4497,10 +4854,12 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     document.getElementById('menuToggle')?.setAttribute('aria-expanded', 'false');
     // Root selects the authenticated landing page; do not reinstate an untrusted hash.
   }
-  global.pm22Public = Object.freeze({
+  global.pm23Public = global.pm22Public = Object.freeze({
     startPublic, stop, refresh: refreshPublic,
-    inspect: () => active ? { active: true, revision: active.view.revision, publishedAt: active.view.publishedAt, policy: JSON.parse(JSON.stringify(active.view.policy)), products: active.view.products.map(row => ({ ...row })), loading: active.loading } : { active: false },
-    exportVisible: () => active ? exportVisible(active) : false
+    inspect: () => active ? { active: true, revision: active.view.revision, accessRevision: active.view.accessRevision, publishedAt: active.view.publishedAt, policy: JSON.parse(JSON.stringify(active.view.policy)), products: active.view.products.map(row => ({ ...row })), loading: active.loading, writing: active.writing, draftCount: active.drafts.size, reviewCount: active.review?.changes.length || 0 } : { active: false },
+    exportVisible: () => active ? exportVisible(active) : false,
+    exportPriceTemplate: () => active ? exportTemplate(active) : false,
+    reviewPriceCsv: (text, filename) => active ? reviewCsv(active, text, filename) : Promise.resolve(false)
   });
 })(window);
 </script>
@@ -4671,8 +5030,8 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    if (card?.isConnected) return true;
    const section = doc.getElementById('page-settings'); if (!section) return false;
    card = node('div', undefined, 'settings-card pm22-master-settings'); card.id = 'pm22PublicSettings';
-   card.append(node('h3', 'User access'), node('p', 'Choose what signed-in User accounts can see and use. These settings are shared through the server; Master functions stay available to the verified Master account.'));
-   const locked = node('p', 'All accounts must sign in. User mode is read only. Editing prices, imports, private cloud sync, Reset / Clear Data and Settings remain Master-only.', 'pm22-security-note'); card.append(locked);
+   card.append(node('h3', 'Default User access'), node('p', 'Default access for User accounts without custom permissions. Custom accounts use their own settings above. Master functions stay available to the verified Master account.'));
+   const locked = node('p', 'All accounts must sign in. These defaults are read only; individual accounts may receive selected price-edit or CSV-import access above. Private modules, Reset / Clear Data and permission management remain Master-only.', 'pm22-security-note'); card.append(locked);
    const pages = group('Pages', 'Inventory is the User entry page after sign-in. Calculator can be opened as a separate User tool.');
    pages.options.append(checkbox('pages', 'inventory', 'Inventory · always visible', true, false, true), checkbox('pages', 'calculator', 'Calculator', false)); card.append(pages.fieldset);
    const fields = group('Inventory columns', 'Only selected columns are returned to the User view. Default: Name, Available quantity, MSDP and MSRP.');
@@ -4718,6 +5077,184 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
  return Object.freeze({ FIELDS, SENSITIVE, FEATURES, DEFAULT_FIELDS, normalizePolicy, sensitiveFields, serverState, install });
 });
 </script>
+<script type="application/x-pm215-deferred" id="pm23-account-settings">/* Account-specific permissions. Only the Master API can read or commit this state. */
+(function (root, factory) {
+ 'use strict';
+ const exported=factory();
+ if(typeof module==='object'&&module.exports)module.exports=exported;
+ if(root&&root.document)exported.install(root);
+})(typeof window==='object'?window:null,function(){
+ 'use strict';
+ const FIELDS=Object.freeze([
+  ['name','Name'],['id','Model / ID'],['location','Location'],['available','Available quantity'],
+  ['unitCost','Unit Cost (RM)'],['landingCost','Landing Cost (RM)'],['minSellPrice','Min Sell Price (RM)'],
+  ['supportUSD','Support (USD)'],['supportRM','Support (RM)'],['afterSupport','After Support (RM)'],
+  ['msdp','MSDP (RM)'],['msrp','MSRP (RM)']
+ ].map(row=>Object.freeze(row)));
+ const FEATURES=Object.freeze([['search','Search products'],['filter','Filter products'],['sort','Sort products'],['publicExport','Export allowed columns']].map(row=>Object.freeze(row)));
+ const EDITABLE=Object.freeze(['supportUSD','msdp','msrp']);
+ const SENSITIVE=Object.freeze(['unitCost','landingCost','minSellPrice','supportUSD','supportRM','afterSupport']);
+ const DEFAULT_FIELDS=Object.freeze(['name','available','msdp','msrp']);
+ const known=new Set(FIELDS.map(row=>row[0])),own=(o,key)=>Object.prototype.hasOwnProperty.call(o,key);
+ const plain=value=>value&&typeof value==='object'&&!Array.isArray(value);
+ function normalizePolicy(value){
+  const input=plain(value)?value:{},fields=Array.isArray(input.fields)?input.fields:DEFAULT_FIELDS;
+  const policy={pages:{inventory:input.pages?.inventory!==false,calculator:input.pages?.calculator===true},fields:[...new Set(fields.filter(field=>known.has(field)))],features:Object.fromEntries(FEATURES.map(([key])=>[key,plain(input.features)&&own(input.features,key)?input.features[key]===true:key!=='publicExport'])),operations:{priceEdit:input.pages?.inventory!==false&&input.operations?.priceEdit===true,priceImport:false},editableFields:[]};
+  policy.operations.priceImport=policy.pages.inventory&&input.operations?.priceImport===true;
+  policy.editableFields=(policy.operations.priceEdit||policy.operations.priceImport)&&Array.isArray(input.editableFields)?[...new Set(input.editableFields.filter(field=>EDITABLE.includes(field)&&policy.fields.includes(field)))]:[];
+  return policy;
+ }
+ function serverState(value){
+  if(!plain(value)||value.version!==1||typeof value.userId!=='string'||!value.userId||typeof value.email!=='string'||!['owner','inherit','custom'].includes(value.mode)||!Number.isSafeInteger(value.revision)||value.revision<0||!Number.isSafeInteger(value.catalogRevision)||value.catalogRevision<0||!plain(value.policy)||!plain(value.defaultPolicy))throw Error('Invalid account permissions response.');
+  if(value.mode==='owner'&&value.role!=='owner')throw Error('Invalid account role response.');
+  return {version:1,userId:value.userId,email:value.email,role:value.role==='owner'?'owner':'user',mode:value.mode,revision:value.revision,catalogRevision:value.catalogRevision,policy:normalizePolicy(value.policy),defaultPolicy:normalizePolicy(value.defaultPolicy)};
+ }
+ function accountPage(value,offset){
+  if(!plain(value)||!Array.isArray(value.accounts)||value.accounts.length>100||!Number.isSafeInteger(value.total)||value.total<0||value.total>1000000||value.offset!==offset||typeof value.hasMore!=='boolean')throw Error('Invalid account list response.');
+  return {total:value.total,offset,hasMore:value.hasMore,accounts:value.accounts.map(row=>{if(!plain(row)||typeof row.userId!=='string'||!row.userId||typeof row.email!=='string'||row.email.length>1000||!['owner','user'].includes(row.role))throw Error('Invalid account list entry.');return {userId:row.userId,email:row.email,role:row.role};})};
+ }
+ function install(win){
+  if(win.__pm23AccountSettingsInstalled)return;
+  Object.defineProperty(win,'__pm23AccountSettingsInstalled',{value:true});
+  const doc=win.document;
+  let card=null,state=null,loadedApi=null,busy=false,dirty=false,epoch=0,listEpoch=0,page={accounts:[],offset:0,total:0,hasMore:false},searchTimer=null;
+  const apiNow=()=>win.pm23MasterApi;
+  const isOwner=api=>!!api&&api===apiNow()&&typeof api.isOwner==='function'&&api.isOwner()===true;
+  const current=(api,born)=>born===epoch&&isOwner(api);
+  const node=(tag,text,cls)=>{const el=doc.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
+  function say(text,kind='info'){if(!card)return;const target=card.querySelector('[data-pm23-status]');target.textContent=text;target.dataset.kind=kind;target.setAttribute('role',kind==='error'?'alert':'status');}
+  function failure(error){return /conflict|revision|stale|409|40001/i.test(String(error?.message||''))?'This account or the default User settings changed in another session. Reload this account, review the latest choices and try again.':'The server did not confirm this operation. Reload the account to check the active permissions before retrying.';}
+  function checkbox(group,key,label,checked,sensitive=false){const wrap=node('label',undefined,'pm23-option'),input=doc.createElement('input');input.type='checkbox';input.dataset.pm23Group=group;input.dataset.pm23Key=key;input.checked=checked;wrap.append(input,node('span',label));if(sensitive)wrap.append(node('span','Sensitive','pm23-sensitive-tag'));return wrap;}
+  function group(title,description){const fieldset=doc.createElement('fieldset');fieldset.append(node('legend',title));if(description)fieldset.append(node('p',description,'pm23-help'));const options=node('div',undefined,'pm23-options');fieldset.append(options);return {fieldset,options};}
+  function useCustom(){return card.querySelector('[data-pm23-custom]').checked;}
+  function draft(){
+   const policy=normalizePolicy(null);policy.fields=[];policy.editableFields=[];
+   card.querySelectorAll('input[data-pm23-group]').forEach(input=>{const group=input.dataset.pm23Group,key=input.dataset.pm23Key;if(group==='fields'||group==='editableFields'){if(input.checked)policy[group].push(key);}else policy[group][key]=input.checked;});
+   return normalizePolicy(policy);
+  }
+  function applyPolicy(raw){const policy=normalizePolicy(raw);card.querySelectorAll('input[data-pm23-group]').forEach(input=>{const group=input.dataset.pm23Group,key=input.dataset.pm23Key;input.checked=group==='fields'||group==='editableFields'?policy[group].includes(key):policy[group][key];});updateDisclosure();}
+  function updateDisclosure(){const selected=draft().fields.filter(field=>SENSITIVE.includes(field)),notice=card.querySelector('[data-pm23-sensitive]');notice.hidden=!selected.length;notice.textContent=selected.length?'These cost / support columns will be disclosed to this selected account. It can read or copy them. Saving custom access requires explicit confirmation.':'';}
+  function metadata(){const meta=card.querySelector('[data-pm23-meta]'),summary=card.querySelector('[data-pm23-account-summary]');if(!state){meta.textContent='Select an account to load its permissions.';summary.textContent='No account selected';return;}summary.textContent=(state.email||state.userId)+' · '+(state.role==='owner'?'Master':'User');meta.textContent=(state.mode==='owner'?'Master · full access':state.mode==='inherit'?'Uses the shared default User settings':'Custom permissions for this account')+' · Account revision '+state.revision+' · Catalog revision '+state.catalogRevision;}
+  function setBusy(next){
+   busy=next;if(!card)return;card.setAttribute('aria-busy',String(next));
+   const allowed=isOwner(apiNow()),ready=!!state&&loadedApi===apiNow(),owner=state?.mode==='owner',custom=ready&&!owner&&useCustom();
+   const policy=draft();
+   card.querySelector('[data-pm23-custom]').disabled=next||!allowed||!ready||owner;
+   card.querySelectorAll('input[data-pm23-group]').forEach(input=>{let disabled=next||!allowed||!custom;const group=input.dataset.pm23Group;if(group==='editableFields')disabled||=!(policy.operations.priceEdit||policy.operations.priceImport)||!policy.fields.includes(input.dataset.pm23Key)||!policy.pages.inventory;if(group==='operations')disabled||=!policy.pages.inventory;input.disabled=disabled;});
+   for(const control of card.querySelectorAll('[data-pm23-account],[data-pm23-search],[data-pm23-action]')){
+    let disabled=next||!allowed;const action=control.dataset.pm23Action;
+    if(action==='save'||action==='reset')disabled||=!ready||owner;
+    if(action==='reset')disabled||=state?.mode!=='custom'&&!dirty;
+    if(action==='reload')disabled||=!state&&!card.querySelector('[data-pm23-account]').value;
+    if(action==='previous')disabled||=page.offset===0;
+    if(action==='next')disabled||=!page.hasMore;
+    control.disabled=disabled;
+   }
+   card.querySelector('[data-pm23-owner-note]').hidden=!owner;
+  }
+  function renderList(){
+   const select=card.querySelector('[data-pm23-account]'),chosen=state?.userId||select.value;
+   select.replaceChildren();const placeholder=node('option','Select an account…');placeholder.value='';select.append(placeholder);
+   if(state&&!page.accounts.some(row=>row.userId===state.userId)){const selected=node('option',(state.email||state.userId)+' · current selection');selected.value=state.userId;select.append(selected);}
+   for(const row of page.accounts){const option=node('option',(row.email||row.userId)+(row.role==='owner'?' · Master':''));option.value=row.userId;select.append(option);}
+   select.value=[...select.options].some(option=>option.value===chosen)?chosen:'';
+   card.querySelector('[data-pm23-list-meta]').textContent=page.total?'Accounts '+Math.min(page.offset+1,page.total)+'–'+Math.min(page.offset+page.accounts.length,page.total)+' of '+page.total:'No matching accounts.';
+  }
+  async function loadAccounts(offset=0,autoload=false){
+   const api=apiNow();if(!isOwner(api)){invalidate();return;}
+   if(busy)return;const born=++listEpoch;setBusy(true);say('Loading registered accounts…');
+   try{
+    const search=card.querySelector('[data-pm23-search]').value.trim().slice(0,200),result=await api.request('/rest/v1/rpc/master_list_business_accounts',{p_offset:offset,p_limit:100,p_search:search});
+    if(born!==listEpoch||!isOwner(api))return;
+    page=accountPage(result,offset);renderList();
+    if(autoload&&!state&&page.accounts.length){const target=page.accounts.find(row=>row.role!=='owner')||page.accounts[0];setBusy(false);await loadAccount(target.userId,false);return;}
+    say('Accounts loaded. Select one to manage its own permissions.');
+   }catch(error){if(born===listEpoch&&isOwner(api))say(failure(error),'error');}
+   finally{if(born===listEpoch)setBusy(false);}
+  }
+  async function loadAccount(userId,confirmDraft=true){
+   if(!userId)return;const api=apiNow();if(!isOwner(api)){invalidate();return;}
+   if(busy)return;
+   if(confirmDraft&&dirty&&!win.confirm('Discard unsaved permission choices for the selected account?')){card.querySelector('[data-pm23-account]').value=state?.userId||'';return;}
+   const born=++epoch;state=null;loadedApi=null;dirty=false;card.querySelector('[data-pm23-custom]').checked=false;applyPolicy(null);metadata();setBusy(true);say('Loading account permissions…');
+   try{
+    const result=await api.request('/rest/v1/rpc/master_get_account_access',{p_user_id:userId});
+    if(!current(api,born))return;const next=serverState(result);if(next.userId!==userId)throw Error('Account response mismatch.');
+    state=next;loadedApi=api;dirty=false;card.querySelector('[data-pm23-custom]').checked=next.mode==='custom';applyPolicy(next.policy);renderList();metadata();say(next.mode==='owner'?'This is a Master account. Its full access follows the server role and cannot be reduced here.':next.mode==='inherit'?'This account currently inherits the default User settings below. Enable custom permissions to change only this account.':'Custom permissions loaded for this account.');
+   }catch(error){if(current(api,born))say(failure(error),'error');}
+   finally{if(born===epoch)setBusy(false);}
+  }
+  async function commit(reset=false){
+   if(busy)return;const api=apiNow();if(!isOwner(api)||!state||loadedApi!==api||state.mode==='owner'){say('Select a User account while signed in as Master.','error');return;}
+   const restoring=reset||!useCustom();let allowSensitive=false;const policy=draft();
+   if(!restoring){
+    if(!policy.fields.length){say('Select at least one visible Inventory column.','error');return;}
+    if((policy.operations.priceEdit||policy.operations.priceImport)&&!policy.editableFields.length){say('Select at least one visible price field that this account may edit or import.','error');return;}
+    const sensitive=policy.fields.filter(field=>SENSITIVE.includes(field));
+    if(sensitive.length){const names=FIELDS.filter(([key])=>sensitive.includes(key)).map(([,label])=>label).join(', ');allowSensitive=win.confirm('Disclose these sensitive columns to '+(state.email||state.userId)+'?\n\n'+names+'\n\nThis account may read or copy them.');if(!allowSensitive){say('Cancelled. No permission change was sent.');return;}}
+   }else{
+    const inheritedSensitive=state.defaultPolicy.fields.filter(field=>SENSITIVE.includes(field));
+    const labels=FIELDS.filter(([key])=>inheritedSensitive.includes(key)).map(([,label])=>label).join(', ');
+    const confirmed=win.confirm('Restore the shared default User permissions for '+(state.email||state.userId)+'? Its custom access will be removed.'+(inheritedSensitive.length?'\n\nThe default settings disclose these sensitive columns to this account:\n'+labels+'\n\nThis account may read or copy them.':''));
+    if(!confirmed)return;allowSensitive=inheritedSensitive.length>0;
+   }
+   if(!isOwner(api))return;const born=++epoch,target=state.userId,expected=state.revision;
+   const body={p_user_id:target,p_expected_revision:expected,p_expected_default_revision:state.catalogRevision,p_allow_sensitive:allowSensitive};
+   if(!restoring)body.p_policy=policy;
+   setBusy(true);say('Saving permissions for this account. Waiting for the server…');
+   try{
+    const result=await api.request('/rest/v1/rpc/'+(restoring?'master_reset_account_access':'master_set_account_access'),body);
+    if(!current(api,born))return;const next=serverState(result);if(next.userId!==target||next.revision<=expected||next.mode!==(restoring?'inherit':'custom'))throw Error('The server did not acknowledge the account change.');
+    state=next;loadedApi=api;dirty=false;card.querySelector('[data-pm23-custom]').checked=next.mode==='custom';applyPolicy(next.policy);metadata();say(restoring?'Default User permissions restored for this account. Other custom accounts are unchanged.':'Custom permissions saved for this account. Other accounts are unchanged.','success');
+    win.dispatchEvent(new win.CustomEvent('PM23AccessChanged',{detail:{userId:next.userId,revision:next.revision,catalogRevision:next.catalogRevision}}));
+   }catch(error){if(current(api,born))say(failure(error),'error');}
+   finally{if(born===epoch)setBusy(false);}
+  }
+  function invalidate(){++epoch;++listEpoch;clearTimeout(searchTimer);state=null;loadedApi=null;dirty=false;page={accounts:[],offset:0,total:0,hasMore:false};if(!card)return;card.querySelector('[data-pm23-custom]').checked=false;applyPolicy(null);renderList();metadata();say('Sign in as Master to manage each account.');setBusy(false);}
+  function mount(){
+   if(card?.isConnected)return true;const section=doc.getElementById('page-settings');if(!section)return false;
+   card=node('div',undefined,'settings-card pm22-master-settings pm23-account-settings');card.id='pm23AccountSettings';
+   card.append(node('h3','Account permissions'),node('p','Choose one registered account. Save custom access for that account, or let it inherit the default User settings below.'));
+   const finder=node('div',undefined,'pm23-account-finder'),searchLabel=node('label','Find an account'),search=doc.createElement('input');search.type='search';search.placeholder='Search email…';search.maxLength=200;search.dataset.pm23Search='';searchLabel.append(search);const selectLabel=node('label','Selected account'),select=doc.createElement('select');select.dataset.pm23Account='';selectLabel.append(select);finder.append(searchLabel,selectLabel);card.append(finder);
+   const pager=node('div',undefined,'pm23-account-pager');for(const [key,label]of[['previous','‹ Previous'],['next','Next ›'],['accounts','Reload accounts']]){const button=node('button',label);button.type='button';button.dataset.pm23Action=key;pager.append(button);}const listMeta=node('span','');listMeta.dataset.pm23ListMeta='';pager.append(listMeta);card.append(pager);
+   const summary=node('p','No account selected','pm23-account-summary');summary.dataset.pm23AccountSummary='';card.append(summary);
+   const ownerNote=node('p','Master accounts retain full access. Role assignment and Owner changes are handled by the trusted administrator, not by these User-permission controls.','pm23-security-note');ownerNote.dataset.pm23OwnerNote='';ownerNote.hidden=true;card.append(ownerNote);
+   const modeLabel=node('label',undefined,'pm23-custom-mode'),custom=doc.createElement('input');custom.type='checkbox';custom.dataset.pm23Custom='';modeLabel.append(custom,node('span','Use custom permissions for this account'));card.append(modeLabel,node('p','When off, this account uses the shared default User settings. Turn on to adjust only this selected account.','pm23-help'));
+   const pages=group('Pages','Inventory and optional temporary Calculator. Other private Business Suite modules remain Master-only.');pages.options.append(checkbox('pages','inventory','Inventory',true),checkbox('pages','calculator','Calculator',false));card.append(pages.fieldset);
+   const fields=group('Visible Inventory columns','The server returns only the columns enabled for this account.');for(const [key,label]of FIELDS)fields.options.append(checkbox('fields',key,label,DEFAULT_FIELDS.includes(key),SENSITIVE.includes(key)));card.append(fields.fieldset);
+   const sensitive=node('p','','pm23-disclosure-warning');sensitive.dataset.pm23Sensitive='';sensitive.hidden=true;card.append(sensitive);
+   const tools=group('Tools','Export includes only this account’s allowed columns.');for(const [key,label]of FEATURES)tools.options.append(checkbox('features',key,label,key!=='publicExport'));card.append(tools.fieldset);
+   const writes=group('Price editing and import','These permissions apply only to existing products and the selected shared price fields. They do not allow new products, stock/cost changes, Sales, Reset / Clear Data or private cloud sync.');writes.options.append(checkbox('operations','priceEdit','Edit selected prices',false),checkbox('operations','priceImport','Import selected prices',false));card.append(writes.fieldset);
+   const edit=group('Editable price fields','An editable field must also be visible. Price import uses the same field permissions and server conflict checks.');for(const [key,label]of FIELDS.filter(([key])=>EDITABLE.includes(key)))edit.options.append(checkbox('editableFields',key,label,false));card.append(edit.fieldset);
+   const meta=node('p','','pm23-server-meta');meta.dataset.pm23Meta='';card.append(meta);
+   const actions=node('div',undefined,'pm23-account-actions');for(const [key,label]of[['save','Save this account'],['reset','Restore default User access'],['reload','Reload this account']]){const button=node('button',label);button.type='button';button.dataset.pm23Action=key;actions.append(button);}card.append(actions);
+   const status=node('p','','pm23-status');status.dataset.pm23Status='';status.setAttribute('aria-live','polite');card.append(status);
+   section.querySelector('.settings-card')?.before(card);if(!card.isConnected)section.append(card);
+   card.addEventListener('change',event=>{
+    const target=event.target;if(target.matches('[data-pm23-account]')){void loadAccount(target.value);return;}
+    if(!target.matches('input[data-pm23-group],[data-pm23-custom]'))return;
+    if(busy||!isOwner(apiNow())||!state||state.mode==='owner'){if(state)applyPolicy(state.policy);return;}
+    if(target.matches('[data-pm23-custom]'))applyPolicy(target.checked?state.policy:state.defaultPolicy);
+    else{
+     if(target.dataset.pm23Group==='operations'&&!target.checked&&!card.querySelector('[data-pm23-key=priceEdit]').checked&&!card.querySelector('[data-pm23-key=priceImport]').checked)card.querySelectorAll('[data-pm23-group=editableFields]').forEach(input=>input.checked=false);
+     if(target.dataset.pm23Group==='pages'&&target.dataset.pm23Key==='inventory'&&!target.checked){card.querySelector('[data-pm23-key=priceEdit]').checked=false;card.querySelector('[data-pm23-key=priceImport]').checked=false;card.querySelectorAll('[data-pm23-group=editableFields]').forEach(input=>input.checked=false);}
+     if(target.dataset.pm23Group==='fields'&&!target.checked){const editInput=card.querySelector('[data-pm23-group=editableFields][data-pm23-key='+target.dataset.pm23Key+']');if(editInput)editInput.checked=false;}
+    }
+    dirty=true;updateDisclosure();setBusy(false);say('Unsaved changes for this account. Save to apply them on the server.');
+   });
+   search.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>void loadAccounts(0,false),300);});
+   card.addEventListener('click',event=>{const button=event.target.closest('[data-pm23-action]');if(!button||!card.contains(button))return;const action=button.dataset.pm23Action;if(action==='save')void commit(false);else if(action==='reset')void commit(true);else if(action==='reload')void loadAccount(state?.userId||select.value);else if(action==='previous')void loadAccounts(Math.max(0,page.offset-100));else if(action==='next')void loadAccounts(page.offset+100);else void loadAccounts(0,false);});
+   renderList();metadata();setBusy(false);return true;
+  }
+  function sync(){if(!mount())return;if(!isOwner(apiNow())){invalidate();return;}if(!state&&!busy&&!page.accounts.length)void loadAccounts(0,true);else setBusy(busy);}
+  function start(){if(mount())sync();else{const observer=new win.MutationObserver(()=>{if(mount()){observer.disconnect();sync();}});observer.observe(doc.body,{childList:true,subtree:true});}}
+  for(const event of ['PM23AccessChanged','PM22RoleChanged','BusinessAuthChanged'])win.addEventListener(event,sync);
+  win.addEventListener('PM22PublicViewChanged',()=>{if(!card||!state||state.mode==='owner')return;if(!dirty&&!busy)void loadAccount(state.userId,false);else say('Default User settings changed. Reload this account before saving to review the latest default.');});
+  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',start,{once:true});else start();
+ }
+ return Object.freeze({FIELDS,FEATURES,EDITABLE,SENSITIVE,DEFAULT_FIELDS,normalizePolicy,serverState,accountPage,install});
+});
+</script>
 <script id="pm22-gate">/* Authenticate before loading any private storage or business code. */
 (() => {
  'use strict';
@@ -4746,7 +5283,10 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    if(born!==epoch)throw Error('The signed-in account changed.');
    const text=await response.text();if(born!==epoch)throw Error('The signed-in account changed.');if(text.length>24*1024*1024)throw Error('Server response exceeds the safe limit.');
    let data=null;try{data=text?JSON.parse(text):null;}catch{throw Error('The server returned an invalid response.');}
-   if(!response.ok){const error=Error(response.status===401?'Sign-in expired or failed.':data?.code==='40001'?'Another Master changed the published settings. Reload and review them.':response.status===404?(path.endsWith('/rpc/get_business_role')?'Master/User role setup is missing. Run the supplied PM22 server setup SQL.':'User inventory is not configured. Ask the Master to finish the server setup.'):'Request failed ('+response.status+').');error.status=response.status;throw error;}return data;
+   if(!response.ok){
+    const message=data?.message==='BUSINESS_REPUBLISH_REQUIRED'?'The Master must publish Inventory once from PM23 before User price edits can be saved.':data?.message==='BUSINESS_SUPPORT_RATE_UNAVAILABLE'?'This published product has no usable calculation rate. Ask the Master to republish Inventory from PM23.':data?.message==='BUSINESS_UNPUBLISHED_OWNER_PRICE_CONFLICT'?'The Master has a newer unpublished price. Ask the Master to sync and republish before retrying.':response.status===401?'Your sign-in expired. Sign in again.':response.status===409||data?.code==='40001'?'Inventory or permissions changed in another session. Refresh, review the latest values and try again.':response.status===403||data?.code==='42501'?'This account is not allowed to perform that operation. Refresh your permissions.':response.status===404||data?.code==='PGRST202'?'PM23 account permissions are not configured. Ask the Master to install the supplied PM23 SQL.':response.status===400?'The submitted prices or file are invalid. Check the template and values.':'The server did not confirm this request ('+response.status+'). Refresh to check the current state.';
+    const error=Error(message);error.status=response.status;error.code=data?.code;throw error;
+   }return data;
   }finally{clearTimeout(timer);requests.delete(controller);options.signal?.removeEventListener('abort',abort);}
  }
  function cover(text){
@@ -4768,14 +5308,23 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    for(let offset=0;offset<20000;offset+=1000){
     const next=await request('/rest/v1/rpc/public_get_business_view',{p_offset:offset,p_limit:1000},{signal});
     if(born!==epoch||!valid()||role==='owner')throw Error('The signed-in account changed.');
-    if(!next||next.version!==1||!Number.isSafeInteger(next.revision)||!Array.isArray(next.products)||next.products.length>1000||!Number.isSafeInteger(next.total)||next.total<0||next.total>19999||next.offset!==offset||typeof next.hasMore!=='boolean')throw Error('Invalid published catalog response.');
-    if(snapshot&&(next.revision!==snapshot.revision||next.total!==snapshot.total)){restart=true;break;}
+    if(!next||next.version!==1||!Number.isSafeInteger(next.revision)||!Number.isSafeInteger(next.accessRevision)||next.accessRevision<0||!Array.isArray(next.products)||next.products.length>1000||!Number.isSafeInteger(next.total)||next.total<0||next.total>19999||next.offset!==offset||typeof next.hasMore!=='boolean')throw Error('Invalid published catalog response.');
+    if(snapshot&&(next.revision!==snapshot.revision||next.accessRevision!==snapshot.accessRevision||next.total!==snapshot.total)){restart=true;break;}
     snapshot??=next;rows.push(...next.products);
     if(!next.hasMore){if(rows.length!==next.total)throw Error('The published catalog is incomplete.');return {...snapshot,products:rows};}
     if(next.products.length!==1000)throw Error('The published catalog page is incomplete.');
    }
    if(!restart)throw Error('The published catalog exceeds the safe limit.');
   }throw Error('The Master is updating the catalog. Refresh again shortly.');
+ }
+ async function commitUserChanges(payload){
+  if(!valid()||role==='owner')throw Error('A signed-in User account is required.');
+  const born=epoch,account=session.user.id;
+  if(!payload||!Array.isArray(payload.changes)||!payload.changes.length||payload.changes.length>5000||!['manual','import'].includes(payload.source)||payload.source==='manual'&&payload.changes.length!==1||!Number.isSafeInteger(payload.expectedRevision)||!Number.isSafeInteger(payload.expectedAccessRevision))throw Error('Invalid price update.');
+  const result=await request('/rest/v1/rpc/user_apply_business_changes',{p_changes:payload.changes,p_expected_revision:payload.expectedRevision,p_expected_access_revision:payload.expectedAccessRevision,p_source:payload.source});
+  if(born!==epoch||!valid()||role==='owner'||session.user.id!==account)throw Error('The signed-in account changed before confirmation.');
+  if(!result||result.version!==1||!Number.isSafeInteger(result.revision)||result.revision<payload.expectedRevision||!Number.isSafeInteger(result.accessRevision)||result.accessRevision<payload.expectedAccessRevision||!Number.isInteger(result.applied)||result.applied<0||!Number.isInteger(result.unchanged)||result.unchanged<0||result.applied+result.unchanged!==payload.changes.length)throw Error('The server did not acknowledge the complete update. Refresh before retrying.');
+  return result;
  }
  async function startMaster(candidate){
   if(started||starting)return;starting=true;const transition=++epoch;clearTimers();for(const c of requests)c.abort();mode('starting');say('Verifying Master access and opening your workspace…');
@@ -4809,8 +5358,8 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   if(found!==null&&!['owner','sales'].includes(found))throw Error('Invalid server role response.');
   session={...candidate,user};expiry=until;role=found;
   if(found==='owner'){await startMaster(session);return;}
-  mode('user');form.hidden=true;signout.hidden=false;say('User · read only · permissions set by Master');emit();
-  if(window.pm22Public.inspect().active)void window.pm22Public.refresh();else window.pm22Public.startPublic({fetchView,onLogin:()=>void logout()});
+  mode('user');form.hidden=true;signout.hidden=false;say('User · account permissions set by Master');emit();
+  if(window.pm22Public.inspect().active)void window.pm22Public.refresh();else window.pm22Public.startPublic({fetchView,commitChanges:commitUserChanges,onLogin:()=>void logout()});
   clearTimers();const renewalEpoch=epoch;renewTimer=setTimeout(async()=>{
    if(renewalEpoch!==epoch||starting||started)return;
    if(!session?.refresh_token){await logout();return;}
@@ -4826,10 +5375,13 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
  }
  const userSignout=()=>void logout();
  window.pm22MasterApi=Object.freeze({isOwner,getRole:()=>isOwner()?'owner':valid()?'user':null,
-  async request(path,body){if(!isOwner()||!started)throw Error('Master access is required.');if(!/^\/rest\/v1\/rpc\/master_(?:get_business_view|set_business_policy|publish_business_view)$/.test(path))throw Error('Unsupported Master operation.');return window.priceMasterCloud.masterRequest(path,body);},
+  async request(path,body){if(!isOwner()||!started)throw Error('Master access is required.');if(!/^\/rest\/v1\/rpc\/master_(?:get_business_view|set_business_policy|publish_business_view|list_business_accounts|get_account_access|set_account_access|reset_account_access)$/.test(path))throw Error('Unsupported Master operation.');
+   if(path.endsWith('/master_publish_business_view')&&(window.priceMasterCloud.authState().pendingCount||window.businessStorage?.isBusy?.()))throw Error('Wait for pending price edits to sync before publishing Inventory.');
+   return window.priceMasterCloud.masterRequest(path,body);},
   async fetchFeed(kind){if(!isOwner()||!started)throw Error('Master access is required.');return window.priceMasterCloud.masterFeed(kind);},
   state:()=>({role:isOwner()?'master':valid()?'user':null,signedIn:isOwner()||valid(),privateStarted:started})
  });
+ window.pm23MasterApi=window.pm22MasterApi;
  window.pm22Access=Object.freeze({state:window.pm22MasterApi.state,signOut:logout});
  async function expireForIdle(){
   const privateStarted=started||starting,token=session?.access_token;
