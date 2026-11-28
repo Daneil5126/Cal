@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Suite | Workspace UI PM23.7</title>
-<meta name="business-build" content="pm23.7-d8b10996dd16">
+<title>Business Suite | Workspace UI PM23.7.1</title>
+<meta name="business-build" content="pm23.7.1-live-20261128">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1184,6 +1184,7 @@ html[data-pm22-mode=master] body.pm-global-dark #page-dashboard #pmGlobalThemeBu
 @media(max-width:600px){#pm236SessionPanel .pm236-session-row{grid-template-columns:minmax(0,1fr) auto}#pm236SessionPanel .pm236-session-details{grid-column:1;grid-row:1}#pm236SessionPanel .pm236-session-activity{grid-column:1;grid-row:2}#pm236SessionPanel .pm236-session-row>button{grid-column:2;grid-row:1 / 3;min-height:40px}#pm236SessionPanel .pm236-session-activity>.pm236-session-time{display:none}}
 @media(max-width:1024px){body:has(#page-price-master.active) #pm237WorkspaceBar{flex:0 0 auto;padding:8px 10px 0;margin:0 0 8px;border-radius:10px}body:has(#page-price-master.active) #pm237WorkspaceBar .pm237-brand-name,body:has(#page-price-master.active) #pm237WorkspaceBar .pm237-brand-mark,body:has(#page-price-master.active) #pm237WorkspaceBar .pm237-news{display:none}body:has(#page-price-master.active) #pm237WorkspaceBar .pm237-bar-head{margin-bottom:4px}body:has(#page-price-master.active) #pm237WorkspaceBar #pmCloudToolbar{margin-bottom:8px!important}body:has(#page-price-master.active) #pm237WorkspaceBar #pmCloudStatus{flex-basis:auto;min-width:0}}
 </style>
+<style id="pm2371-recovery-css">#pm2371PasswordRecovery{display:none;color:#145dc4;font-size:14px}html[data-pm22-mode=login] #pm2371PasswordRecovery{display:block}#pm23AccountSettings [data-pm23-action=remove]{color:#b91c1c;border-color:#b91c1c;background:transparent}</style>
 </head>
 <body>
 <div id="confirmModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(15,23,42,.5);align-items:center;justify-content:center;">
@@ -3926,6 +3927,17 @@ function getFallbackRate() {
     if(!data||typeof data!=='object'||Array.isArray(data)||Object.keys(data).sort().join('|')!=='ready|version'||data.version!==1||data.ready!==true)throw pm233UserAdminError('The Create User service returned an incompatible status. Check the supplied deployment.','USER_ADMIN_INVALID_STATUS');
     return {version:1,ready:true};
   }
+  async function masterRemoveUser(value){
+    await checkMasterRole();const context=pm233UserAdminContext();
+    if(!canEdit())throw Error('Use the active Master editing tab.');
+    if(!value||Object.keys(value).sort().join('|')!=='confirmEmail|expectedRevision|userId'||typeof value.userId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.userId)||value.userId===session.user.id||typeof value.confirmEmail!=='string'||!Number.isSafeInteger(value.expectedRevision)||value.expectedRevision<0)throw Error('Select an ordinary User and confirm its email.');
+    let data;try{context.assert();data=await pm233UserAdminRequest({action:'remove_user',...value});}
+    catch(error){context.assert();const e=Error(error?.status===400?'Update business-suite-admin to the supplied PM23.7.1.1.1 version before removing Users.':error?.status===401||error?.status===403?'Master authorization was not confirmed. Sign in again.':error?.status===409?'The account changed. Reload it before trying again.':'Removal was not confirmed. Reload accounts or check Supabase before retrying.');e.uncertain=![400,401,403,409].includes(error?.status);throw e;}
+    try{context.assert();await checkMasterRole();context.assert();}catch{throw Object.assign(Error('Removal result is uncertain after the Master session changed. Reload accounts before retrying.'),{uncertain:true});}
+    if(!data||Object.keys(data).sort().join('|')!=='removed|version'||data.version!==1||!data.removed||Object.keys(data.removed).sort().join('|')!=='email|id'||data.removed.id!==value.userId||data.removed.email!==value.confirmEmail)throw Object.assign(Error('Removal was not confirmed. Reload accounts before retrying.'),{uncertain:true});
+    return data;
+  }
+
   async function masterCreateUser(value){
     await checkMasterRole();const context=pm233UserAdminContext();if(!canEdit())throw pm233UserAdminError('Use the active Master editing tab to create a User.','USER_ADMIN_READ_ONLY');
     const input=pm233ValidateNewUser(value);let data;
@@ -3994,7 +4006,7 @@ function getFallbackRate() {
     if(token)void request('/auth/v1/logout?scope=local',{method:'POST',keepalive:true},token,false).catch(()=>{});
     return {ok:true,pendingCount:pending.size};
   }
-  window.priceMasterCloud={masterListSessions,masterRevokeSession,endForInactivity,masterUiIdentity,masterReadUiPreferences,masterSaveUiPreferences,masterReadSyncSources,masterEnsureSyncSources,masterUserAdminStatus,masterCreateUser,
+  window.priceMasterCloud={masterListSessions,masterRevokeSession,endForInactivity,masterUiIdentity,masterReadUiPreferences,masterSaveUiPreferences,masterReadSyncSources,masterEnsureSyncSources,masterUserAdminStatus,masterCreateUser,masterRemoveUser,
     isMaster,checkMasterRole,masterRequest,masterFeed,async acceptMasterSession(candidate){const born=++generation;await accept(candidate,born);await refresh();return true;},
     signedIn:canEdit,canEdit,authState,refreshSession,exportPending,signOut,prepareTransaction,transactionError:()=>transactionFailure,recoverWriterState,queueAsync,requireOwner,
     openProductResource:pm212OpenProductResource,
@@ -4731,7 +4743,7 @@ body.pm-global-dark #confirmMsg{color:#f1f5f9!important}
 body.pm-global-dark #confirmCancel{background:#28364b!important;color:#f1f5f9!important;border-color:#72849d!important}
 body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important}
 </style>
-<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23.7',id:"pm23.7-d8b10996dd16",builtAt:"2026-11-28T12:00:00+08:00",environment:location.protocol==='file:'?'Local':'Online'};
+<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23.7.1',id:"pm23.7.1-live-20261128",builtAt:"2026-11-28T12:00:00+08:00",environment:location.protocol==='file:'?'Local':'Online'};
  info.checkForUpdates=async()=>{if(location.protocol==='file:')return{available:false,message:'Local HTML file. Download the latest verified release to update.'};if(checking)return checking;checking=(async()=>{try{const u=new URL(location.href);u.hash='';const response=await fetch(u.href,{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error('HTTP '+response.status);const text=await response.text();if(text.length>8*1024*1024)throw Error('Unexpected update response.');const next=text.match(/<meta name="business-build" content="([a-z0-9.-]+)">/)?.[1];if(!next)return{available:false,message:'This server has no verified build identifier. Current '+info.id};return{available:next!==info.id,message:next===info.id?'Current build is up to date: '+info.id:'New build available: '+next+'. Export your pending edits before reloading.'};}catch(error){return{available:false,message:'Update check failed. '+error.message};}finally{checking=null;}})();return checking;};window.businessBuildInfo=Object.freeze(info);})();</script>
 <script id="pm215-storage-bootstrap">/* Replaced by authenticated PM22 bootstrap. */</script>
 <script id="pm221-idle">/* Per-tab inactivity timeout. Network refresh is never user activity. */
@@ -5729,7 +5741,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    card.querySelectorAll('input[data-pm23-group]').forEach(input=>{let disabled=next||!allowed||!custom;const group=input.dataset.pm23Group;if(group==='editableFields')disabled||=!(policy.operations.priceEdit||policy.operations.priceImport)||!policy.fields.includes(input.dataset.pm23Key)||!policy.pages.inventory;if(group==='operations')disabled||=!policy.pages.inventory;input.disabled=disabled;});
    for(const control of card.querySelectorAll('[data-pm23-account],[data-pm23-search],[data-pm23-action]')){
     let disabled=next||!allowed;const action=control.dataset.pm23Action;
-    if(action==='save'||action==='reset')disabled||=!ready||owner;
+    if(action==='save'||action==='reset'||action==='remove')disabled||=!ready||owner;
     if(action==='reset')disabled||=state?.mode!=='custom'&&!dirty;
     if(action==='reload')disabled||=!state&&!card.querySelector('[data-pm23-account]').value;
     if(action==='previous')disabled||=page.offset===0;
@@ -5796,6 +5808,29 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    }catch(error){if(current(api,born))say(failure(error),'error');}
    finally{if(born===epoch)setBusy(false);}
   }
+  async function removeUser(){
+   if(busy||!state||state.mode==='owner'||state.role!=='user'||!isOwner(apiNow())||loadedApi!==apiNow())return;
+   const api=apiNow(),target={userId:state.userId,confirmEmail:state.email,expectedRevision:state.revision},born=epoch;
+   const dialog=node('dialog');dialog.id='pm2371RemoveUserDialog';dialog.setAttribute('aria-label','Remove User');
+   const title=node('h3','Remove User'),warning=node('p','Permanently remove '+target.confirmEmail+'? This account will no longer be able to sign in. This cannot be undone. Inventory and Sales records are kept.');
+   const label=node('label','Type the exact email to confirm'),input=node('input');input.type='email';input.autocomplete='off';input.maxLength=254;label.append(input);
+   const buttons=node('div',undefined,'pm23-account-actions'),cancel=node('button','Cancel'),confirm=node('button','Remove User'),notice=node('p');notice.setAttribute('role','status');confirm.disabled=true;confirm.style.background='#b91c1c';confirm.style.color='#fff';buttons.append(cancel,confirm);dialog.append(title,warning,label,buttons,notice);doc.body.append(dialog);
+   dialog.style.cssText='width:min(480px,calc(100vw - 32px));max-height:85dvh;overflow:auto;border:1px solid #8da6c7;border-radius:14px;padding:24px;background:var(--surface,#fff);color:var(--text,#173450)';input.style.cssText='width:100%;min-height:44px;margin-top:8px;padding:8px;box-sizing:border-box';
+   let sending=false;input.addEventListener('input',()=>{confirm.disabled=input.value!==target.confirmEmail;});
+   const close=()=>{if(sending)return;dialog.close();};cancel.addEventListener('click',close);dialog.addEventListener('cancel',event=>{if(sending)event.preventDefault();});
+   const stop=()=>{if(!isOwner(api)||born!==epoch){dialog.close();}};win.addEventListener('BusinessAuthChanged',stop);win.addEventListener('PM22RoleChanged',stop);
+   dialog.addEventListener('close',()=>{win.removeEventListener('BusinessAuthChanged',stop);win.removeEventListener('PM22RoleChanged',stop);dialog.remove();},{once:true});
+   confirm.addEventListener('click',async()=>{
+    if(sending||input.value!==target.confirmEmail||!current(api,born)||state?.userId!==target.userId)return;
+    if(typeof win.priceMasterCloud?.masterRemoveUser!=='function'){notice.textContent='Update the website and business-suite-admin before removing Users.';return;}
+    sending=true;confirm.disabled=cancel.disabled=input.disabled=true;setBusy(true);notice.textContent='Removing account…';
+    try{await win.priceMasterCloud.masterRemoveUser(target);if(!current(api,born))return;
+     state=null;loadedApi=null;dirty=false;card.querySelector('[data-pm23-custom]').checked=false;applyPolicy(null);metadata();setBusy(false);await loadAccounts(0,false);say('User removed: '+target.confirmEmail+'. Inventory and Sales data were kept.','success');dialog.close();
+    }catch(error){if(current(api,born)){notice.textContent=error.message||'Removal was not confirmed. Reload accounts before retrying.';cancel.disabled=false;if(!error.uncertain){input.disabled=false;confirm.disabled=input.value!==target.confirmEmail;}}}
+    finally{sending=false;if(current(api,born))setBusy(false);}
+   });dialog.showModal();input.focus();
+  }
+
   async function commit(reset=false){
    if(busy)return;const api=apiNow();if(!isOwner(api)||!state||loadedApi!==api||state.mode==='owner'){say('Select a User account while signed in as Master.','error');return;}
    const restoring=reset||!useCustom();let allowSensitive=false;const policy=draft();
@@ -5845,7 +5880,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    const writes=group('Price editing and import','These permissions apply only to existing products and the selected shared price fields. They do not allow new products, stock/cost changes, Sales, Reset / Clear Data or private cloud sync.');writes.options.append(checkbox('operations','priceEdit','Edit selected prices',false),checkbox('operations','priceImport','Import selected prices',false));userControls.append(writes.fieldset);
    const edit=group('Editable price fields','An editable field must also be visible. Price import uses the same field permissions and server conflict checks.');for(const [key,label]of FIELDS.filter(([key])=>EDITABLE.includes(key)))edit.options.append(checkbox('editableFields',key,label,false));userControls.append(edit.fieldset);
    const meta=node('p','','pm23-server-meta');meta.dataset.pm23Meta='';card.append(meta);
-   const actions=node('div',undefined,'pm23-account-actions');for(const [key,label]of[['save','Save this account'],['reset','Restore default User access'],['reload','Reload this account']]){const button=node('button',label);button.type='button';button.dataset.pm23Action=key;actions.append(button);}card.append(actions);
+   const actions=node('div',undefined,'pm23-account-actions');for(const [key,label]of[['save','Save this account'],['reset','Restore default User access'],['reload','Reload this account'],['remove','Remove User']]){const button=node('button',label);button.type='button';button.dataset.pm23Action=key;actions.append(button);}card.append(actions);
    const status=node('p','','pm23-status');status.dataset.pm23Status='';status.setAttribute('aria-live','polite');card.append(status);
    section.querySelector('.settings-card')?.before(card);if(!card.isConnected)section.append(card);
    card.addEventListener('change',event=>{
@@ -5861,7 +5896,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     dirty=true;updateDisclosure();setBusy(false);say('Unsaved changes for this account. Save to apply them on the server.');
    });
    search.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>void loadAccounts(0,false),300);});
-   card.addEventListener('click',event=>{const button=event.target.closest('[data-pm23-action]');if(!button||!card.contains(button))return;const action=button.dataset.pm23Action;if(action==='save')void commit(false);else if(action==='reset')void commit(true);else if(action==='reload')void loadAccount(state?.userId||select.value);else if(action==='previous')void loadAccounts(Math.max(0,page.offset-100));else if(action==='next')void loadAccounts(page.offset+100);else void loadAccounts(0,false);});
+   card.addEventListener('click',event=>{const button=event.target.closest('[data-pm23-action]');if(!button||!card.contains(button))return;const action=button.dataset.pm23Action;if(action==='save')void commit(false);else if(action==='reset')void commit(true);else if(action==='remove')void removeUser();else if(action==='reload')void loadAccount(state?.userId||select.value);else if(action==='previous')void loadAccounts(Math.max(0,page.offset-100));else if(action==='next')void loadAccounts(page.offset+100);else void loadAccounts(0,false);});
    renderList();metadata();setBusy(false);return true;
   }
   function sync(){if(!mount())return;if(!isOwner(apiNow())){invalidate();return;}if(!state&&!busy&&listStatus==='idle')void loadAccounts(0,true);else setBusy(busy);}
@@ -6161,7 +6196,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    if(error?.status===404||error?.code==='USER_ADMIN_EDGE_MISSING')return 'One-time setup required: business-suite-admin was not found at this project URL. Check the project and function name, deploy the supplied Edge Function, then click Check service.';
    if(error?.code==='USER_ADMIN_ACCOUNT_SQL_REQUIRED')return 'The Edge Function was reached. Its account-permissions SQL checks failed. Install or repair the supplied PM23 account-permissions SQL, then click Check service.';
    if(error?.code==='USER_ADMIN_SESSION_SQL_REQUIRED')return 'The Edge Function was reached. Its session-control SQL is not ready. Install the supplied PM23.6 session-control SQL, then click Check service.';
-   if(error?.code==='USER_ADMIN_SERVER_CONFIG_REQUIRED')return 'Server key unavailable or rejected. Update business-suite-admin to PM23.7. If needed, set BUSINESS_SECRET_KEY in Edge Function Secrets, then check again.';
+   if(error?.code==='USER_ADMIN_SERVER_CONFIG_REQUIRED')return 'Server key unavailable or rejected. Update business-suite-admin to PM23.7.1. If needed, set BUSINESS_SECRET_KEY in Edge Function Secrets, then check again.';
    if(error?.code==='USER_ADMIN_SETUP_REQUIRED')return 'One-time setup required: install the supplied Create User application and server setup, then click Check service.';
    if(error?.code==='USER_ADMIN_SESSION_REVOKED')return 'This Master session was revoked. Sign in again.';
    if(error?.status===401||error?.code==='USER_ADMIN_SIGN_IN_REQUIRED')return 'The Master sign-in expired. Sign in again.';
@@ -6212,7 +6247,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   viewport.append(track);news.append(caption,viewport,pause);shell.append(news);
   for(const card of document.querySelectorAll('#page-settings .settings-card')){const p=card.querySelector(':scope > p:not([id]):not([class]):not([role])');if(p&&p.textContent.length>100&&!/cost|sensitive|disclos|delete|clear|warning/i.test(p.textContent)){const help=el('details','pm237-inline-help'),summary=el('summary','','(i)');p.before(help);help.append(summary,p);}}
   pause.addEventListener('click',()=>{paused=!paused;news.classList.toggle('pm237-paused',paused);pause.textContent=paused?'▶':'Ⅱ';pause.setAttribute('aria-pressed',String(paused));pause.setAttribute('aria-label',paused?'Resume scrolling notices':'Pause scrolling notices');});
-  function refresh(){frame=0;const info=window.businessBuildInfo;version.textContent='Version '+(info?.version||'PM23.7');version.title=info?.id||'';const master=window.pm22MasterApi?.isOwner?.()===true;role.textContent=master?'● Master workspace':'● Verifying access';role.dataset.verified=String(master);const warning=notice.dataset.warning==='true'||/\b(failed|error|could not|unavailable)\b/i.test(document.getElementById('syncStatus')?.textContent||'');news.classList.toggle('pm237-warning',warning);caption.textContent=warning?'NOTICE':'LIVE';const distance=Math.max(0,track.scrollWidth-viewport.clientWidth);news.classList.toggle('pm237-can-scroll',distance>12);news.style.setProperty('--pm237-distance',distance+'px');news.style.setProperty('--pm237-duration',Math.min(70,Math.max(20,distance/24+8))+'s');}
+  function refresh(){frame=0;const info=window.businessBuildInfo;version.textContent='Version '+(info?.version||'PM23.7.1');version.title=info?.id||'';const master=window.pm22MasterApi?.isOwner?.()===true;role.textContent=master?'● Master workspace':'● Verifying access';role.dataset.verified=String(master);const warning=notice.dataset.warning==='true'||/\b(failed|error|could not|unavailable)\b/i.test(document.getElementById('syncStatus')?.textContent||'');news.classList.toggle('pm237-warning',warning);caption.textContent=warning?'NOTICE':'LIVE';const distance=Math.max(0,track.scrollWidth-viewport.clientWidth);news.classList.toggle('pm237-can-scroll',distance>12);news.style.setProperty('--pm237-distance',distance+'px');news.style.setProperty('--pm237-duration',Math.min(70,Math.max(20,distance/24+8))+'s');}
   function schedule(){if(!frame)frame=requestAnimationFrame(refresh);}
   const observer=new MutationObserver(schedule);for(const n of track.children)observer.observe(n,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['data-warning']});
   if(typeof ResizeObserver==='function'){resize=new ResizeObserver(schedule);resize.observe(viewport);resize.observe(track);}window.addEventListener('BusinessAuthChanged',schedule);window.addEventListener('PM22RoleChanged',schedule);window.addEventListener('resize',schedule);refresh();
@@ -6250,6 +6285,18 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   const finite=values.filter(n=>Number.isFinite(n)&&n>0),value=finite.length?Math.min(...finite):Date.now()+Number(candidate.expires_in)*1000;
   if(!Number.isFinite(value)||value<=Date.now())throw Error('Session expired. Please sign in again.');return value;
  }
+ function authFailure(path,status,data){
+   if(!path.startsWith('/auth/v1/'))return null;
+   const code=data?.code||data?.error_code;
+   if(status===429)return 'Too many sign-in attempts. Wait a moment before trying again.';
+   if(path==='/auth/v1/token?grant_type=password'){
+    if(code==='invalid_credentials')return 'Email or password was not accepted. Try again or reset your password.';
+    if(code==='email_not_confirmed')return 'Confirm your email before signing in.';
+    if(status===400||status===401)return 'Sign-in was not accepted. Check your email and password or reset your password.';
+   }
+   if(status===401||status===403)return 'Your sign-in expired. Sign in again.';
+   return 'The authentication service did not confirm this request ('+status+'). Please try again.';
+  }
  async function request(path,body,options={}){
   const token=options.token??session?.access_token,born=epoch,controller=new AbortController();requests.add(controller);
   const timer=setTimeout(()=>controller.abort(),30000);const abort=()=>controller.abort();options.signal?.addEventListener('abort',abort,{once:true});
@@ -6261,7 +6308,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    let data=null;try{data=text?JSON.parse(text):null;}catch{throw Error('The server returned an invalid response.');}
    if(!response.ok){
     if(data?.message==='BUSINESS_SESSION_REVOKED'&&token===session?.access_token){void pm236EndAccess('This session was disconnected. Sign in again.');const revoked=Error('This session was disconnected. Sign in again.');revoked.status=401;revoked.code='BUSINESS_SESSION_REVOKED';throw revoked;}
-    const message=data?.message==='BUSINESS_REPUBLISH_REQUIRED'?'The Master must publish Inventory once from PM23 before User price edits can be saved.':data?.message==='BUSINESS_SUPPORT_RATE_UNAVAILABLE'?'This published product has no usable calculation rate. Ask the Master to republish Inventory from PM23.':data?.message==='BUSINESS_UNPUBLISHED_OWNER_PRICE_CONFLICT'?'The Master has a newer unpublished price. Ask the Master to sync and republish before retrying.':response.status===401?'Your sign-in expired. Sign in again.':response.status===409||data?.code==='40001'?'Inventory or permissions changed in another session. Refresh, review the latest values and try again.':response.status===403||data?.code==='42501'?'This account is not allowed to perform that operation. Refresh your permissions.':response.status===404||data?.code==='PGRST202'?'PM23 account permissions are not configured. Ask the Master to install the supplied PM23 SQL.':response.status===400?'The submitted prices or file are invalid. Check the template and values.':'The server did not confirm this request ('+response.status+'). Refresh to check the current state.';
+    const message=authFailure(path,response.status,data)||(data?.message==='BUSINESS_REPUBLISH_REQUIRED'?'The Master must publish Inventory once from PM23 before User price edits can be saved.':data?.message==='BUSINESS_SUPPORT_RATE_UNAVAILABLE'?'This published product has no usable calculation rate. Ask the Master to republish Inventory from PM23.':data?.message==='BUSINESS_UNPUBLISHED_OWNER_PRICE_CONFLICT'?'The Master has a newer unpublished price. Ask the Master to sync and republish before retrying.':response.status===401?'Your sign-in expired. Sign in again.':response.status===409||data?.code==='40001'?'Inventory or permissions changed in another session. Refresh, review the latest values and try again.':response.status===403||data?.code==='42501'?'This account is not allowed to perform that operation. Refresh your permissions.':response.status===404||data?.code==='PGRST202'?'PM23 account permissions are not configured. Ask the Master to install the supplied PM23 SQL.':response.status===400?'The submitted prices or file are invalid. Check the template and values.':'The server did not confirm this request ('+response.status+'). Refresh to check the current state.');
     const error=Error(message);error.status=response.status;error.code=data?.code;throw error;
    }return data;
   }finally{clearTimeout(timer);requests.delete(controller);options.signal?.removeEventListener('abort',abort);}
@@ -6400,6 +6447,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
  document.getElementById('pmCloudToolbar').title='Automatically signs out after 10 minutes without activity.';
  mode('login');form.hidden=false;signout.hidden=true;document.getElementById('pmCloudSync').hidden=true;say('Sign in to view Business Suite. Your account determines Master or User access.');
  form.addEventListener('submit',login);signout.addEventListener('click',userSignout);
+ const recovery=document.createElement('a');recovery.id='pm2371PasswordRecovery';recovery.href='https://daneil5126.github.io/Cal/reset-password.html';recovery.textContent='Forgot password?';form.after(recovery);
  window.addEventListener('pagehide',()=>{clearTimers();for(const c of requests)c.abort();});
  window.addEventListener('pageshow',event=>{if(event.persisted){cover('Sign in again after returning to this page.');location.reload();}});
 })();
