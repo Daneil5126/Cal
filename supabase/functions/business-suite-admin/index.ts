@@ -1,0 +1,120 @@
+// Server-only compatibility with injected named API keys and legacy runtimes.
+// No credential value is ever returned in an HTTP response or logged.
+type KeyEnv=(name:string)=>string|undefined;
+function namedDefault(env:KeyEnv,name:string):string{const raw=env(name);if(!raw||raw.length>32768)return '';try{const value=JSON.parse(raw);return value&&typeof value==='object'&&!Array.isArray(value)&&Object.hasOwn(value,'default')&&typeof value.default==='string'?value.default:'';}catch{return '';}}
+function publicCredential(env:KeyEnv):string{return env('BUSINESS_PUBLISHABLE_KEY')||namedDefault(env,'SUPABASE_PUBLISHABLE_KEYS')||env('SUPABASE_ANON_KEY')||'';}
+function adminCredential(env:KeyEnv):string{const modern=env('BUSINESS_SECRET_KEY')||namedDefault(env,'SUPABASE_SECRET_KEYS');if(modern)return /^sb_secret_[A-Za-z0-9_-]{12,512}$/.test(modern)?modern:'';const legacy=env('SUPABASE_SERVICE_ROLE_KEY')||'';return legacy.length<=8192&&/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(legacy)?legacy:'';}
+function privilegedHeaders(key:string):Record<string,string>{return {apikey:key,...(key.startsWith('sb_secret_')?{}:{Authorization:'Bearer '+key}),'Content-Type':'application/json'};}
+
+// Deploy as business-suite-admin. Every action independently verifies the caller.
+// Privileged credentials remain server-side. No password/token/upstream body is logged.
+export const LIMITS=Object.freeze({requestBytes:4096,responseBytes:65536,deadlineMs:15000});
+const DEFAULT_ORIGIN='https://daneil5126.github.io';
+const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const JWT=/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+const SAFE_POLICY=Object.freeze({pages:{inventory:true,calculator:false},fields:['name','available','msdp','msrp'],features:{search:true,filter:true,sort:true,publicExport:false},operations:{priceEdit:false,priceImport:false},editableFields:[]});
+type Env=(name:string)=>string|undefined;
+type Dependencies={env?:Env;fetch?:typeof fetch;now?:()=>number;deadlineMs?:number};
+type Account={id:string;email:string};
+class AdminError extends Error{status:number;code:string;extra:Record<string,unknown>|undefined;constructor(status:number,code:string,message:string,extra?:Record<string,unknown>){super(message);this.status=status;this.code=code;this.extra=extra;}}
+const fail=(status:number,code:string,message:string):never=>{throw new AdminError(status,code,message);};
+const plain=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
+const exact=(v:unknown,keys:string[])=>plain(v)&&Object.keys(v).sort().join('|')===[...keys].sort().join('|');
+function origins(env:Env){const raw=env('ALLOWED_ORIGINS')??DEFAULT_ORIGIN;if(!raw||raw.length>4096)fail(503,'ADMIN_NOT_CONFIGURED','The account service is not configured.');const result=new Set<string>();for(const part of raw.split(',')){const text=part.trim();let url:URL;try{url=new URL(text);}catch{return fail(503,'ADMIN_NOT_CONFIGURED','The account service is not configured.');}if(text!==url.origin||url.protocol!=='https:'||url.username||url.password||url.hostname==='localhost'||url.hostname==='127.0.0.1')fail(503,'ADMIN_NOT_CONFIGURED','The account service is not configured.');result.add(text);}return result;}
+function responseHeaders(origin:string|null){const h=new Headers({'Cache-Control':'private, no-store, max-age=0',Pragma:'no-cache',Vary:'Origin','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'});if(origin){h.set('Access-Control-Allow-Origin',origin);h.set('Access-Control-Allow-Methods','POST, OPTIONS');h.set('Access-Control-Allow-Headers','authorization, apikey, content-type, x-client-info');}return h;}
+function json(value:unknown,status:number,origin:string|null){const headers=responseHeaders(origin);headers.set('Content-Type','application/json; charset=utf-8');return new Response(JSON.stringify(value),{status,headers});}
+async function bounded(stream:ReadableStream<Uint8Array>|null,limit:number,signal:AbortSignal){if(!stream)return new Uint8Array();const reader=stream.getReader(),parts:Uint8Array[]=[];let total=0;const abort=()=>void reader.cancel().catch(()=>{});signal.addEventListener('abort',abort,{once:true});try{for(;;){if(signal.aborted)throw new DOMException('Cancelled','AbortError');const item=await reader.read();if(signal.aborted)throw new DOMException('Cancelled','AbortError');if(item.done)break;total+=item.value.byteLength;if(total>limit){await reader.cancel().catch(()=>{});fail(413,'BODY_TOO_LARGE','The request or response exceeds the supported limit.');}parts.push(item.value);}const bytes=new Uint8Array(total);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.byteLength;}return bytes;}finally{signal.removeEventListener('abort',abort);reader.releaseLock();}}
+async function readJson(response:Response,signal:AbortSignal){const length=response.headers.get('Content-Length');if(length&&(!/^\d+$/.test(length)||Number(length)>LIMITS.responseBytes)){void response.body?.cancel().catch(()=>{});return fail(502,'UPSTREAM_INVALID','The account service returned an invalid response.');}let bytes;try{bytes=await bounded(response.body,LIMITS.responseBytes,signal);}catch(error){if(error instanceof AdminError)fail(502,'UPSTREAM_INVALID','The account service returned an invalid response.');throw error;}try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));}catch{return fail(502,'UPSTREAM_INVALID','The account service returned an invalid response.');}}
+function normalizeEmail(value:unknown){if(typeof value!=='string')return null;const email=value.trim().toLowerCase();if(email.length>254||/[\s\x00-\x1f\x7f<>]/.test(email))return null;const parts=email.split('@');if(parts.length!==2||!parts[0]||parts[0].length>64||!/^[a-z0-9.!#$%&'*+\/?=^_`{|}~-]+$/.test(parts[0])||parts[0].startsWith('.')||parts[0].endsWith('.')||parts[0].includes('..'))return null;const labels=parts[1].split('.');if(labels.length<2||!labels.every(label=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))||!/^[a-z]{2,63}$/.test(labels.at(-1)||''))return null;return email;}
+function validPassword(value:unknown):value is string{return typeof value==='string'&&Array.from(value).length>=12&&Array.from(value).length<=128&&new TextEncoder().encode(value).byteLength<=256&&!/[\x00-\x1f\x7f]/.test(value);}
+function safePolicy(value:unknown){if(!exact(value,['pages','fields','features','operations','editableFields']))return false;const p=value as Record<string,unknown>,fields=p.fields;return exact(p.pages,['inventory','calculator'])&&(p.pages as Record<string,unknown>).inventory===true&&(p.pages as Record<string,unknown>).calculator===false&&Array.isArray(fields)&&fields.length===4&&new Set(fields).size===4&&['name','available','msdp','msrp'].every(field=>fields.includes(field))&&exact(p.features,['search','filter','sort','publicExport'])&&(p.features as Record<string,unknown>).search===true&&(p.features as Record<string,unknown>).filter===true&&(p.features as Record<string,unknown>).sort===true&&(p.features as Record<string,unknown>).publicExport===false&&exact(p.operations,['priceEdit','priceImport'])&&(p.operations as Record<string,unknown>).priceEdit===false&&(p.operations as Record<string,unknown>).priceImport===false&&Array.isArray(p.editableFields)&&p.editableFields.length===0;}
+function userData(value:unknown,email:string):Account|null{const v=plain(value)&&plain(value.user)?value.user:value;if(!plain(v)||typeof v.id!=='string'||!UUID.test(v.id)||normalizeEmail(v.email)!==email||v.is_anonymous===true)return null;return{id:v.id,email};}
+function bannedUntil(value:unknown){const v=plain(value)&&plain(value.user)?value.user:value;return plain(v)?v.banned_until:undefined;}
+
+export function createHandler(dependencies:Dependencies={}){
+ const env=dependencies.env||((name:string)=>Deno.env.get(name)),fetcher=dependencies.fetch||fetch,now=dependencies.now||Date.now;
+ const deadlineMs=Math.max(1,Math.min(dependencies.deadlineMs??LIMITS.deadlineMs,LIMITS.deadlineMs));
+ return async function handler(request:Request){
+  let allowedOrigin:string|null=null,created:Account|null=null,adminStarted=false,activationStarted=false,banConfirmed=false,timedOut=false,actorSessionId='';
+  const controller=new AbortController(),timer=setTimeout(()=>{timedOut=true;controller.abort();},deadlineMs),cancel=()=>controller.abort();request.signal.addEventListener('abort',cancel,{once:true});if(request.signal.aborted)controller.abort();
+  try{
+   const allowed=origins(env),origin=request.headers.get('Origin');if(!origin||!allowed.has(origin))fail(403,'ORIGIN_NOT_ALLOWED','This website is not allowed to use account management.');allowedOrigin=origin;
+   if(new URL(request.url).search)fail(400,'INVALID_REQUEST','Send an account-management action in the JSON body.');
+   if(request.method==='OPTIONS'){const asked=(request.headers.get('Access-Control-Request-Headers')||'').split(',').map(v=>v.trim().toLowerCase()).filter(Boolean);if(request.headers.get('Access-Control-Request-Method')!=='POST'||asked.some(v=>!['authorization','apikey','content-type','x-client-info'].includes(v)))fail(403,'PREFLIGHT_NOT_ALLOWED','The requested method or headers are not allowed.');const h=responseHeaders(origin);h.set('Access-Control-Max-Age','600');return new Response(null,{status:204,headers:h});}
+   if(request.method!=='POST')fail(405,'METHOD_NOT_ALLOWED','Only POST requests are supported.');
+   const authorization=request.headers.get('Authorization')||'';if(authorization.length>8192||!authorization.startsWith('Bearer ')||!JWT.test(authorization.slice(7)))fail(401,'SIGN_IN_REQUIRED','Sign in as Master to manage User accounts.');
+   if(!/^application\/json(?:\s*;[^\r\n]*)?$/i.test(request.headers.get('Content-Type')||'')||!['','identity'].includes(request.headers.get('Content-Encoding')||''))fail(400,'INVALID_REQUEST','Send a JSON account-management action.');
+   const length=request.headers.get('Content-Length');if(length&&(!/^\d+$/.test(length)||Number(length)>LIMITS.requestBytes))fail(413,'BODY_TOO_LARGE','The request exceeds the supported size.');
+   const base=env('SUPABASE_URL')||'',apiKey=publicCredential(env);if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(base)||!apiKey||apiKey.length>8192||/[\r\n]/.test(apiKey))fail(503,'ADMIN_NOT_CONFIGURED','The account service is not configured.');
+   const callerHeaders={apikey:apiKey,Authorization:authorization,'Content-Type':'application/json'};
+   const call=async(path:string,options:RequestInit={})=>{if(controller.signal.aborted)throw new DOMException('Cancelled','AbortError');return fetcher(base+path,{...options,headers:options.headers||callerHeaders,signal:controller.signal,cache:'no-store',redirect:'error'});};
+   const auth=await call('/auth/v1/user',{method:'GET'});if(!auth.ok){void auth.body?.cancel().catch(()=>{});if([401,403,404].includes(auth.status))fail(401,'SESSION_EXPIRED','Your sign-in session is no longer valid.');fail(502,'AUTH_UNAVAILABLE','The account authorization service is unavailable.');}
+   const caller=await readJson(auth,controller.signal);if(!plain(caller)||typeof caller.id!=='string'||!UUID.test(caller.id)||caller.is_anonymous===true)fail(401,'SESSION_EXPIRED','A non-anonymous Master account is required.');
+   const requireSession=async()=>{const response=await call('/rest/v1/rpc/business_assert_session_active',{method:'POST',body:'{}'});if(!response.ok){let body:unknown;try{body=await readJson(response,controller.signal);}catch(error){if(controller.signal.aborted)throw error;}const code=plain(body)?body.code:null;if(response.status===404||code==='PGRST202'||code==='42883')fail(503,'SESSION_CONTROL_NOT_CONFIGURED','Install the supplied PM23.6 session-control SQL.');if([401,403].includes(response.status)||code==='42501')fail(401,'BUSINESS_SESSION_REVOKED','This sign-in session is no longer active. Sign in again.');fail(502,'AUTH_UNAVAILABLE','The active sign-in session could not be verified.');}const ack=await readJson(response,controller.signal);if(!exact(ack,['version','sessionId','active'])||ack.version!==1||ack.active!==true||typeof ack.sessionId!=='string'||!UUID.test(ack.sessionId))fail(503,'SESSION_CONTROL_NOT_CONFIGURED','The session-control service returned an invalid confirmation.');if(actorSessionId&&actorSessionId!==ack.sessionId)fail(401,'BUSINESS_SESSION_REVOKED','The verified sign-in session changed. Sign in again.');actorSessionId=ack.sessionId;};
+   const requireOwner=async()=>{await requireSession();const response=await call('/rest/v1/rpc/get_business_role',{method:'POST',body:'{}'});if(!response.ok){void response.body?.cancel().catch(()=>{});if([401,403].includes(response.status))fail(403,'MASTER_REQUIRED','Only the Master account may manage User accounts.');fail(502,'AUTH_UNAVAILABLE','Master access could not be verified.');}if(await readJson(response,controller.signal)!=='owner')fail(403,'MASTER_REQUIRED','Only the Master account may manage User accounts.');};
+   await requireOwner();
+   let input:unknown;try{input=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(await bounded(request.body,LIMITS.requestBytes,controller.signal)));}catch(error){if(error instanceof AdminError||controller.signal.aborted)throw error;fail(400,'INVALID_REQUEST','Send a valid account-management action.');}
+   const statusAction=exact(input,['action'])&&(input as Record<string,unknown>).action==='status';
+   const removeAction=exact(input,['action','userId','confirmEmail','expectedRevision'])&&(input as Record<string,unknown>).action==='remove_user';
+   if(!statusAction&&!removeAction&&(!exact(input,['action','email','password'])||(input as Record<string,unknown>).action!=='create_user'))fail(400,'INVALID_REQUEST','Only status, create_user or confirmed remove_user actions are accepted.');
+   const email=statusAction?null:normalizeEmail((input as Record<string,unknown>).email),password=statusAction?null:(input as Record<string,unknown>).password;
+   if(!statusAction&&!removeAction&&(!email||!validPassword(password)))fail(400,'INVALID_USER_DETAILS','Enter a valid email and a password of 12–128 characters (at most 256 UTF-8 bytes), without control characters.');
+   const rpc=async(name:string,body:unknown)=>{const response=await call('/rest/v1/rpc/'+name,{method:'POST',body:JSON.stringify(body)});if(!response.ok){void response.body?.cancel().catch(()=>{});if([401,403].includes(response.status))fail(403,'MASTER_REQUIRED','Master access is required for account permissions.');fail(503,'ACCOUNT_PERMISSIONS_NOT_CONFIGURED','Account permissions are not ready. Install the supplied PM23 account-permissions SQL before creating a User.');}return readJson(response,controller.signal);};
+   const getCatalog=async()=>{const state=await rpc('master_get_business_view',{});if(!plain(state)||state.version!==1||!Number.isSafeInteger(state.revision)||Number(state.revision)<0)fail(503,'ACCOUNT_PERMISSIONS_NOT_CONFIGURED','The account-permissions service returned an invalid state.');return Number(state.revision);};
+   await getCatalog();const ownerAccess=await rpc('master_get_account_access',{p_user_id:caller.id});if(!plain(ownerAccess)||ownerAccess.version!==1||ownerAccess.userId!==caller.id||ownerAccess.role!=='owner'||ownerAccess.mode!=='owner')fail(503,'ACCOUNT_PERMISSIONS_NOT_CONFIGURED','Account permissions are not ready for Master-managed User creation.');
+   await requireOwner();
+   const serviceKey=adminCredential(env);if(!serviceKey)fail(503,'ADMIN_NOT_CONFIGURED','The account service is missing its platform administrator credential.');
+   const adminHeaders=privilegedHeaders(serviceKey);
+   if(statusAction){const probe=await call('/auth/v1/admin/users?page=1&per_page=1',{method:'GET',headers:adminHeaders});if(!probe.ok){void probe.body?.cancel().catch(()=>{});fail(probe.status===401||probe.status===403?503:502,probe.status===401||probe.status===403?'ADMIN_NOT_CONFIGURED':'ADMIN_UNAVAILABLE','Administrator credential verification failed. Check the server-only key.');}const result=await readJson(probe,controller.signal);if(!plain(result)||!Array.isArray(result.users)||result.users.length>1)fail(502,'UPSTREAM_INVALID','Administrator verification returned an invalid response.');await requireOwner();return json({version:1,ready:true},200,allowedOrigin);}
+   if(removeAction){
+    const details=input as Record<string,unknown>,target=details.userId,confirmEmail=details.confirmEmail,expected=details.expectedRevision;
+    if(typeof target!=='string'||!UUID.test(target)||target.toLowerCase()===caller.id.toLowerCase()||typeof confirmEmail!=='string'||normalizeEmail(confirmEmail)!==confirmEmail||!Number.isSafeInteger(expected)||Number(expected)<0)fail(400,'INVALID_REMOVE_DETAILS','Select an ordinary User and confirm its exact email.');
+    const verifyTarget=async()=>{const access=await rpc('master_get_account_access',{p_user_id:target});
+     if(!plain(access)||access.version!==1||access.userId!==target||access.role!=='user'||!['inherit','custom'].includes(String(access.mode)))fail(403,'PROTECTED_ACCOUNT','Master accounts cannot be removed here.');
+     if(access.email!==confirmEmail||access.revision!==expected)fail(409,'ACCOUNT_CHANGED','This account changed. Reload it before removal.');
+    };
+    await verifyTarget();
+    const path='/auth/v1/admin/users/'+encodeURIComponent(target);
+    const existing=await call(path,{method:'GET',headers:adminHeaders});
+    if(!existing.ok){void existing.body?.cancel().catch(()=>{});fail(existing.status===404?409:502,'REMOVE_NOT_CONFIRMED','Reload the account before trying removal.');}
+    const account=userData(await readJson(existing,controller.signal),confirmEmail);
+    if(!account||account.id!==target)fail(409,'ACCOUNT_CHANGED','Account identity changed. Reload before removal.');
+    await requireOwner();await verifyTarget();
+    adminStarted=true;const deleted=await call(path,{method:'DELETE',headers:adminHeaders,body:JSON.stringify({should_soft_delete:false})});
+    if(!deleted.ok){void deleted.body?.cancel().catch(()=>{});fail(502,'REMOVE_UNCONFIRMED','Account removal was not confirmed. Check Authentication before retrying.');}
+    void deleted.body?.cancel().catch(()=>{});
+    const check=await call(path,{method:'GET',headers:adminHeaders});
+    if(check.status!==404){void check.body?.cancel().catch(()=>{});fail(502,'REMOVE_UNCONFIRMED','Account removal was not confirmed. Check Authentication before retrying.');}
+    const absent=await readJson(check,controller.signal);
+    if(!plain(absent)||!['user_not_found','not_found'].includes(String(absent.code||absent.error_code)))fail(502,'REMOVE_UNCONFIRMED','Account removal was not confirmed. Check Authentication before retrying.');
+    await requireOwner();return json({version:1,removed:{id:target,email:confirmEmail}},200,allowedOrigin);
+   }
+
+   adminStarted=true;const result=await call('/auth/v1/admin/users',{method:'POST',headers:adminHeaders,body:JSON.stringify({email,password,email_confirm:true,ban_duration:'876000h'})});
+   const body=await readJson(result,controller.signal);
+   if(!result.ok){const code=plain(body)?body.error_code||body.code:null;if(result.status===409||['email_exists','user_already_exists'].includes(String(code)))fail(409,'USER_EXISTS','An account already uses this email. No existing account was changed.');if(result.status===429)fail(429,'ADMIN_RATE_LIMITED','Account creation is rate limited. Wait before retrying.');if([400,422].includes(result.status))fail(400,'INVALID_USER_DETAILS','The account service rejected these user details. Check the email and password.');fail(502,'ADMIN_CREATE_FAILED','The account service did not confirm User creation. Reload accounts before retrying.');}
+   const confirmed=userData(body,email!);if(!confirmed||confirmed.id===caller.id)fail(502,'UPSTREAM_INVALID','The account service returned an invalid creation response. Reload accounts before retrying.');created=confirmed;
+   const ban=bannedUntil(body);if(typeof ban!=='string'||!Number.isFinite(Date.parse(ban))||Date.parse(ban)<=now()+3600000){
+    // Never continue with an account whose initial blocked state was not confirmed.
+    // Only the UUID returned by this successful create request is eligible for cleanup.
+    const cleanup=await call('/auth/v1/admin/users/'+encodeURIComponent(created.id),{method:'DELETE',headers:adminHeaders,body:'{}'});void cleanup.body?.cancel().catch(()=>{});if(!cleanup.ok)throw new AdminError(502,'USER_BLOCKING_UNCONFIRMED','The new account could not be confirmed blocked. Do not share its credentials; review it in Authentication.',{incompleteUser:{...created,blocked:'unknown'}});created=null;fail(502,'USER_BLOCKING_UNSUPPORTED','The account service did not confirm safe blocked creation. The new account was removed; no account was activated.');
+   }
+   banConfirmed=true;const revision=await getCatalog();
+   const policyAck=await rpc('master_set_account_access',{p_user_id:created.id,p_policy:SAFE_POLICY,p_expected_revision:0,p_allow_sensitive:false,p_expected_default_revision:revision});
+   if(!plain(policyAck)||policyAck.version!==1||policyAck.userId!==created.id||policyAck.role!=='user'||policyAck.mode!=='custom'||!Number.isSafeInteger(policyAck.revision)||Number(policyAck.revision)<1||!safePolicy(policyAck.policy))throw new AdminError(503,'USER_SETUP_INCOMPLETE','The new User remains blocked because safe read-only permissions were not confirmed.',{incompleteUser:{...created,blocked:true}});
+   await requireOwner();activationStarted=true;
+   const activation=await call('/auth/v1/admin/users/'+encodeURIComponent(created.id),{method:'PUT',headers:adminHeaders,body:JSON.stringify({ban_duration:'none'})});
+   const activatedBody=await readJson(activation,controller.signal),active=userData(activatedBody,email!),activeBan=bannedUntil(activatedBody);
+   if(!activation.ok||!active||active.id!==created.id||activeBan!==null&&activeBan!==undefined&&(typeof activeBan!=='string'||!Number.isFinite(Date.parse(activeBan))||Date.parse(activeBan)>now()))throw new AdminError(502,'USER_ACTIVATION_UNCONFIRMED','Safe read-only permissions were applied, but activation was not confirmed. Check the User in Authentication before sharing credentials.',{incompleteUser:{...created,blocked:'unknown'}});
+   try{await requireSession();}catch{throw new AdminError(502,'USER_ACTIVATION_UNCONFIRMED','Account activation completed but the caller session could not be reconfirmed. Check Authentication before retrying or sharing credentials.');}
+   return json({version:1,user:{id:active.id,email:active.email,role:'user'}},200,allowedOrigin);
+  }catch(error){
+   if(created&&!activationStarted&&banConfirmed){const e=error instanceof AdminError?error:null;return json({error:'USER_SETUP_INCOMPLETE',message:'The new User remains blocked because account setup did not finish. Review its permissions in Supabase before enabling it.',incompleteUser:{...created,blocked:true},cause:e?.code||undefined},timedOut?504:e?.status===403?403:503,allowedOrigin);}
+   if(timedOut||controller.signal.aborted)return json({error:timedOut?'ADMIN_REQUEST_TIMEOUT':'REQUEST_CANCELLED',message:adminStarted?'The request was not confirmed. Reload accounts and check the new User in Authentication before retrying or sharing credentials.':'The account request timed out or was cancelled. Try again.'},timedOut?504:499,allowedOrigin);
+   if(error instanceof AdminError)return json({error:error.code,message:error.message,...error.extra},error.status,allowedOrigin);
+   return json({error:adminStarted?'ADMIN_CREATE_UNCONFIRMED':'ADMIN_UNAVAILABLE',message:adminStarted?'The account operation was not confirmed. Reload accounts and check Authentication before retrying.':'The account service is unavailable. Try again later.'},502,allowedOrigin);
+  }finally{clearTimeout(timer);request.signal.removeEventListener('abort',cancel);}
+ };
+}
+declare const Deno:{env:{get(name:string):string|undefined};serve(handler:(request:Request)=>Promise<Response>):void};
+if(typeof Deno!=='undefined')Deno.serve(createHandler());
