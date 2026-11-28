@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Suite | Master Workspace PM23.5</title>
-<meta name="business-build" content="pm23.5-72567feb9ea6">
+<title>Business Suite | Account Sessions PM23.6</title>
+<meta name="business-build" content="pm23.6-98d69c295036">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1046,6 +1046,43 @@ body.pm-global-dark .pm233-sync-help{background:#3d2b11;color:#ffe1a3;border-col
 body.pm-global-dark .pm235-master-ui-sync{background:#172c43;border-color:#4a79ad;color:#d2e6ff}
 body.pm-global-dark .pm235-master-ui-sync[data-phase=synced]{background:#16372b;border-color:#4c9473;color:#c5f1d6}
 body.pm-global-dark .pm235-master-ui-sync[data-phase=conflict],body.pm-global-dark .pm235-master-ui-sync[data-phase=offline],body.pm-global-dark .pm235-master-ui-sync[data-phase=local-error]{background:#40331a;border-color:#a78036;color:#ffe5a7}
+</style>
+<style id="pm236-session-panel-style">/* Compact Master session card, independent of the account-permission editor. */
+.pm236-session-panel{color:var(--text,#21354f);min-width:0}
+.pm236-session-panel[hidden]{display:none!important}
+.pm236-session-panel *{box-sizing:border-box}
+.pm236-session-panel p{margin:6px 0 12px;line-height:1.5}
+.pm236-session-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.pm236-session-heading h3{margin:0 0 6px}
+.pm236-session-heading p{font-size:13px;color:var(--muted,#65748a)}
+.pm236-session-panel button{font:inherit;font-size:13px;line-height:1.4;border:1px solid var(--border,#cbd5e1);background:var(--surface,#fff);color:inherit;border-radius:7px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.pm236-session-panel button:disabled{opacity:.55;cursor:default}
+.pm236-session-panel button:focus-visible,.pm236-session-panel input:focus-visible{outline:2px solid #5688d8;outline-offset:2px}
+.pm236-session-search{display:flex;flex-direction:column;gap:5px;max-width:420px;font-size:12px;font-weight:600}
+.pm236-session-search input{width:100%;min-width:0;max-width:100%;font:inherit;font-size:14px;font-weight:400;border:1px solid var(--border,#cbd5e1);border-radius:7px;padding:8px 10px;color:inherit;background:var(--surface,#fff)}
+.pm236-session-status{font-size:12px;color:var(--muted,#65748a);overflow-wrap:anywhere}
+.pm236-session-status[data-kind=error]{color:#a42a25}
+.pm236-session-status[data-kind=success]{color:#1c6d43}
+.pm236-session-list{list-style:none;margin:0;padding:0;max-height:430px;overflow:auto;border-block:1px solid var(--border,#dce3ec);overscroll-behavior:contain}
+.pm236-session-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,auto) auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border,#dce3ec)}
+.pm236-session-row:last-child{border-bottom:0}
+.pm236-session-details,.pm236-session-activity{min-width:0;display:flex;flex-direction:column;gap:4px}
+.pm236-session-identity{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;font-size:13px}
+.pm236-session-identity strong{min-width:0;overflow-wrap:anywhere}
+.pm236-current-device{font-size:10px;font-weight:600;border:1px solid #b8cbea;border-radius:20px;padding:1px 6px;color:#315a94;background:#edf4ff}
+.pm236-session-device{font-size:12px;overflow-wrap:anywhere}
+.pm236-session-time{font-size:11px;color:var(--muted,#65748a);overflow-wrap:anywhere}
+.pm236-session-badge{font-size:12px;font-weight:600;color:var(--muted,#65748a)}
+.pm236-session-activity[data-activity=recent] .pm236-session-badge{color:#287349}
+.pm236-session-empty{font-size:13px;padding:12px 0}
+.pm236-session-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.pm236-session-meta{font-size:12px;color:var(--muted,#65748a)}
+.pm236-session-pager{display:flex;gap:7px}
+body.pm-global-dark .pm236-session-panel{--muted:#a9b8cc}
+body.pm-global-dark .pm236-session-status[data-kind=error]{color:#ffb8b3}
+body.pm-global-dark .pm236-session-status[data-kind=success],body.pm-global-dark .pm236-session-activity[data-activity=recent] .pm236-session-badge{color:#9be0b7}
+body.pm-global-dark .pm236-current-device{background:#203752;border-color:#4e739f;color:#c7e0ff}
+@media(max-width:600px){.pm236-session-heading{gap:8px}.pm236-session-row{grid-template-columns:minmax(0,1fr) auto;gap:9px}.pm236-session-details{grid-column:1/-1}.pm236-session-activity{grid-column:1}.pm236-session-row>button{grid-column:2;grid-row:2}.pm236-session-search{max-width:none}.pm236-session-footer{align-items:flex-start}.pm236-session-meta{flex-basis:100%}}
 </style>
 </head>
 <body>
@@ -3451,6 +3488,7 @@ function getFallbackRate() {
         let detail=null;try{detail=JSON.parse(await response.text());}catch{}
         if(path.includes('/rpc/business_commit_price_edits')&&detail?.code==='40001'){const error=new Error('Another device changed these prices. This entire cloud batch was not applied. Export the pending edits and review the current server values before retrying.');error.status=response.status;error.code='BUSINESS_EDIT_CONFLICT';throw error;}
         if(path.includes('/rpc/business_commit_price_edits')&&(response.status===404||detail?.code==='PGRST202')){const error=new Error('Safe cloud sync is not configured. Deploy the supplied CAS SQL. Local edits remain saved and pending; legacy overwrite was blocked.');error.status=response.status;throw error;}
+        if(detail?.message==='BUSINESS_SESSION_REVOKED'&&track&&born===generation&&token===session?.access_token)window.dispatchEvent(new Event('PM236SessionDenied'));
         if(response.status===401&&track&&born===generation&&token===session?.access_token)lock('Session expired. Sign in again. Pending edits are retained.');
         const error=new Error(response.status===401?'Session expired or sign-in failed. Sign in again.':'Cloud request failed ('+response.status+').');
         error.status=response.status;throw error;
@@ -3468,6 +3506,7 @@ function getFallbackRate() {
     const roleCheck=await request('/rest/v1/rpc/get_business_role',{method:'POST',body:'{}'},candidate.access_token,false);
     if(born!==generation)throw new Error('Sign-in was cancelled.');
     if(roleCheck!=='owner')throw new Error('Master access is required.');
+    await pm236Heartbeat(candidate.access_token,born,true);
     serverRole=roleCheck;
     if(outboxIssue&&!loadOutbox())throw new Error('Pending edits could not be recovered. Export or explicitly discard the stored recovery data before signing in. '+outboxIssue);
     if(pending.size&&pendingOwner!==user.id)throw new Error('Pending edits belong to another account. Sign in to that account, or export and explicitly discard them first.');
@@ -3620,11 +3659,36 @@ function getFallbackRate() {
     return signed.href;
   }
 
+  // Master-only list/revoke transport. Server UUIDs, never email/device identity.
+  let pm236LastHeartbeat=0,pm236HeartbeatTask=null;
+  async function pm236Heartbeat(token=session?.access_token,born=generation,force=false){
+    if(!force&&Date.now()-pm236LastHeartbeat<45000)return;
+    if(pm236HeartbeatTask&&!force)return pm236HeartbeatTask;
+    const task=(async()=>{let data;try{data=await request('/rest/v1/rpc/heartbeat_business_session',{method:'POST',body:JSON.stringify({p_device_label:window.pm236Session.device()})},token,false);}catch(error){throw window.pm236Session.failure(error);}if(born!==generation)throw Error('The signed-in account changed.');window.pm236Session.ack(data);pm236LastHeartbeat=Date.now();return data;})();
+    pm236HeartbeatTask=task;try{return await task;}finally{if(pm236HeartbeatTask===task)pm236HeartbeatTask=null;}
+  }
+  async function masterListSessions(value={}){
+    await checkMasterRole();const context=pm235UiContext();
+    const offset=value.offset??0,search=value.search??'';
+    if(!Number.isSafeInteger(offset)||offset<0||offset>100000||typeof search!=='string'||search.length>120)throw Error('Invalid session search.');
+    let data;try{data=await masterRequest('/rest/v1/rpc/master_list_business_sessions',{p_offset:offset,p_limit:50,p_search:search});}catch(error){throw window.pm236Session.failure(error);}context.assert();
+    const date=x=>typeof x==='string'&&x.length<=48&&Number.isFinite(Date.parse(x));
+    if(!data||data.version!==1||!Array.isArray(data.sessions)||data.sessions.length>50||!Number.isSafeInteger(data.total)||data.total<0||typeof data.hasMore!=='boolean'||!date(data.serverTime)||data.sessions.some(row=>!row||!window.pm236Session.uuid(row.sessionId)||!window.pm236Session.uuid(row.userId)||typeof row.email!=='string'||row.email.length>320||typeof row.deviceLabel!=='string'||row.deviceLabel.length>160||!date(row.firstSeenAt)||!date(row.lastSeenAt)||!['online','idle','revoked'].includes(row.status)||typeof row.isCurrent!=='boolean'||!(row.role===null||['owner','sales','user'].includes(row.role))))throw Error('The server returned an invalid session list.');
+    return {version:1,sessions:data.sessions.map(row=>({sessionId:row.sessionId,userId:row.userId,email:row.email,role:row.role==='owner'?'owner':'user',createdAt:row.firstSeenAt,lastSeenAt:row.lastSeenAt,device:row.deviceLabel,status:row.status==='online'?'recent':row.status,current:row.isCurrent})),total:data.total,offset,hasMore:data.hasMore};
+  }
+  async function masterRevokeSession(value){
+    await checkMasterRole();const context=pm235UiContext();
+    if(!value||!window.pm236Session.uuid(value.sessionId)||value.confirmCurrent!==undefined&&typeof value.confirmCurrent!=='boolean')throw Error('Select a valid session.');
+    let data;try{data=await masterRequest('/rest/v1/rpc/master_revoke_business_session',{p_session_id:value.sessionId,p_confirm_current:value.confirmCurrent===true});}catch(error){throw window.pm236Session.failure(error);}context.assert();
+    if(!data||data.version!==1||data.sessionId!==value.sessionId||data.revoked!==true||typeof data.isCurrent!=='boolean'||data.isCurrent&&value.confirmCurrent!==true)throw Error('The server did not confirm the requested disconnect. Reload sessions before retrying.');
+    return {version:1,sessionId:data.sessionId,revoked:true};
+  }
+
   async function checkMasterRole(){
     if(!isMaster())throw new Error('A verified Master account is required.');
     const account=session.user.id,born=generation,role=await request('/rest/v1/rpc/get_business_role',{method:'POST',body:'{}'});
     if(born!==generation||session?.user?.id!==account)throw new Error('The signed-in account changed.');
-    if(role!=='owner'){lock('Master access was removed.');throw new Error('Master access was removed.');}return true;
+    if(role!=='owner'){lock('Master access was removed.');throw new Error('Master access was removed.');}await pm236Heartbeat();return true;
   }
   async function masterRequest(path,body){await checkMasterRole();const born=generation,account=session.user.id;const result=await request(path,{method:'POST',body:JSON.stringify(body)});if(born!==generation||!isMaster()||session.user.id!==account)throw new Error('The signed-in account changed.');return result;}
   function masterUiIdentity(){return isMaster()?{userId:session.user.id,email:session.user.email||''}:null;}
@@ -3704,14 +3768,30 @@ function getFallbackRate() {
     return {assert(creating=false){if(born!==generation||!isMaster()||session?.user?.id!==account)throw pm233UserAdminError(creating?'The sign-in changed before creation could be confirmed. Check the email in Accounts or Supabase Users before trying again.':'The signed-in Master account changed. Sign in again.','USER_ADMIN_SESSION_CHANGED',undefined,creating);}};
   }
   function pm233UserAdminFailure(error,creating){
-    const status=Number(error?.status)||undefined;
+    const status=Number(error?.status)||undefined,remote=error?.remoteCode;
+    if(creating&&(error?.uncertain===true||!status||![400,401,403,404,409,413,415,422].includes(status)))return pm233UserAdminError('No creation confirmation was received. The account may already exist or remain blocked. Check the email in Accounts and Supabase Users before trying again.','USER_ADMIN_UNCERTAIN',status,true);
+    if(status===401&&remote==='BUSINESS_SESSION_REVOKED')return pm233UserAdminError('This Master session was revoked. Sign in again.','USER_ADMIN_SESSION_REVOKED',401);
     if(status===401)return pm233UserAdminError('Your Master sign-in expired. Sign in again.','USER_ADMIN_SIGN_IN_REQUIRED',401);
+    if(status===403&&['ORIGIN_NOT_ALLOWED','PREFLIGHT_NOT_ALLOWED'].includes(remote))return pm233UserAdminError('This website origin is not allowed by business-suite-admin. Check the deployed function allowed origins.','USER_ADMIN_ORIGIN_REQUIRED',403);
     if(status===403)return pm233UserAdminError('The server did not authorize this Master to create Users. Check the Master role.','USER_ADMIN_MASTER_REQUIRED',403);
-    if(status===404||status===503&&!creating)return pm233UserAdminError('Create User is not configured. Deploy the supplied business-suite-admin Edge Function and install the PM23 account-permissions SQL once.','USER_ADMIN_SETUP_REQUIRED',status);
+    if(status===404&&remote==='NOT_FOUND_FUNCTION_BLOB')return pm233UserAdminError('Supabase recognizes business-suite-admin but cannot load its deployed code. Redeploy this Edge Function.','USER_ADMIN_DEPLOYMENT_BUNDLE_MISSING',404);
+    if(status===404)return pm233UserAdminError('The business-suite-admin Edge Function was not found at this project URL. Check the project and function name, then deploy it.','USER_ADMIN_EDGE_MISSING',404);
+    if(status===503&&remote==='ACCOUNT_PERMISSIONS_NOT_CONFIGURED')return pm233UserAdminError('The function was reached, but its account-permissions SQL checks did not pass. Install or repair the supplied PM23 account-permissions SQL.','USER_ADMIN_ACCOUNT_SQL_REQUIRED',503);
+    if(status===503&&remote==='SESSION_CONTROL_NOT_CONFIGURED')return pm233UserAdminError('The function was reached, but its session-control SQL is not ready. Install the supplied PM23.6 session-control SQL.','USER_ADMIN_SESSION_SQL_REQUIRED',503);
+    if(status===503&&remote==='ADMIN_NOT_CONFIGURED')return pm233UserAdminError('The function was reached, but its server configuration is incomplete. Check the Supabase runtime configuration and server-only administrator credential.','USER_ADMIN_SERVER_CONFIG_REQUIRED',503);
     if(status===409)return pm233UserAdminError('This email already has an account. Select it in Account permissions. Its password and permissions were not changed.','USER_ADMIN_EMAIL_EXISTS',409);
     if(status===400||status===413||status===415||status===422)return pm233UserAdminError('The server rejected the new-account details. Check the email and use a password of 12–128 characters.','USER_ADMIN_INVALID_INPUT',status);
-    if(creating)return pm233UserAdminError('No creation confirmation was received. This account may already exist. Check the email in Accounts or Supabase Users before trying again. If setup is missing, deploy business-suite-admin and the PM23 account SQL.','USER_ADMIN_UNCERTAIN',status,true);
-    return pm233UserAdminError('The Create User service could not be reached. Check the connection and the one-time business-suite-admin deployment.','USER_ADMIN_UNAVAILABLE',status);
+    if(error?.code==='USER_ADMIN_INVALID_RESPONSE')return pm233UserAdminError('The account service returned an invalid or oversized response. Check the deployed function version.','USER_ADMIN_INVALID_RESPONSE',status);
+    if(error?.name==='AbortError')return pm233UserAdminError('The Create User service check timed out or was cancelled. Check the connection and retry the service check.','USER_ADMIN_TIMEOUT');
+    if(!status)return pm233UserAdminError('The browser could not obtain an HTTP response. A connection problem, CORS rejection, or missing Edge Function can all cause this. Check the function deployment and allowed website origin.','USER_ADMIN_TRANSPORT');
+    if(status===402)return pm233UserAdminError('Supabase rejected the service request with HTTP 402. Check the project status in the Supabase dashboard.','USER_ADMIN_PROJECT_UNAVAILABLE',402);
+    if(status===429)return pm233UserAdminError('The account service is rate limited. Wait before checking the service again.','USER_ADMIN_RATE_LIMITED',429);
+    return pm233UserAdminError('The Create User service replied but is unavailable. Check the Edge Function logs and project status. An HTTP failure alone does not establish that SQL is missing.','USER_ADMIN_SERVICE_UNAVAILABLE',status);
+  }
+  function pm236UserAdminRemoteCode(data,header){
+    const known=['NOT_FOUND','NOT_FOUND_FUNCTION_BLOB','ADMIN_NOT_CONFIGURED','ACCOUNT_PERMISSIONS_NOT_CONFIGURED','SESSION_CONTROL_NOT_CONFIGURED','BUSINESS_SESSION_REVOKED','SIGN_IN_REQUIRED','SESSION_EXPIRED','ORIGIN_NOT_ALLOWED','PREFLIGHT_NOT_ALLOWED','MASTER_REQUIRED','USER_SETUP_INCOMPLETE','USER_ACTIVATION_UNCONFIRMED','USER_BLOCKING_UNCONFIRMED','ADMIN_CREATE_UNCONFIRMED'];
+    for(const code of [data?.error,data?.code,header])if(typeof code==='string'&&known.includes(code))return code;
+    return undefined;
   }
   function pm233ValidateNewUser(value){
     const exact=value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).sort().join('|')==='email|password';
@@ -3725,9 +3805,11 @@ function getFallbackRate() {
     try{
       const response=await fetch(url+'/functions/v1/business-suite-admin',{method:'POST',cache:'no-store',redirect:'error',signal:controller.signal,headers:{apikey:key,'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify(body)});
       const reader=response.body?.getReader();let total=0,parts=[];
-      if(reader)try{for(;;){const next=await reader.read();if(next.done)break;total+=next.value.byteLength;if(total>65536){await reader.cancel();throw Error('Invalid account service response.');}parts.push(next.value);}}finally{reader.releaseLock();}
-      if(!response.ok){const error=new Error('Account service request failed.');error.status=response.status;throw error;}
-      const bytes=new Uint8Array(total);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.byteLength;}return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
+      if(reader)try{for(;;){const next=await reader.read();if(next.done)break;total+=next.value.byteLength;if(total>65536){await reader.cancel();throw pm233UserAdminError('Invalid account service response.','USER_ADMIN_INVALID_RESPONSE',response.status);}parts.push(next.value);}}finally{reader.releaseLock();}
+      const bytes=new Uint8Array(total);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.byteLength;}
+      let data;try{data=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));}catch{if(response.ok)throw pm233UserAdminError('Invalid account service response.','USER_ADMIN_INVALID_RESPONSE',response.status);}
+      if(!response.ok){const error=new Error('Account service request failed.');error.status=response.status;const remote=pm236UserAdminRemoteCode(data,response.headers?.get?.('sb-error-code'));if(remote)error.remoteCode=remote;if(['USER_SETUP_INCOMPLETE','USER_ACTIVATION_UNCONFIRMED','USER_BLOCKING_UNCONFIRMED','ADMIN_CREATE_UNCONFIRMED'].includes(remote))error.uncertain=true;throw error;}
+      return data;
     }finally{clearTimeout(timer);controllers.delete(controller);}
   }
   async function masterUserAdminStatus(){
@@ -3797,16 +3879,16 @@ function getFallbackRate() {
       throw error;
     }finally{clearTimeout(timer);controllers.delete(controller);}
   }
-  function endForInactivity(){
+  function endForInactivity(reason){
     const token=session?.access_token;++generation;clearTimers();stopInboundRefresh();
     for(const controller of controllers)controller.abort();
     session=null;serverRole=null;verified=false;expiresAt=0;records=[];busy=null;refreshPromise=null;
     // Preserve the durable pending queue; in-flight transactions recheck their auth guard.
-    announce();publish();status('Signed out after 10 minutes without activity. Saved pending edits are retained.');
+    announce();publish();status(reason||'Signed out after 10 minutes without activity. Saved pending edits are retained.');
     if(token)void request('/auth/v1/logout?scope=local',{method:'POST',keepalive:true},token,false).catch(()=>{});
     return {ok:true,pendingCount:pending.size};
   }
-  window.priceMasterCloud={endForInactivity,masterUiIdentity,masterReadUiPreferences,masterSaveUiPreferences,masterReadSyncSources,masterEnsureSyncSources,masterUserAdminStatus,masterCreateUser,
+  window.priceMasterCloud={masterListSessions,masterRevokeSession,endForInactivity,masterUiIdentity,masterReadUiPreferences,masterSaveUiPreferences,masterReadSyncSources,masterEnsureSyncSources,masterUserAdminStatus,masterCreateUser,
     isMaster,checkMasterRole,masterRequest,masterFeed,async acceptMasterSession(candidate){const born=++generation;await accept(candidate,born);await refresh();return true;},
     signedIn:canEdit,canEdit,authState,refreshSession,exportPending,signOut,prepareTransaction,transactionError:()=>transactionFailure,recoverWriterState,queueAsync,requireOwner,
     openProductResource:pm212OpenProductResource,
@@ -3897,7 +3979,7 @@ function getFallbackRate() {
   startInboundRefresh();
 
   window.addEventListener('focus',()=>refreshInboundEdits());
-  window.addEventListener('beforeunload',event=>{if(!window.pm221Idle?.forcingReload&&pending.size&&window.businessWriter?.holdsLock?.()!==false){event.preventDefault();event.returnValue='';}});
+  window.addEventListener('beforeunload',event=>{if(!window.pm221Idle?.forcingReload&&!window.pm236Session?.ending&&pending.size&&window.businessWriter?.holdsLock?.()!==false){event.preventDefault();event.returnValue='';}});
   if(signOutButton)signOutButton.addEventListener('click',async ()=>{
     if((pending.size||outboxIssue)&&!window.confirm(outboxIssue?'Discard the unreadable pending-edit recovery data and sign out? Its edit count is unknown. Export the recovery data first if you need to keep it. Cancel keeps the stored data.':'Discard '+pending.size+' pending edits and sign out? Export pending edits first if you need to keep them. Some in-flight edits may already be saved in the cloud. Cancel keeps these edits.'))return;
     void (await signOut({discardPending:true}));
@@ -4543,7 +4625,7 @@ body.pm-global-dark #confirmMsg{color:#f1f5f9!important}
 body.pm-global-dark #confirmCancel{background:#28364b!important;color:#f1f5f9!important;border-color:#72849d!important}
 body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important}
 </style>
-<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23.5',id:"pm23.5-72567feb9ea6",builtAt:"2026-11-28T12:00:00+08:00",environment:location.protocol==='file:'?'Local':'Online'};
+<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23.6',id:"pm23.6-98d69c295036",builtAt:"2026-11-28T12:00:00+08:00",environment:location.protocol==='file:'?'Local':'Online'};
  info.checkForUpdates=async()=>{if(location.protocol==='file:')return{available:false,message:'Local HTML file. Download the latest verified release to update.'};if(checking)return checking;checking=(async()=>{try{const u=new URL(location.href);u.hash='';const response=await fetch(u.href,{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error('HTTP '+response.status);const text=await response.text();if(text.length>8*1024*1024)throw Error('Unexpected update response.');const next=text.match(/<meta name="business-build" content="([a-z0-9.-]+)">/)?.[1];if(!next)return{available:false,message:'This server has no verified build identifier. Current '+info.id};return{available:next!==info.id,message:next===info.id?'Current build is up to date: '+info.id:'New build available: '+next+'. Export your pending edits before reloading.'};}catch(error){return{available:false,message:'Update check failed. '+error.message};}finally{checking=null;}})();return checking;};window.businessBuildInfo=Object.freeze(info);})();</script>
 <script id="pm215-storage-bootstrap">/* Replaced by authenticated PM22 bootstrap. */</script>
 <script id="pm221-idle">/* Per-tab inactivity timeout. Network refresh is never user activity. */
@@ -5758,6 +5840,186 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
 <script id="pm233-sync-help" type="application/x-pm215-deferred">/* Put the first-time source restore action beside both actual sync errors. */
 (()=>{'use strict';const doc=document,ids=['statusMsg','syncStatusText'];let scheduled=false;function update(){scheduled=false;const master=window.pm22MasterApi?.isOwner?.()===true;for(const id of ids){const target=doc.getElementById(id);if(!target)continue;let box=doc.getElementById('pm233-help-'+id);if(!box){box=doc.createElement('div');box.id='pm233-help-'+id;box.className='pm233-sync-help';const button=doc.createElement('button');button.type='button';button.textContent='Set up cloud sync';button.onclick=()=>doc.getElementById('pm232SetupQuick')?.click();const note=doc.createElement('span');note.textContent='Install the supplied PM23.4 server setup SQL once in Supabase. Devices then restore sources automatically; no setup-file upload is needed.';box.append(button,note);const anchor=id==='syncStatusText'?doc.getElementById('syncStatusIcon')||target:target;anchor.after(box);}box.hidden=!master||!/Cloud sync setup is required|Import the Master setup JSON/.test(target.textContent||'');}}function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(update);}}for(const id of ids){const node=doc.getElementById(id);if(node)new MutationObserver(schedule).observe(node,{childList:true,subtree:true,characterData:true});}window.addEventListener('BusinessAuthChanged',schedule);window.addEventListener('PM22RoleChanged',schedule);doc.addEventListener('DOMContentLoaded',schedule);update();})();
 </script>
+<script id="pm236-session-panel" type="application/x-pm215-deferred">/* Master-only session inspection. Session records come only from the server API. */
+(function (root, factory) {
+ 'use strict';
+ const exported = factory();
+ if (typeof module === 'object' && module.exports) module.exports = exported;
+ if (root && root.document) exported.install(root);
+})(typeof window === 'object' ? window : null, function () {
+ 'use strict';
+ const PAGE_SIZE = 50, SEARCH_LIMIT = 100, RECENT_MS = 90000;
+ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+ const plain = value => !!value && typeof value === 'object' && !Array.isArray(value);
+ function sessionPage(value, offset) {
+  if (!plain(value) || value.version !== 1 || !Array.isArray(value.sessions) || value.sessions.length > PAGE_SIZE || !Number.isSafeInteger(value.total) || value.total < value.sessions.length || value.offset !== offset || typeof value.hasMore !== 'boolean' || value.hasMore && !value.sessions.length) throw Error('Invalid session list response.');
+  const seen = new Set();
+  const sessions = value.sessions.map(row => {
+   if (!plain(row) || typeof row.sessionId !== 'string' || !UUID.test(row.sessionId) || seen.has(row.sessionId) || typeof row.userId !== 'string' || !row.userId || row.userId.length > 128 || typeof row.email !== 'string' || row.email.length > 320 || !['owner', 'user'].includes(row.role) || typeof row.device !== 'string' || row.device.length > 500 || !['recent', 'idle', 'revoked'].includes(row.status) || typeof row.current !== 'boolean' || typeof row.createdAt !== 'string' || !Number.isFinite(Date.parse(row.createdAt)) || typeof row.lastSeenAt !== 'string' || !Number.isFinite(Date.parse(row.lastSeenAt))) throw Error('Invalid session list entry.');
+   seen.add(row.sessionId);
+   return { sessionId: row.sessionId, userId: row.userId, email: row.email, role: row.role, device: row.device, createdAt: row.createdAt, lastSeenAt: row.lastSeenAt, status: row.status, current: row.current };
+  });
+  return { version: 1, sessions, total: value.total, offset, hasMore: value.hasMore };
+ }
+ function revokeAcknowledgement(value, sessionId) {
+  if (!plain(value) || value.version !== 1 || value.sessionId !== sessionId || value.revoked !== true) throw Error('The server did not confirm this session disconnect.');
+  return { version: 1, sessionId, revoked: true };
+ }
+ function activity(row, now = Date.now()) {
+  if (row.status === 'revoked') return 'revoked';
+  const age = now - Date.parse(row.lastSeenAt);
+  return age >= 0 && age <= RECENT_MS ? 'recent' : 'idle';
+ }
+ function install(win) {
+  if (win.__pm236SessionPanelInstalled) return;
+  Object.defineProperty(win, '__pm236SessionPanelInstalled', { value: true });
+  const doc = win.document;
+  let card = null, scope = null, page = null, phase = 'idle', busy = false, epoch = 0, searchTimer = null;
+  const node = (tag, text, className) => { const el = doc.createElement(tag); if (text !== undefined) el.textContent = text; if (className) el.className = className; return el; };
+  function verifiedScope() {
+   try {
+    const api = win.pm22MasterApi, cloud = win.priceMasterCloud;
+    if (!api || typeof api.isOwner !== 'function' || api.isOwner() !== true) return null;
+    const identity = cloud?.masterUiIdentity?.();
+    return typeof identity?.userId === 'string' && identity.userId ? { api, cloud, userId: identity.userId } : null;
+   } catch { return null; }
+  }
+  const sameScope = (a, b) => !!a && !!b && a.api === b.api && a.cloud === b.cloud && a.userId === b.userId;
+  function current(captured, born) {
+   if (born !== epoch) return false;
+   if (sameScope(captured, verifiedScope())) return true;
+   sync(); return false;
+  }
+  function say(message, kind = 'info') {
+   if (!card) return;
+   const target = card.querySelector('[data-pm236-status]'); target.textContent = message; target.dataset.kind = kind; target.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+  }
+  function formatTime(value) {
+   try { return new Intl.DateTimeFormat('en-MY', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kuala_Lumpur' }).format(new Date(value)) + ' MYT'; } catch { return 'Unavailable'; }
+  }
+  function listFailure(error) {
+   if (error?.status === 404 || error?.code === 'PGRST202' || error?.code === 'SESSION_SETUP_REQUIRED') return 'Session management needs a one-time server setup. Install the supplied PM23.6 session-security SQL in this Supabase project, then click Refresh.';
+   if (error?.status === 401) return 'Your Master sign-in expired. Sign in again to review sessions.';
+   if (error?.status === 403 || error?.code === '42501') return 'The server did not authorize this Master to review sessions. Check the Master role and sign in again.';
+   return 'Sessions could not be refreshed. The list may be out of date. Check your connection and click Refresh.';
+  }
+  function setBusy(value) {
+   busy = value;
+   if (!card) return;
+   card.setAttribute('aria-busy', String(value)); card.dataset.pm236Phase = phase;
+   const allowed = sameScope(scope, verifiedScope());
+   card.querySelector('[data-pm236-search]').disabled = value || !allowed;
+   for (const button of card.querySelectorAll('button[data-pm236-action]')) {
+    const action = button.dataset.pm236Action;
+    button.disabled = value || !allowed || action === 'previous' && (!page || page.offset === 0 || phase !== 'loaded') || action === 'next' && (!page?.hasMore || phase !== 'loaded') || action === 'disconnect' && (phase !== 'loaded' || button.dataset.revoked === 'true');
+   }
+  }
+  function render() {
+   const list = card.querySelector('[data-pm236-list]'), meta = card.querySelector('[data-pm236-meta]');
+   list.replaceChildren();
+   if (!page) { meta.textContent = phase === 'loading' ? 'Loading sessions…' : 'Session records have not been loaded.'; return; }
+   if (!page.sessions.length) {
+    list.append(node('li', 'No matching sessions.', 'pm236-session-empty'));
+    meta.textContent = '0 matching sessions'; return;
+   }
+   meta.textContent = 'Showing ' + (page.offset + 1) + '–' + (page.offset + page.sessions.length) + ' of ' + page.total + ' sessions';
+   for (const session of page.sessions) {
+    const row = node('li', undefined, 'pm236-session-row'); row.dataset.pm236Session = session.sessionId;
+    const details = node('div', undefined, 'pm236-session-details'), identity = node('div', undefined, 'pm236-session-identity');
+    identity.append(node('strong', session.email || 'Account email unavailable'));
+    if (session.current) identity.append(node('span', 'This device', 'pm236-current-device'));
+    details.append(identity, node('span', (session.role === 'owner' ? 'Master' : 'User') + ' · ' + (session.device || 'Device details unavailable'), 'pm236-session-device'), node('span', 'Signed in ' + formatTime(session.createdAt), 'pm236-session-time'));
+    const state = activity(session), status = node('div', undefined, 'pm236-session-activity'); status.dataset.activity = state;
+    status.append(node('span', state === 'revoked' ? 'Disconnected' : state === 'recent' ? 'Active recently' : 'Last seen', 'pm236-session-badge'), node('span', 'Last seen ' + formatTime(session.lastSeenAt), 'pm236-session-time'));
+    const disconnect = node('button', state === 'revoked' ? 'Disconnected' : 'Disconnect'); disconnect.type = 'button'; disconnect.dataset.pm236Action = 'disconnect'; disconnect.dataset.sessionId = session.sessionId; disconnect.dataset.revoked = String(state === 'revoked'); disconnect.setAttribute('aria-label', 'Disconnect ' + (session.email || 'account') + ' on ' + (session.device || 'this device'));
+    row.append(details, status, disconnect); list.append(row);
+   }
+  }
+  function reset(nextScope) {
+   ++epoch; win.clearTimeout(searchTimer); searchTimer = null; scope = nextScope; page = null; phase = 'idle'; busy = false;
+   if (!card) return;
+   card.hidden = !nextScope; card.querySelector('[data-pm236-search]').value = ''; render(); say(nextScope ? 'Refresh to load signed-in sessions from the server.' : 'Sign in as Master to review sessions.'); setBusy(false);
+  }
+  async function load(offset = 0, acknowledged = false) {
+   if (busy || !sameScope(scope, verifiedScope())) { sync(); return; }
+   const captured = scope, born = ++epoch, search = card.querySelector('[data-pm236-search]').value.trim().slice(0, SEARCH_LIMIT);
+   phase = 'loading'; setBusy(true); say(acknowledged ? 'The server confirmed the disconnect. Refreshing sessions…' : 'Loading signed-in sessions…');
+   if (!page) render();
+   try {
+    if (typeof captured.cloud.masterListSessions !== 'function') throw Object.assign(Error('Setup required'), { code: 'SESSION_SETUP_REQUIRED' });
+    const result = await captured.cloud.masterListSessions({ offset, search });
+    if (!current(captured, born)) return;
+    page = sessionPage(result, offset); phase = 'loaded'; render(); say(acknowledged ? 'Session disconnected. The refreshed list is shown below.' : 'Loaded from the server. Recent activity is the latest check-in, not a live online status.', acknowledged ? 'success' : 'info');
+   } catch (error) {
+    if (!current(captured, born)) return;
+    phase = 'error'; say((acknowledged ? 'The server confirmed the disconnect. ' : '') + listFailure(error), 'error');
+   } finally { if (born === epoch) setBusy(false); }
+  }
+  async function disconnect(sessionId) {
+   if (busy || phase !== 'loaded' || !sameScope(scope, verifiedScope())) { sync(); return; }
+   // Resolve the target only from the validated server page, never from a DOM user ID.
+   const target = page?.sessions.find(row => row.sessionId === sessionId);
+   if (!target || target.status === 'revoked') return;
+   const captured = scope;
+   if (!win.confirm('Disconnect this signed-in session?\n\n' + (target.email || 'Account email unavailable') + '\n' + (target.device || 'Device details unavailable') + (target.current ? '\n\nThis device will be signed out.' : '\n\nOnly this session will be disconnected.'))) return;
+   if (!sameScope(captured, verifiedScope())) { sync(); return; }
+   const born = ++epoch; setBusy(true); say('Disconnecting this session. Waiting for server confirmation…');
+   let acknowledged = false;
+   try {
+    if (typeof captured.cloud.masterRevokeSession !== 'function') throw Error('Session disconnect unavailable.');
+    const result = await captured.cloud.masterRevokeSession({ sessionId: target.sessionId, ...(target.current ? { confirmCurrent: true } : {}) });
+    if (!current(captured, born)) return;
+    revokeAcknowledgement(result, target.sessionId);
+    page = { ...page, sessions: page.sessions.map(row => row.sessionId === target.sessionId ? { ...row, status: 'revoked' } : row) }; acknowledged = true; render();
+    say('The server confirmed this session is disconnected.', 'success');
+    win.dispatchEvent(new win.CustomEvent('PM236SessionRevoked', { detail: { sessionId: target.sessionId, current: target.current } }));
+   } catch (error) {
+    if (current(captured, born)) say('The server did not confirm the disconnect. Refresh sessions to check the current status before trying again.', 'error');
+   } finally {
+    if (born === epoch) {
+     setBusy(false);
+     if (acknowledged && sameScope(captured, verifiedScope())) void load(page?.offset || 0, true);
+    }
+   }
+  }
+  function mount() {
+   if (card?.isConnected) return true;
+   const section = doc.getElementById('page-settings'); if (!section) return false;
+   card = node('div', undefined, 'settings-card pm22-master-settings pm236-session-panel'); card.id = 'pm236SessionPanel'; card.hidden = true;
+   const heading = node('div', undefined, 'pm236-session-heading'), title = node('div'); title.append(node('h3', 'Signed-in sessions'), node('p', 'Review account sign-ins and disconnect one device at a time.'));
+   const refresh = node('button', 'Refresh'); refresh.type = 'button'; refresh.dataset.pm236Action = 'refresh'; heading.append(title, refresh); card.append(heading);
+   const label = node('label', 'Find an account or device', 'pm236-session-search'), search = doc.createElement('input'); search.type = 'search'; search.maxLength = SEARCH_LIMIT; search.placeholder = 'Search email or device…'; search.dataset.pm236Search = ''; label.append(search); card.append(label);
+   const status = node('p', '', 'pm236-session-status'); status.dataset.pm236Status = ''; status.setAttribute('aria-live', 'polite'); card.append(status);
+   const list = node('ul', undefined, 'pm236-session-list'); list.dataset.pm236List = ''; list.setAttribute('aria-label', 'Signed-in sessions'); card.append(list);
+   const footer = node('div', undefined, 'pm236-session-footer'), meta = node('span', '', 'pm236-session-meta'); meta.dataset.pm236Meta = ''; footer.append(meta);
+   const pager = node('div', undefined, 'pm236-session-pager'); for (const [key, text] of [['previous', '‹ Previous'], ['next', 'Next ›']]) { const button = node('button', text); button.type = 'button'; button.dataset.pm236Action = key; pager.append(button); } footer.append(pager); card.append(footer);
+   section.querySelector('.settings-card')?.before(card); if (!card.isConnected) section.append(card);
+   card.addEventListener('click', event => {
+    const button = event.target.closest?.('button[data-pm236-action]'); if (!button || !card.contains(button) || button.disabled) return;
+    const action = button.dataset.pm236Action;
+    if (action === 'disconnect') void disconnect(button.dataset.sessionId);
+    else void load(action === 'previous' ? Math.max(0, (page?.offset || 0) - PAGE_SIZE) : action === 'next' ? (page?.offset || 0) + PAGE_SIZE : page?.offset || 0);
+   });
+   search.addEventListener('input', () => { win.clearTimeout(searchTimer); search.value = search.value.slice(0, SEARCH_LIMIT); searchTimer = win.setTimeout(() => { if (!busy) void load(0); }, 250); });
+   return true;
+  }
+  function sync() {
+   if (!mount()) return;
+   const next = verifiedScope();
+   if (!sameScope(scope, next)) { reset(next); if (next) void load(); return; }
+   if (!next) { card.hidden = true; return; }
+   if (phase === 'idle' && !busy) void load(); else setBusy(busy);
+  }
+  function start() {
+   if (!mount()) { const observer = new win.MutationObserver(() => { if (mount()) { observer.disconnect(); sync(); } }); observer.observe(doc.body, { childList: true, subtree: true }); }
+   else sync();
+  }
+  for (const name of ['PM22MasterReady', 'PM22AuthChanged', 'PM22RoleChanged', 'BusinessAuthChanged', 'PM236SessionsReady']) win.addEventListener(name, sync);
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start, { once: true }); else start();
+ }
+ return Object.freeze({ PAGE_SIZE, SEARCH_LIMIT, RECENT_MS, sessionPage, revokeAcknowledgement, activity, install });
+});
+</script>
 <script id="pm233-user-create" type="application/x-pm215-deferred">(function(root,factory){'use strict';const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root?.document)api.install(root);})(typeof window==='object'?window:null,function(){
  'use strict';
  const plain=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
@@ -5785,20 +6047,34 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    finally{if(current(born)){checking=false;draw();}}
   }
   function safeMessage(error,creatingRequest){
-   if(error?.status===404||error?.status===503&&!creatingRequest||error?.code==='USER_ADMIN_SETUP_REQUIRED')return 'One-time setup required: deploy the supplied business-suite-admin Edge Function and install the PM23 account-permissions SQL. Then click Check service.';
+   if(creatingRequest&&(error?.uncertain===true||error?.code==='USER_ADMIN_UNCERTAIN'))return 'No confirmed creation result was received. The account may already exist or remain blocked. Check the email in Accounts and Supabase Users before trying again or sharing its password. Close this window before a new attempt.';
+   if(error?.code==='USER_ADMIN_DEPLOYMENT_BUNDLE_MISSING')return 'One-time setup required: Supabase recognizes business-suite-admin but cannot load its deployed code. Redeploy this Edge Function, then click Check service.';
+   if(error?.status===404||error?.code==='USER_ADMIN_EDGE_MISSING')return 'One-time setup required: business-suite-admin was not found at this project URL. Check the project and function name, deploy the supplied Edge Function, then click Check service.';
+   if(error?.code==='USER_ADMIN_ACCOUNT_SQL_REQUIRED')return 'The Edge Function was reached. Its account-permissions SQL checks failed. Install or repair the supplied PM23 account-permissions SQL, then click Check service.';
+   if(error?.code==='USER_ADMIN_SESSION_SQL_REQUIRED')return 'The Edge Function was reached. Its session-control SQL is not ready. Install the supplied PM23.6 session-control SQL, then click Check service.';
+   if(error?.code==='USER_ADMIN_SERVER_CONFIG_REQUIRED')return 'The Edge Function was reached. Its server configuration is incomplete. Check the Supabase runtime configuration and server-only administrator credential, then click Check service. Keep administrator credentials on the server.';
+   if(error?.code==='USER_ADMIN_SETUP_REQUIRED')return 'One-time setup required: install the supplied Create User application and server setup, then click Check service.';
+   if(error?.code==='USER_ADMIN_SESSION_REVOKED')return 'This Master session was revoked. Sign in again.';
    if(error?.status===401||error?.code==='USER_ADMIN_SIGN_IN_REQUIRED')return 'The Master sign-in expired. Sign in again.';
+   if(error?.code==='USER_ADMIN_ORIGIN_REQUIRED')return 'This website origin is not allowed by business-suite-admin. Check the deployed function allowed origins, then click Check service.';
    if(error?.status===403||error?.code==='USER_ADMIN_MASTER_REQUIRED')return 'Only a verified Master may create Users. Check this account’s Master role.';
    if(error?.status===409||error?.code==='USER_ADMIN_EMAIL_EXISTS')return 'That email already has an account. Select it in Account permissions. No password or permissions were overwritten.';
    if(error?.code==='USER_ADMIN_READ_ONLY')return 'Use the active Master editing tab to create a User.';
    if(error?.status===400||error?.status===413||error?.status===415||error?.status===422||error?.code==='USER_ADMIN_INVALID_INPUT')return 'Check the email and use a temporary password of 12–128 characters (up to 256 UTF-8 bytes).';
    if(creatingRequest)return 'No confirmed creation result was received. The account may already exist. Check the email in Accounts or Supabase Users before trying again. Close this window before a new attempt.';
-   return 'The Create User service could not be reached. Check the connection and the one-time server setup, then click Check service.';
+   if(error?.code==='USER_ADMIN_SESSION_CHANGED')return 'The signed-in Master account changed. Sign in again before checking the service.';
+   if(error?.code==='USER_ADMIN_INVALID_STATUS'||error?.code==='USER_ADMIN_INVALID_RESPONSE')return 'The account service returned an incompatible or invalid response. Check the deployed function version, then click Check service.';
+   if(error?.code==='USER_ADMIN_TIMEOUT')return 'The service check timed out or was cancelled. Check the connection, then click Check service.';
+   if(error?.status===402||error?.code==='USER_ADMIN_PROJECT_UNAVAILABLE')return 'Supabase rejected the request with HTTP 402. Check the project status in the Supabase dashboard, then click Check service.';
+   if(error?.status===429||error?.code==='USER_ADMIN_RATE_LIMITED')return 'The account service is rate limited. Wait before checking the service again.';
+   if(error?.status)return 'The account service replied with HTTP '+Number(error.status)+'. Check the Edge Function logs and project status. This response alone does not show that SQL is missing.';
+   return 'The browser could not obtain an HTTP response. A connection problem, CORS rejection, or missing Edge Function can all cause this. Check the deployment and allowed website origin, then click Check service.';
   }
   async function create(){
    if(!owner()||!ready||checking||creating||uncertain)return;let input;try{input=validateNewUser(email.value,password.value);}catch(error){say(error.message,'error');clear();return;}if(!form.checkValidity())return;
    const born=epoch;creating=true;draw();say('Creating the ordinary User. Waiting for server confirmation…');
    try{if(typeof win.priceMasterCloud.masterCreateUser!=='function')throw Object.assign(Error('not configured'),{code:'USER_ADMIN_SETUP_REQUIRED'});const result=await win.priceMasterCloud.masterCreateUser(input);if(!current(born))return;const user=result?.user;if(result?.version!==1||!plain(user)||typeof user.id!=='string'||user.email!==input.email||user.role!=='user')throw Object.assign(Error('unconfirmed'),{uncertain:true});clear();email.value='';form.hidden=true;ready=false;say('User created: '+user.email+'. Its ordinary User permissions can now be set in Account permissions.','success');win.dispatchEvent(new win.CustomEvent('PM233UserCreated',{detail:{userId:user.id,email:user.email}}));}
-   catch(error){if(current(born)){clear();uncertain=error?.uncertain===true||(![400,401,403,404,409,413,415,422,503].includes(error?.status)&&!['USER_ADMIN_SETUP_REQUIRED','USER_ADMIN_READ_ONLY','USER_ADMIN_INVALID_INPUT'].includes(error?.code));say(safeMessage(error,true),'error');}}
+   catch(error){if(current(born)){clear();uncertain=error?.uncertain===true||(![400,401,403,404,409,413,415,422].includes(error?.status)&&!['USER_ADMIN_SETUP_REQUIRED','USER_ADMIN_READ_ONLY','USER_ADMIN_INVALID_INPUT'].includes(error?.code));say(safeMessage(error,true),'error');}}
    finally{input=null;if(current(born)){creating=false;draw();}}
   }
   function open(){if(!owner())return;mount();if(dialog.open){email.focus();return;}finishClose();dialog.showModal();draw();void checkService();}
@@ -5814,11 +6090,22 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
  return {validateNewUser,install};
 });
 </script>
+<script id="pm236-session-common">/* No tokens or account data are persisted by this helper. */
+(()=>{'use strict';
+ const uuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+ const device=()=>{const ua=String(navigator.userAgent||'').slice(0,512);const system=/iPad/.test(ua)||/Macintosh/.test(ua)&&navigator.maxTouchPoints>1?'iPad':/iPhone/.test(ua)?'iPhone':/Android/.test(ua)?'Android':/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'Mac':/Linux/.test(ua)?'Linux':'Browser';const browser=/Edg\//.test(ua)?'Edge':/Firefox\//.test(ua)?'Firefox':/Chrome\//.test(ua)?'Chrome':/Safari\//.test(ua)?'Safari':'Browser';return system+' · '+browser;};
+ function ack(value){if(!value||value.version!==1||value.active!==true||!uuid(value.sessionId))throw Error('Session control returned an invalid confirmation.');return value;}
+ function failure(error){if(error?.status===404||error?.code==='PGRST202')return Object.assign(Error('Install the supplied PM23.6 session-control SQL once in Supabase, then sign in again.'),{code:'SESSION_SETUP_REQUIRED',status:404});return error;}
+ let ending=false;
+ window.pm236Session=Object.freeze({uuid,device,ack,failure,beginEnding(){ending=true;},get ending(){return ending;}});
+})();
+</script>
 <script id="pm22-gate">/* Authenticate before loading any private storage or business code. */
 (() => {
  'use strict';
  const endpoint='https://hrvtuvjuhvmsygerernc.supabase.co',key='sb_publishable_3QcBVFX7qoMnZ2xxgE9B7A_t4Q64b5A';
  let session=null,role=null,epoch=0,started=false,starting=false,expiry=0,renewTimer=null,roleTimer=null,authBusy=false;
+ let pm236LastBeat=0;
  const requests=new Set();
  const form=document.getElementById('pmCloudForm'),message=document.getElementById('pmCloudStatus'),signout=document.getElementById('pmCloudSignOut');
  function mode(value){document.documentElement.dataset.pm22Mode=value;document.body.dataset.pm22Mode=value;}
@@ -5843,11 +6130,25 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    const text=await response.text();if(born!==epoch)throw Error('The signed-in account changed.');if(text.length>24*1024*1024)throw Error('Server response exceeds the safe limit.');
    let data=null;try{data=text?JSON.parse(text):null;}catch{throw Error('The server returned an invalid response.');}
    if(!response.ok){
+    if(data?.message==='BUSINESS_SESSION_REVOKED'&&token===session?.access_token){void pm236EndAccess('This session was disconnected. Sign in again.');const revoked=Error('This session was disconnected. Sign in again.');revoked.status=401;revoked.code='BUSINESS_SESSION_REVOKED';throw revoked;}
     const message=data?.message==='BUSINESS_REPUBLISH_REQUIRED'?'The Master must publish Inventory once from PM23 before User price edits can be saved.':data?.message==='BUSINESS_SUPPORT_RATE_UNAVAILABLE'?'This published product has no usable calculation rate. Ask the Master to republish Inventory from PM23.':data?.message==='BUSINESS_UNPUBLISHED_OWNER_PRICE_CONFLICT'?'The Master has a newer unpublished price. Ask the Master to sync and republish before retrying.':response.status===401?'Your sign-in expired. Sign in again.':response.status===409||data?.code==='40001'?'Inventory or permissions changed in another session. Refresh, review the latest values and try again.':response.status===403||data?.code==='42501'?'This account is not allowed to perform that operation. Refresh your permissions.':response.status===404||data?.code==='PGRST202'?'PM23 account permissions are not configured. Ask the Master to install the supplied PM23 SQL.':response.status===400?'The submitted prices or file are invalid. Check the template and values.':'The server did not confirm this request ('+response.status+'). Refresh to check the current state.';
     const error=Error(message);error.status=response.status;error.code=data?.code;throw error;
    }return data;
   }finally{clearTimeout(timer);requests.delete(controller);options.signal?.removeEventListener('abort',abort);}
  }
+ async function pm236Beat(token=session?.access_token,force=false){
+  if(!force&&Date.now()-pm236LastBeat<45000)return;
+  let data;try{data=await request('/rest/v1/rpc/heartbeat_business_session',{p_device_label:window.pm236Session.device()},{token});}catch(error){throw window.pm236Session.failure(error);}window.pm236Session.ack(data);pm236LastBeat=Date.now();
+ }
+ async function pm236EndAccess(text){
+  window.pm236Session.beginEnding();const privateStarted=started||starting,token=session?.access_token;++epoch;clearTimers();for(const c of requests)c.abort();session=null;role=null;expiry=0;
+  if(privateStarted)window.priceMasterCloud?.endForInactivity?.(text);
+  cover(text);form.hidden=false;signout.hidden=true;document.getElementById('pmCloudSync').hidden=true;emit();
+  if(privateStarted){location.reload();return;}
+  if(token)void request('/auth/v1/logout?scope=local',{}, {token}).catch(()=>{});
+ }
+ window.addEventListener('PM236SessionDenied',()=>void pm236EndAccess('This session was disconnected. Sign in again.'));
+ window.addEventListener('PM236SessionRevoked',event=>{if(event.detail?.current===true)void pm236EndAccess('You disconnected this session. Sign in again.');});
  function cover(text){
   mode('login');window.pm22Public?.stop();document.querySelectorAll('.page.active').forEach(page=>page.classList.remove('active'));document.body.classList.remove('pm18-pm-focus','pm17-pm-editor-open');document.querySelectorAll('#priceMasterFrame,iframe').forEach(frame=>{frame.src='about:blank';frame.remove();});
   if(text)say(text);
@@ -5926,6 +6227,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   const found=await request('/rest/v1/rpc/get_business_role',{}, {token:candidate.access_token});
   if(born!==epoch||starting||started)throw Error('Sign-in was cancelled.');if(Date.now()>=until)throw Error('Session expired. Sign in again.');
   if(found!==null&&!['owner','sales'].includes(found))throw Error('Invalid server role response.');
+  await pm236Beat(candidate.access_token,true);if(born!==epoch||starting||started)throw Error('Sign-in was cancelled.');
   session={...candidate,user};expiry=until;role=found;
   if(found==='owner'){await startMaster(session);return;}
   mode('user');form.hidden=true;signout.hidden=false;say('User · account permissions set by Master');emit();
@@ -5935,7 +6237,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    if(!session?.refresh_token){await logout();return;}
    try{const candidate=await request('/auth/v1/token?grant_type=refresh_token',{refresh_token:session.refresh_token},{token:null});await acceptUser(candidate);}catch{if(renewalEpoch===epoch&&!starting&&!started){await logout();say('Your session expired. Sign in again.');}}
   },Math.max(1000,until-Date.now()-30000));
-  roleTimer=setInterval(async()=>{if(document.visibilityState==='hidden')return;if(!window.pm221Idle.checkNow())return;if(!valid()){await logout();return;}try{const next=await request('/rest/v1/rpc/get_business_role',{});if(next==='owner')await startMaster(session);}catch(error){if(error.status===401){await logout();say('Your session expired. Sign in again.');}}},15000);
+  roleTimer=setInterval(async()=>{if(document.visibilityState==='hidden')return;if(!window.pm221Idle.checkNow())return;if(!valid()){await logout();return;}try{await pm236Beat();const next=await request('/rest/v1/rpc/get_business_role',{});if(next==='owner')await startMaster(session);}catch(error){if(error.status===401){await logout();say('Your session expired. Sign in again.');}}},15000);
  }
  async function login(event){
   event.preventDefault();if(authBusy)return;window.pm221Idle.prepareLogin();authBusy=true;const button=form.querySelector('button');button.disabled=true;++epoch;say('Verifying your account…');
