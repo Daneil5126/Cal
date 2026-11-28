@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<title>Business Suite | Account Sessions PM23.6</title>
-<meta name="business-build" content="pm23.6-98d69c295036">
+<title>Business Suite | Workspace UI PM23.7</title>
+<meta name="business-build" content="pm23.7-d8b10996dd16">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1084,6 +1084,106 @@ body.pm-global-dark .pm236-session-status[data-kind=success],body.pm-global-dark
 body.pm-global-dark .pm236-current-device{background:#203752;border-color:#4e739f;color:#c7e0ff}
 @media(max-width:600px){.pm236-session-heading{gap:8px}.pm236-session-row{grid-template-columns:minmax(0,1fr) auto;gap:9px}.pm236-session-details{grid-column:1/-1}.pm236-session-activity{grid-column:1}.pm236-session-row>button{grid-column:2;grid-row:2}.pm236-session-search{max-width:none}.pm236-session-footer{align-items:flex-start}.pm236-session-meta{flex-basis:100%}}
 </style>
+<style id="pm237-status-style">/* Scoped visual layer: no authentication, data, import or sync changes. */
+#pm237WorkspaceBar{--ui-surface:#fff;--ui-ink:#182e4b;--ui-muted:#60738e;--ui-border:#dce5f0;--ui-soft:#f3f7fc;--ui-blue:#175ee8;color:var(--ui-ink);background:var(--ui-surface);border:1px solid var(--ui-border);border-radius:18px;margin:0 0 22px;padding:16px 18px 0;box-shadow:0 4px 18px #1b3f6b06;overflow:hidden}
+#pm237WorkspaceBar .pm237-bar-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+#pm237WorkspaceBar .pm237-brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+#pm237WorkspaceBar .pm237-brand-mark{display:grid;place-items:center;width:31px;height:31px;border-radius:10px;background:linear-gradient(140deg,#286dff,#1248bf);color:white;font-size:19px;font-weight:800;box-shadow:0 3px 8px #175ee824}
+#pm237WorkspaceBar .pm237-brand-name{font:750 17px/1.3 system-ui,sans-serif;letter-spacing:-.3px}
+#pm237WorkspaceBar .pm237-version{font:600 10px/1.4 system-ui,sans-serif;letter-spacing:.2px;color:#255caf;background:#edf4ff;border:1px solid #d8e7fc;border-radius:7px;padding:4px 7px;white-space:nowrap}
+#pm237WorkspaceBar .pm237-role{font:600 11px/1.4 system-ui,sans-serif;white-space:nowrap;color:#187c57;background:#eaf8f0;border:1px solid #d1eddd;border-radius:20px;padding:6px 9px}
+#pm237WorkspaceBar .pm237-role[data-verified=false]{color:#927012;background:#fff8dd}
+#pm237WorkspaceBar #pmCloudToolbar{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap;position:static!important;width:auto!important;max-width:none!important;min-height:40px;padding:0!important;margin:0 0 13px!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none!important}
+#pm237WorkspaceBar #pmCloudForm[hidden],#pm237WorkspaceBar #pmCloudToolbar button[hidden]{display:none!important}
+#pm237WorkspaceBar #pmCloudForm{flex:1;min-width:0}
+#pm237WorkspaceBar #pm13CloudControls{display:flex!important;align-items:center;flex-wrap:wrap;gap:8px;flex:0 1 auto;min-width:0;position:static!important;inset:auto!important;width:auto!important;max-height:none!important;overflow:visible!important;padding:0!important;margin:0!important;background:none!important;border:0!important;box-shadow:none!important;transform:none!important}
+#pm237WorkspaceBar .pm13-cloud-close{display:none!important}
+#pm237WorkspaceBar #pmCloudStatus{order:-1;flex:1;min-width:160px;margin:0!important;font:500 12px/1.6 system-ui,sans-serif;color:var(--ui-muted);overflow-wrap:anywhere}
+#pm237WorkspaceBar #pmCloudSync,#pm237WorkspaceBar #pmCloudSignOut,#pm237WorkspaceBar #pmCloudExportPending{min-height:36px;border-radius:9px;padding:7px 13px;font:650 12px/1.4 system-ui,sans-serif;cursor:pointer;transition:background .15s,border-color .15s;border:1px solid var(--ui-border);box-shadow:none;margin:0;background:var(--ui-soft);color:var(--ui-ink)}
+#pm237WorkspaceBar #pmCloudSync{background:#edf4ff;color:#1959ca;border-color:#d4e4fc}
+#pm237WorkspaceBar #pmCloudSignOut{color:#a63846;background:#fff7f7;border-color:#f2dadd}
+#pm237WorkspaceBar button:focus-visible,#pm237WorkspaceBar .pm237-news-window:focus-visible{outline:3px solid #50a8ff;outline-offset:3px}
+#pm237WorkspaceBar button:hover{filter:brightness(.97)}
+#pm237WorkspaceBar .pm237-news{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--ui-border);--pm237-distance:0px;--pm237-duration:28s}
+#pm237WorkspaceBar .pm237-news-caption{font:750 9px/1 system-ui,sans-serif;letter-spacing:1.3px;color:#6885a4;flex:none}
+#pm237WorkspaceBar .pm237-news-window{flex:1;min-width:0;overflow:auto;scrollbar-width:none;mask-image:linear-gradient(to right,#000 96%,transparent)}
+#pm237WorkspaceBar .pm237-news-window::-webkit-scrollbar{display:none}
+#pm237WorkspaceBar .pm237-news-track{display:flex;align-items:center;gap:24px;width:max-content;min-width:100%;font:500 11px/1.6 system-ui,sans-serif;color:var(--ui-muted)}
+#pm237WorkspaceBar .pm237-news-item{display:flex!important;align-items:center;gap:6px;flex:none;margin:0!important;padding:0!important;min-height:0!important;border:0!important;background:none!important;border-radius:0!important;font:inherit!important;color:inherit!important;white-space:nowrap}
+#pm237WorkspaceBar .pm237-news-item:empty{display:none!important}
+#pm237WorkspaceBar .pm237-news-item+.pm237-news-item:before{content:none}
+#pm237WorkspaceBar #pm15EditNotice{max-width:none!important;box-shadow:none!important}
+#pm237WorkspaceBar #pm15EditNotice[data-warning=false]{display:none!important}
+#pm237WorkspaceBar .pm237-news-caption{font-size:0;width:6px;letter-spacing:0}
+#pm237WorkspaceBar .pm237-news-caption:before{content:'●';font-size:7px;color:#54a8a0}
+#pm237WorkspaceBar .source-chip{background:none!important;border:0!important;padding:0!important;color:inherit!important;font:inherit!important;white-space:nowrap}
+#pm237WorkspaceBar .pm237-news-toggle{flex:none;display:grid;place-items:center;width:28px;height:28px;padding:0;border-radius:8px;border:1px solid var(--ui-border);background:var(--ui-soft);color:var(--ui-muted);font-size:11px;cursor:pointer}
+#pm237WorkspaceBar .pm237-can-scroll:not(.pm237-warning) .pm237-news-track{animation:pm237-ticker var(--pm237-duration) linear infinite alternate}
+#pm237WorkspaceBar .pm237-news:is(:hover,:focus-within,.pm237-paused) .pm237-news-track{animation-play-state:paused}
+#pm237WorkspaceBar .pm237-warning .pm237-news-track{animation:none;flex-wrap:wrap;width:auto;gap:5px 18px;color:#a35b13}
+#pm237WorkspaceBar .pm237-warning .pm237-news-item{white-space:normal}
+#pm237WorkspaceBar .pm237-warning .pm237-news-caption{color:#a35b13}
+@keyframes pm237-ticker{0%,12%{transform:translateX(0)}88%,100%{transform:translateX(calc(-1 * var(--pm237-distance)))}}
+html[data-pm22-mode=master] #page-dashboard>.header{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:16px}
+html[data-pm22-mode=master] #page-dashboard>.header h2{font-size:25px;letter-spacing:-.6px;line-height:1.3;margin:0;flex:1}
+html[data-pm22-mode=master] #page-dashboard .header .button-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+html[data-pm22-mode=master] #page-dashboard .header button{min-height:40px;padding:9px 13px;border-radius:10px;font:600 12px/1.4 system-ui,sans-serif;border:1px solid transparent;box-shadow:0 2px 4px #152f5610;cursor:pointer}
+html[data-pm22-mode=master] #page-dashboard #uploadBtn{background:#1d61eb}
+html[data-pm22-mode=master] #page-dashboard #exportBtn{background:#098457}
+html[data-pm22-mode=master] #page-dashboard #clearInventoryBtn{background:#edf1f6;color:#495d77;border-color:#dce4ef}
+html[data-pm22-mode=master] #page-dashboard #autoSyncBtn{background:linear-gradient(115deg,#635be6,#4c66dd)!important}
+html[data-pm22-mode=master] #page-dashboard .auto-sync-bar{min-height:36px;padding:6px 9px;gap:7px;background:#edf6f2;border:1px solid #d6e9df;color:#39735d;border-radius:10px;font-size:11px}
+html[data-pm22-mode=master] #page-dashboard .auto-sync-bar select{padding:3px 6px;border-radius:6px;background:white;color:#3f5c71;border:1px solid #dce6ed}
+html[data-pm22-mode=master] #page-dashboard .stat-card{border-radius:14px;border:1px solid #e0e8f2;box-shadow:0 3px 12px #163b6510;padding:17px}
+html[data-pm22-mode=master] #page-dashboard .stat-card .label{font-size:10px;font-weight:650;letter-spacing:.35px}
+html[data-pm22-mode=master] #page-dashboard .stat-card .value{font-size:23px;line-height:1.3;letter-spacing:-.4px;margin-top:8px}
+body.pm-global-dark #pm237WorkspaceBar{--ui-surface:#121d2b;--ui-ink:#e3ecf8;--ui-muted:#a8b9cd;--ui-border:#29394e;--ui-soft:#1d2b3d;--ui-blue:#74a8ff;box-shadow:none}
+body.pm-global-dark #pm237WorkspaceBar .pm237-version,body.pm-global-dark #pm237WorkspaceBar #pmCloudSync{background:#19365a;color:#bad4ff;border-color:#2b507b}
+body.pm-global-dark #pm237WorkspaceBar .pm237-role{background:#163e34;color:#9ce5c1;border-color:#265746}
+body.pm-global-dark #pm237WorkspaceBar #pmCloudSignOut{background:#3b2330;color:#ffbac9;border-color:#694052}
+body.pm-global-dark #pm237WorkspaceBar .pm237-warning .pm237-news-track,body.pm-global-dark #pm237WorkspaceBar .pm237-warning .pm237-news-caption{color:#ffc26c}
+body.pm-global-dark #page-dashboard #clearInventoryBtn{background:#263447;color:#dce7f5;border-color:#3a4d65}
+body.pm-global-dark #page-dashboard .stat-card{border-color:#2c3d53;background:#141f2e;box-shadow:none}
+@media(max-width:1024px){#pm237WorkspaceBar #pmCloudToolbar #pm13CloudAccount{display:none!important}#pm237WorkspaceBar #pmCloudToolbar>*{max-width:100%}#pm237WorkspaceBar #pmCloudToolbar #pmCloudSync,#pm237WorkspaceBar #pmCloudToolbar #pmCloudSignOut{display:inline-flex;align-items:center;justify-content:center}#pm237WorkspaceBar #pmCloudToolbar button[hidden]{display:none!important}html[data-pm22-mode=master] #page-dashboard>.header h2{flex-basis:100%}}
+@media(max-width:540px){#pm237WorkspaceBar{padding:13px 13px 0;border-radius:14px;margin-bottom:17px}#pm237WorkspaceBar .pm237-brand{gap:7px}#pm237WorkspaceBar .pm237-brand-name{font-size:15px}#pm237WorkspaceBar .pm237-version{font-size:9px}#pm237WorkspaceBar .pm237-role{font-size:10px;padding:5px 7px}#pm237WorkspaceBar .pm237-brand-mark{display:none}#pm237WorkspaceBar .pm237-bar-head{gap:7px;flex-wrap:wrap}#pm237WorkspaceBar #pmCloudStatus{flex-basis:100%;font-size:11px}#pm237WorkspaceBar #pmCloudToolbar button{min-height:40px}#pm237WorkspaceBar .pm237-news-caption{display:none}#pm237WorkspaceBar .pm237-news-toggle{width:32px;height:32px}html[data-pm22-mode=master] #page-dashboard .header button{min-height:44px;font-size:11px;padding:8px 11px}html[data-pm22-mode=master] #page-dashboard .stat-card{padding:14px}html[data-pm22-mode=master] #page-dashboard .stat-card .value{font-size:21px}}
+@media(prefers-reduced-motion:reduce){#pm237WorkspaceBar .pm237-news-track{animation:none!important}#pm237WorkspaceBar .pm237-news-window{overflow-x:auto;scrollbar-width:thin}}
+html[data-pm22-mode=master] #page-dashboard #pmGlobalThemeButton{width:40px;font-size:0;padding:8px;flex:none}
+html[data-pm22-mode=master] #page-dashboard #pmGlobalThemeButton:before{content:'☾';font:700 18px/1 system-ui,sans-serif}
+html[data-pm22-mode=master] body.pm-global-dark #page-dashboard #pmGlobalThemeButton:before{content:'☀'}
+#pm236SessionPanel{padding:16px!important}
+#pm236SessionPanel .pm236-session-heading h3{font-size:16px;margin:0}
+#pm236SessionPanel .pm236-session-heading>div{display:flex;align-items:center;gap:8px}
+.pm237-inline-help{position:relative;color:var(--muted,#62728a);font-size:12px}
+.pm237-inline-help>summary{display:inline-block;cursor:pointer;list-style:none;font-weight:650;padding:4px}
+.pm237-inline-help>summary::-webkit-details-marker{display:none}
+.pm237-inline-help[open]>p{max-width:340px;padding:10px;border:1px solid var(--border,#dce3ed);border-radius:8px;background:var(--surface,#fff);font-size:12px;line-height:1.6}
+#pm236SessionPanel .pm237-inline-help[open]>p{position:absolute;top:100%;left:0;width:min(280px,65vw);z-index:4;box-shadow:0 5px 18px #16334e18}
+#pm236SessionPanel .pm236-session-list{max-height:210px}
+#pm236SessionPanel .pm236-session-row{padding:8px 0;gap:8px;grid-template-columns:minmax(0,1fr) auto auto}
+#pm236SessionPanel .pm236-session-time{font-size:10px}
+#pm236SessionPanel .pm237-extra-time{display:none}
+#pm236SessionPanel .pm236-session-device{font-size:11px;color:var(--muted,#62728a)}
+#pm236SessionPanel .pm236-session-badge{font-size:11px}
+#pm236SessionPanel .pm236-session-badge:before{content:'● ';font-size:8px}
+#pm236SessionPanel .pm236-session-search{max-width:300px;margin:10px 0}
+#pm236SessionPanel .pm236-session-status:empty{display:none}
+#pm236SessionPanel .pm236-session-footer{margin-top:8px}
+#pm236SessionPanel .pm236-session-meta{font-size:11px}
+#pm236SessionPanel .pm236-session-pager button{padding:5px 8px}
+#pm236SessionPanel .pm236-session-pager:has([data-pm236-action=previous]:disabled):has([data-pm236-action=next]:disabled){display:none}
+#pm233CreateUserDialog h3{display:inline-block;margin-right:8px}
+#pm233CreateUserDialog>.pm237-inline-help{display:inline-block}
+#pm233CreateUserDialog>.pm237-inline-help[open]{display:block}
+#page-inventory .margin-bar{gap:12px;flex-wrap:wrap}
+#page-inventory .pm237-pricing-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%}
+#page-inventory .pm237-pricing-actions button{font:600 11px/1.4 system-ui,sans-serif;border:1px solid var(--border,#d6e1ed);border-radius:7px;background:var(--surface,#fff);color:var(--text,#263b54);padding:6px 9px;cursor:pointer;min-height:32px}
+#page-inventory .pm237-pricing-actions button[hidden]{display:none}
+#page-inventory #pm237PricingStatus{font-size:11px;color:#a7601e}
+#page-inventory .margin-bar input[readonly]{background:var(--surface-muted,#f3f7fc);border-style:dashed}
+@media(max-width:600px){#page-inventory .pm237-pricing-actions{flex-basis:100%}#page-inventory .pm237-pricing-actions button{min-height:40px}}
+@media(max-width:600px){#pm236SessionPanel .pm236-session-row{grid-template-columns:minmax(0,1fr) auto}#pm236SessionPanel .pm236-session-details{grid-column:1;grid-row:1}#pm236SessionPanel .pm236-session-activity{grid-column:1;grid-row:2}#pm236SessionPanel .pm236-session-row>button{grid-column:2;grid-row:1 / 3;min-height:40px}#pm236SessionPanel .pm236-session-activity>.pm236-session-time{display:none}}
+@media(max-width:1024px){body:has(#page-price-master.active) #pm237WorkspaceBar{flex:0 0 auto;padding:8px 10px 0;margin:0 0 8px;border-radius:10px}body:has(#page-price-master.active) #pm237WorkspaceBar .pm237-brand-name,body:has(#page-price-master.active) #pm237WorkspaceBar .pm237-brand-mark,body:has(#page-price-master.active) #pm237WorkspaceBar .pm237-news{display:none}body:has(#page-price-master.active) #pm237WorkspaceBar .pm237-bar-head{margin-bottom:4px}body:has(#page-price-master.active) #pm237WorkspaceBar #pmCloudToolbar{margin-bottom:8px!important}body:has(#page-price-master.active) #pm237WorkspaceBar #pmCloudStatus{flex-basis:auto;min-width:0}}
+</style>
 </head>
 <body>
 <div id="confirmModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(15,23,42,.5);align-items:center;justify-content:center;">
@@ -1256,9 +1356,9 @@ body.pm-global-dark .pm236-current-device{background:#203752;border-color:#4e739
         <select id="sortDirectionSelect"><option value="asc">Ascending</option><option value="desc">Descending</option></select>
       </div>
       <div class="margin-bar">
-        <label>Margin % <input type="number" id="invMarginInput" value="0" step="0.01" min="0"></label>
-        <label>SST/VAT Divisor <input type="number" id="sstInputInv" value="0.95" step="0.01" min="0.5" max="1.0" style="width:80px;"></label>
-        <span class="last-updated" id="inventoryCountLabel">0 items</span>
+        <label>Margin % <input type="number" id="invMarginInput" value="5" step="0.01" min="5" max="10000" readonly></label>
+        <label>SST/VAT Divisor <input type="number" id="sstInputInv" value="0.95" readonly step="0.01" min="0.5" max="1.0" style="width:80px;"></label>
+        <div class="pm237-pricing-actions"><button type="button" id="pm237EditPricing">Edit</button><button type="button" id="pm237SavePricing" hidden>Save</button><button type="button" id="pm237CancelPricing" hidden>Cancel</button><button type="button" id="pm237ResetPricing">5% / 0.95 ↺</button><details class="pm237-inline-help"><summary>(i)</summary><p>Defaults: 5% margin and 0.95 SST/VAT divisor. Edit then Save to apply. Min Sell Price uses at least 5% markup. MSDP/MSRP remain manual.</p></details><span id="pm237PricingStatus" role="status"></span></div><span class="last-updated" id="inventoryCountLabel">0 items</span>
       </div>
       <div class="inv-meta-row">
         <span class="inv-meta-badge empty" id="invLastUpdated">🕒 Last updated: N/A</span>
@@ -1510,11 +1610,18 @@ function getFallbackRate() {
   });
 
   const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
-  const getLandingSST = () => {
-    const inp = document.getElementById('sstInputInv');
-    const v = inp ? parseFloat(inp.value) : NaN;
-    return (isFinite(v) && v > 0.1 && v <= 1.0) ? v : 0.95;
-  };
+  let inventoryPricing={margin:5,sst:0.95};
+  const getLandingSST=()=>inventoryPricing.sst;
+  function bindProtectedInventoryPricing(){
+    const margin=document.getElementById('invMarginInput'),sst=document.getElementById('sstInputInv'),status=document.getElementById('pm237PricingStatus');
+    const draw=editing=>{margin.readOnly=sst.readOnly=!editing;for(const id of ['pm237SavePricing','pm237CancelPricing'])document.getElementById(id).hidden=!editing;document.getElementById('pm237EditPricing').hidden=editing;if(!editing){margin.value=inventoryPricing.margin;sst.value=inventoryPricing.sst;}};
+    const allowed=()=>window.businessEditAccess.require('edit Inventory calculation','inventoryEdit');
+    document.getElementById('pm237EditPricing').onclick=()=>{if(allowed()){status.textContent='';draw(true);margin.focus();}};
+    document.getElementById('pm237CancelPricing').onclick=()=>{status.textContent='';draw(false);};
+    const commit=next=>{inventoryPricing=next;draw(false);status.textContent='Saved';renderInventoryPage();};
+    document.getElementById('pm237SavePricing').onclick=()=>{if(!allowed())return;const m=Number(margin.value),t=Number(sst.value);if(!margin.value.trim()||!sst.value.trim()||!Number.isFinite(m)||m<5||m>10000||!Number.isFinite(t)||t<0.5||t>1){status.textContent='Margin must be at least 5%; SST/VAT must be 0.50–1.00.';return;}commit({margin:m,sst:t});};
+    document.getElementById('pm237ResetPricing').onclick=()=>{if(allowed())commit({margin:5,sst:0.95});};draw(false);
+  }
 
   const state = { currentPage: 1, pageSize: INITIAL_PAGE_SIZE, sortColumn: -1, sortDirection: 'asc', pieChart: null, clockTimer: null };
   const $ = (s, r = document) => r.querySelector(s);
@@ -1563,10 +1670,10 @@ function getFallbackRate() {
     if (ok) window.dispatchEvent(new Event('priceMasterInventoryChanged'));
     return ok;
   };
-  const getMargin = () => toNumber(businessStorage.getItem(STORAGE.margin), 0);
+  const getMargin = () => inventoryPricing.margin;
   const saveMargin = v => {if(!window.businessEditAccess.require('edit Inventory','inventoryEdit'))return;businessStorage.setItem(STORAGE.margin, String(toNumber(v,0)));};
   const calculateLandingCost = uc => (toNumber(uc) / getLandingSST()) / LANDING_FREIGHT;
-  const calculateMinSell = (uc, mp) => calculateLandingCost(uc) * (1 + toNumber(mp)/100);
+  const calculateMinSell = (uc, mp) => calculateLandingCost(uc) * (1 + Math.max(5,toNumber(mp,5))/100);
   const calculateSupportRM = (supportUSD) => toNumber(supportUSD) * liveFxRate;
   window.pm234GetSyncCalculation = () => {
     if(!window.pm22MasterApi?.isOwner?.())throw Error('Master access is required.');
@@ -2268,7 +2375,7 @@ function getFallbackRate() {
     });
     const search = ($('#invSearchInput').value || '').trim().toLowerCase();
     const group = $('#invGroupFilter').value || 'all';
-    const marginPercent = toNumber($('#invMarginInput').value);
+    const marginPercent = getMargin();
     let filtered = data;
     if (group !== 'all') filtered = filtered.filter(i => i.productGroup === group);
     if(search)filtered=filtered.filter(i=>(!window.inventoryDisplayAccess||window.inventoryDisplayAccess.allowed(0))&&i.name.toLowerCase().includes(search)||(!window.inventoryDisplayAccess||window.inventoryDisplayAccess.allowed(1))&&i.id.toLowerCase().includes(search));
@@ -2535,7 +2642,7 @@ function getFallbackRate() {
     const data = getInventory().map(item=>window.sharedPriceFields?window.sharedPriceFields.overlay(item):item);
     if(!data.length) return alert('No data to export.');
     if(!window.XLSX) return setStatus('❌ Excel library not loaded.');
-    const mp = toNumber($('#invMarginInput').value);
+    const mp = getMargin();
     const sheet = [['Name','ID','Location','Available','Unit Cost (RM)','Landing Cost (RM)','Min Sell Price (RM)','Support (USD)','Support (RM)','After Support (RM)','MSDP (RM)','MSRP (RM)','Sales Qty','Restock Qty','No Move Days']];
     data.forEach(i => {
       const supRM = (i.supportUSD || 0) * liveFxRate;
@@ -2601,7 +2708,7 @@ function getFallbackRate() {
   window.addEventListener('DOMContentLoaded', () => {
     $('#invMarginInput').value = getMargin();
     $('#invPageSize').value = state.pageSize;
-    if(businessStorage.getItem(STORAGE.sstDivisor)) $('#sstInputInv').value = businessStorage.getItem(STORAGE.sstDivisor);
+    $('#sstInputInv').value=0.95;bindProtectedInventoryPricing();
     initNavigation();
     updateThresholdsUI();
     bindColumnToggles();
@@ -2623,8 +2730,7 @@ function getFallbackRate() {
     $('#invPageSize').addEventListener('change', e => { state.pageSize=+e.target.value; state.currentPage=1; renderInventoryPage(); });
     $('#sortColumnSelect').addEventListener('change',e=>{const col=+e.target.value;state.sortColumn=col>=0&&window.inventoryDisplayAccess&&!window.inventoryDisplayAccess.allowed(col)?-1:col;state.currentPage=1;renderInventoryPage();});
     $('#sortDirectionSelect').addEventListener('change', e => { state.sortDirection=e.target.value; state.currentPage=1; renderInventoryPage(); });
-    $('#invMarginInput').addEventListener('input', e => { saveMargin(e.target.value); state.currentPage=1; renderInventoryPage(); });
-    $('#sstInputInv').addEventListener('input', debounce(() => { if(!window.businessEditAccess.require('edit Inventory','inventoryEdit'))return;businessStorage.setItem(STORAGE.sstDivisor, $('#sstInputInv').value); state.currentPage=1; renderInventoryPage(); }, 400));
+    // Calculation inputs commit together only through the explicit Save action.
     $('#invTableHead').addEventListener('click', e => {
       const th = e.target.closest('th[data-col]');
       if(!th) return;
@@ -4625,7 +4731,7 @@ body.pm-global-dark #confirmMsg{color:#f1f5f9!important}
 body.pm-global-dark #confirmCancel{background:#28364b!important;color:#f1f5f9!important;border-color:#72849d!important}
 body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important}
 </style>
-<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23.6',id:"pm23.6-98d69c295036",builtAt:"2026-11-28T12:00:00+08:00",environment:location.protocol==='file:'?'Local':'Online'};
+<script type="application/x-pm215-deferred" id="pm215-build-info">(()=>{let checking=null;const info={version:'PM23.7',id:"pm23.7-d8b10996dd16",builtAt:"2026-11-28T12:00:00+08:00",environment:location.protocol==='file:'?'Local':'Online'};
  info.checkForUpdates=async()=>{if(location.protocol==='file:')return{available:false,message:'Local HTML file. Download the latest verified release to update.'};if(checking)return checking;checking=(async()=>{try{const u=new URL(location.href);u.hash='';const response=await fetch(u.href,{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error('HTTP '+response.status);const text=await response.text();if(text.length>8*1024*1024)throw Error('Unexpected update response.');const next=text.match(/<meta name="business-build" content="([a-z0-9.-]+)">/)?.[1];if(!next)return{available:false,message:'This server has no verified build identifier. Current '+info.id};return{available:next!==info.id,message:next===info.id?'Current build is up to date: '+info.id:'New build available: '+next+'. Export your pending edits before reloading.'};}catch(error){return{available:false,message:'Update check failed. '+error.message};}finally{checking=null;}})();return checking;};window.businessBuildInfo=Object.freeze(info);})();</script>
 <script id="pm215-storage-bootstrap">/* Replaced by authenticated PM22 bootstrap. */</script>
 <script id="pm221-idle">/* Per-tab inactivity timeout. Network refresh is never user activity. */
@@ -5848,7 +5954,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
  if (root && root.document) exported.install(root);
 })(typeof window === 'object' ? window : null, function () {
  'use strict';
- const PAGE_SIZE = 50, SEARCH_LIMIT = 100, RECENT_MS = 90000;
+ const PAGE_SIZE = 50, SEARCH_LIMIT = 100, RECENT_MS = 120000;
  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  const plain = value => !!value && typeof value === 'object' && !Array.isArray(value);
  function sessionPage(value, offset) {
@@ -5914,23 +6020,25 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     button.disabled = value || !allowed || action === 'previous' && (!page || page.offset === 0 || phase !== 'loaded') || action === 'next' && (!page?.hasMore || phase !== 'loaded') || action === 'disconnect' && (phase !== 'loaded' || button.dataset.revoked === 'true');
    }
   }
+  function shortDevice(raw){const s=String(raw||'');if(!s.includes('Mozilla/'))return s||'Browser';const os=/iPhone/.test(s)?'iPhone':/iPad/.test(s)?'iPad':/Android/.test(s)?'Android':/Windows/.test(s)?'Windows':/Macintosh/.test(s)?'Mac':'Browser';const browser=/Edg\//.test(s)?'Edge':/Chrome\//.test(s)?'Chrome':/Firefox\//.test(s)?'Firefox':/Safari\//.test(s)?'Safari':'Browser';return os+' · '+browser;}
   function render() {
    const list = card.querySelector('[data-pm236-list]'), meta = card.querySelector('[data-pm236-meta]');
    list.replaceChildren();
    if (!page) { meta.textContent = phase === 'loading' ? 'Loading sessions…' : 'Session records have not been loaded.'; return; }
-   if (!page.sessions.length) {
-    list.append(node('li', 'No matching sessions.', 'pm236-session-empty'));
-    meta.textContent = '0 matching sessions'; return;
+   const visibleSessions=page.sessions.filter(session=>activity(session)==='recent');
+   if (!visibleSessions.length) {
+    list.append(node('li', 'No recent online sessions.', 'pm236-session-empty'));
+    meta.textContent = '0 online'; return;
    }
-   meta.textContent = 'Showing ' + (page.offset + 1) + '–' + (page.offset + page.sessions.length) + ' of ' + page.total + ' sessions';
-   for (const session of page.sessions) {
+   meta.textContent = visibleSessions.length+' online';
+   for (const session of visibleSessions) {
     const row = node('li', undefined, 'pm236-session-row'); row.dataset.pm236Session = session.sessionId;
     const details = node('div', undefined, 'pm236-session-details'), identity = node('div', undefined, 'pm236-session-identity');
     identity.append(node('strong', session.email || 'Account email unavailable'));
     if (session.current) identity.append(node('span', 'This device', 'pm236-current-device'));
-    details.append(identity, node('span', (session.role === 'owner' ? 'Master' : 'User') + ' · ' + (session.device || 'Device details unavailable'), 'pm236-session-device'), node('span', 'Signed in ' + formatTime(session.createdAt), 'pm236-session-time'));
+    details.append(identity, node('span', shortDevice(session.device), 'pm236-session-device'), node('span', formatTime(session.createdAt), 'pm236-session-time pm237-extra-time'));
     const state = activity(session), status = node('div', undefined, 'pm236-session-activity'); status.dataset.activity = state;
-    status.append(node('span', state === 'revoked' ? 'Disconnected' : state === 'recent' ? 'Active recently' : 'Last seen', 'pm236-session-badge'), node('span', 'Last seen ' + formatTime(session.lastSeenAt), 'pm236-session-time'));
+    status.append(node('span', state === 'revoked' ? 'Disconnected' : state === 'recent' ? 'Online' : 'Last seen', 'pm236-session-badge'), node('span', formatTime(session.lastSeenAt), 'pm236-session-time'));
     const disconnect = node('button', state === 'revoked' ? 'Disconnected' : 'Disconnect'); disconnect.type = 'button'; disconnect.dataset.pm236Action = 'disconnect'; disconnect.dataset.sessionId = session.sessionId; disconnect.dataset.revoked = String(state === 'revoked'); disconnect.setAttribute('aria-label', 'Disconnect ' + (session.email || 'account') + ' on ' + (session.device || 'this device'));
     row.append(details, status, disconnect); list.append(row);
    }
@@ -5949,7 +6057,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
     if (typeof captured.cloud.masterListSessions !== 'function') throw Object.assign(Error('Setup required'), { code: 'SESSION_SETUP_REQUIRED' });
     const result = await captured.cloud.masterListSessions({ offset, search });
     if (!current(captured, born)) return;
-    page = sessionPage(result, offset); phase = 'loaded'; render(); say(acknowledged ? 'Session disconnected. The refreshed list is shown below.' : 'Loaded from the server. Recent activity is the latest check-in, not a live online status.', acknowledged ? 'success' : 'info');
+    page = sessionPage(result, offset); phase = 'loaded'; render(); say(acknowledged ? 'Session disconnected. The refreshed list is shown below.' : '', acknowledged ? 'success' : 'info');
    } catch (error) {
     if (!current(captured, born)) return;
     phase = 'error'; say((acknowledged ? 'The server confirmed the disconnect. ' : '') + listFailure(error), 'error');
@@ -5986,9 +6094,9 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    if (card?.isConnected) return true;
    const section = doc.getElementById('page-settings'); if (!section) return false;
    card = node('div', undefined, 'settings-card pm22-master-settings pm236-session-panel'); card.id = 'pm236SessionPanel'; card.hidden = true;
-   const heading = node('div', undefined, 'pm236-session-heading'), title = node('div'); title.append(node('h3', 'Signed-in sessions'), node('p', 'Review account sign-ins and disconnect one device at a time.'));
+   const heading = node('div', undefined, 'pm236-session-heading'), title = node('div'); title.append(node('h3', 'Online sessions'));const help=node('details',undefined,'pm237-inline-help');help.append(node('summary','(i)'),node('p','Active within 2 minutes. Device labels are hints. Disconnect blocks this session; it does not ban the account.'));title.append(help);
    const refresh = node('button', 'Refresh'); refresh.type = 'button'; refresh.dataset.pm236Action = 'refresh'; heading.append(title, refresh); card.append(heading);
-   const label = node('label', 'Find an account or device', 'pm236-session-search'), search = doc.createElement('input'); search.type = 'search'; search.maxLength = SEARCH_LIMIT; search.placeholder = 'Search email or device…'; search.dataset.pm236Search = ''; label.append(search); card.append(label);
+   const label = node('label', '', 'pm236-session-search'), search = doc.createElement('input'); search.type = 'search'; search.maxLength = SEARCH_LIMIT; search.placeholder = 'Search account…';search.setAttribute('aria-label','Search online accounts'); search.dataset.pm236Search = ''; label.append(search); card.append(label);
    const status = node('p', '', 'pm236-session-status'); status.dataset.pm236Status = ''; status.setAttribute('aria-live', 'polite'); card.append(status);
    const list = node('ul', undefined, 'pm236-session-list'); list.dataset.pm236List = ''; list.setAttribute('aria-label', 'Signed-in sessions'); card.append(list);
    const footer = node('div', undefined, 'pm236-session-footer'), meta = node('span', '', 'pm236-session-meta'); meta.dataset.pm236Meta = ''; footer.append(meta);
@@ -6015,6 +6123,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    else sync();
   }
   for (const name of ['PM22MasterReady', 'PM22AuthChanged', 'PM22RoleChanged', 'BusinessAuthChanged', 'PM236SessionsReady']) win.addEventListener(name, sync);
+  win.setInterval(()=>{if(doc.visibilityState!=='hidden'&&doc.getElementById('page-settings')?.classList.contains('active')&&verifiedScope()&&!busy)void load(0);},30000);
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start, { once: true }); else start();
  }
  return Object.freeze({ PAGE_SIZE, SEARCH_LIMIT, RECENT_MS, sessionPage, revokeAcknowledgement, activity, install });
@@ -6034,9 +6143,9 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
   function clear(){if(password)password.value='';}
   function finishClose(){++epoch;clear();if(email)email.value='';ready=false;checking=false;creating=false;uncertain=false;if(form)form.hidden=false;}
   function mount(){
-   if(dialog)return;dialog=element('dialog');dialog.id='pm233CreateUserDialog';dialog.setAttribute('aria-labelledby','pm233CreateUserTitle');const title=element('h3','Create User');title.id='pm233CreateUserTitle';dialog.append(title,element('p','Create an ordinary User account. Master access is never assigned here. After creation, choose its pages and columns in Account permissions.'));
+   if(dialog)return;dialog=element('dialog');dialog.id='pm233CreateUserDialog';dialog.setAttribute('aria-labelledby','pm233CreateUserTitle');const title=element('h3','Create User');title.id='pm233CreateUserTitle';dialog.append(title);const help=element('details');help.className='pm237-inline-help';help.append(element('summary','(i)'),element('p','Creates a regular User. Choose its access in Account permissions. The temporary password is sent once and is not saved in this browser. Keep a secure copy.'));dialog.append(help);
    note=element('p','Checking the Create User service…');note.dataset.pm233CreateStatus='';note.className='pm233-admin-notice';note.setAttribute('aria-live','polite');dialog.append(note);
-   form=element('form');form.id='pm233NewUserForm';form.autocomplete='off';const emailLabel=element('label','User email');email=element('input');email.type='email';email.name='newUserEmail';email.required=true;email.maxLength=254;email.autocomplete='off';emailLabel.append(email);const passwordLabel=element('label','Temporary password · 12–128 characters');password=element('input');password.type='password';password.name='newUserPassword';password.required=true;password.minLength=12;password.maxLength=128;password.autocomplete='new-password';passwordLabel.append(password);form.append(emailLabel,passwordLabel);const showLabel=element('label');showLabel.className='pm233-password-show';const show=element('input');show.type='checkbox';show.id='pm233ShowNewPassword';show.onchange=()=>password.type=show.checked?'text':'password';showLabel.append(show,element('span','Show temporary password'));form.append(showLabel,element('p','The password is sent only for this request. It is not saved in the browser. Keep a secure copy before submitting.'));
+   form=element('form');form.id='pm233NewUserForm';form.autocomplete='off';const emailLabel=element('label','User email');email=element('input');email.type='email';email.name='newUserEmail';email.required=true;email.maxLength=254;email.autocomplete='off';emailLabel.append(email);const passwordLabel=element('label','Temporary password · 12–128 characters');password=element('input');password.type='password';password.name='newUserPassword';password.required=true;password.minLength=12;password.maxLength=128;password.autocomplete='new-password';passwordLabel.append(password);form.append(emailLabel,passwordLabel);const showLabel=element('label');showLabel.className='pm233-password-show';const show=element('input');show.type='checkbox';show.id='pm233ShowNewPassword';show.onchange=()=>password.type=show.checked?'text':'password';showLabel.append(show,element('span','Show temporary password'));form.append(showLabel);
    submit=element('button','Create User');submit.type='submit';submit.id='pm233CreateUserSubmit';form.append(submit);form.addEventListener('submit',event=>{event.preventDefault();void create();});dialog.append(form);
    const actions=element('div');actions.className='pm233-admin-actions';check=element('button','Check service');check.type='button';check.id='pm233CheckUserAdmin';check.onclick=()=>void checkService();close=element('button','Close');close.type='button';close.onclick=()=>{if(!creating)dialog.close();};actions.append(check,close);dialog.append(actions);dialog.addEventListener('cancel',event=>{if(creating)event.preventDefault();});dialog.addEventListener('close',()=>{if(dialog.open)return;show.checked=false;password.type='password';finishClose();draw();});doc.body.append(dialog);
   }
@@ -6052,7 +6161,7 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
    if(error?.status===404||error?.code==='USER_ADMIN_EDGE_MISSING')return 'One-time setup required: business-suite-admin was not found at this project URL. Check the project and function name, deploy the supplied Edge Function, then click Check service.';
    if(error?.code==='USER_ADMIN_ACCOUNT_SQL_REQUIRED')return 'The Edge Function was reached. Its account-permissions SQL checks failed. Install or repair the supplied PM23 account-permissions SQL, then click Check service.';
    if(error?.code==='USER_ADMIN_SESSION_SQL_REQUIRED')return 'The Edge Function was reached. Its session-control SQL is not ready. Install the supplied PM23.6 session-control SQL, then click Check service.';
-   if(error?.code==='USER_ADMIN_SERVER_CONFIG_REQUIRED')return 'The Edge Function was reached. Its server configuration is incomplete. Check the Supabase runtime configuration and server-only administrator credential, then click Check service. Keep administrator credentials on the server.';
+   if(error?.code==='USER_ADMIN_SERVER_CONFIG_REQUIRED')return 'Server key unavailable or rejected. Update business-suite-admin to PM23.7. If needed, set BUSINESS_SECRET_KEY in Edge Function Secrets, then check again.';
    if(error?.code==='USER_ADMIN_SETUP_REQUIRED')return 'One-time setup required: install the supplied Create User application and server setup, then click Check service.';
    if(error?.code==='USER_ADMIN_SESSION_REVOKED')return 'This Master session was revoked. Sign in again.';
    if(error?.status===401||error?.code==='USER_ADMIN_SIGN_IN_REQUIRED')return 'The Master sign-in expired. Sign in again.';
@@ -6089,6 +6198,27 @@ body.pm-global-dark #confirmOk{background:#b91c1c!important;color:#fff!important
  }
  return {validateNewUser,install};
 });
+</script>
+<script id="pm237-status-bar" type="application/x-pm215-deferred">/* Presentation only. Existing status nodes and button handlers retain ownership. */
+(()=>{'use strict';let installed=false,frame=0,paused=false,resize;
+ const el=(tag,cls,text)=>{const n=document.createElement(tag);n.className=cls;if(text)n.textContent=text;return n;};
+ function install(){if(installed)return;const toolbar=document.getElementById('pmCloudToolbar'),notice=document.getElementById('pm15EditNotice'),main=document.querySelector('.main-content');if(!toolbar||!notice||!main)return;installed=true;
+  const shell=el('section','pm237-workspace-bar');shell.id='pm237WorkspaceBar';shell.setAttribute('aria-label','Workspace status');
+  const head=el('div','pm237-bar-head'),brand=el('div','pm237-brand'),mark=el('span','pm237-brand-mark','B'),name=el('span','pm237-brand-name','Business Suite'),version=el('span','pm237-version'),role=el('span','pm237-role');role.id='pm237Role';
+  mark.setAttribute('aria-hidden','true');brand.append(mark,name,version);head.append(brand,role);shell.append(head);toolbar.before(shell);shell.append(toolbar);
+  const news=el('div','pm237-news'),caption=el('span','pm237-news-caption','LIVE'),viewport=el('div','pm237-news-window'),track=el('div','pm237-news-track'),pause=el('button','pm237-news-toggle','Ⅱ');
+  news.id='pm237News';viewport.tabIndex=0;viewport.setAttribute('aria-label','Workspace notices, last inventory sync and data source. Scroll to read.');track.id='pm237NewsTrack';pause.type='button';pause.setAttribute('aria-label','Pause scrolling notices');pause.setAttribute('aria-pressed','false');
+  for(const n of[notice,document.getElementById('syncStatus'),document.getElementById('dashboardSourceChip')])if(n){n.classList.add('pm237-news-item');track.append(n);}
+  viewport.append(track);news.append(caption,viewport,pause);shell.append(news);
+  for(const card of document.querySelectorAll('#page-settings .settings-card')){const p=card.querySelector(':scope > p:not([id]):not([class]):not([role])');if(p&&p.textContent.length>100&&!/cost|sensitive|disclos|delete|clear|warning/i.test(p.textContent)){const help=el('details','pm237-inline-help'),summary=el('summary','','(i)');p.before(help);help.append(summary,p);}}
+  pause.addEventListener('click',()=>{paused=!paused;news.classList.toggle('pm237-paused',paused);pause.textContent=paused?'▶':'Ⅱ';pause.setAttribute('aria-pressed',String(paused));pause.setAttribute('aria-label',paused?'Resume scrolling notices':'Pause scrolling notices');});
+  function refresh(){frame=0;const info=window.businessBuildInfo;version.textContent='Version '+(info?.version||'PM23.7');version.title=info?.id||'';const master=window.pm22MasterApi?.isOwner?.()===true;role.textContent=master?'● Master workspace':'● Verifying access';role.dataset.verified=String(master);const warning=notice.dataset.warning==='true'||/\b(failed|error|could not|unavailable)\b/i.test(document.getElementById('syncStatus')?.textContent||'');news.classList.toggle('pm237-warning',warning);caption.textContent=warning?'NOTICE':'LIVE';const distance=Math.max(0,track.scrollWidth-viewport.clientWidth);news.classList.toggle('pm237-can-scroll',distance>12);news.style.setProperty('--pm237-distance',distance+'px');news.style.setProperty('--pm237-duration',Math.min(70,Math.max(20,distance/24+8))+'s');}
+  function schedule(){if(!frame)frame=requestAnimationFrame(refresh);}
+  const observer=new MutationObserver(schedule);for(const n of track.children)observer.observe(n,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['data-warning']});
+  if(typeof ResizeObserver==='function'){resize=new ResizeObserver(schedule);resize.observe(viewport);resize.observe(track);}window.addEventListener('BusinessAuthChanged',schedule);window.addEventListener('PM22RoleChanged',schedule);window.addEventListener('resize',schedule);refresh();
+ }
+ document.addEventListener('DOMContentLoaded',install);if(document.readyState!=='loading')install();
+})();
 </script>
 <script id="pm236-session-common">/* No tokens or account data are persisted by this helper. */
 (()=>{'use strict';
